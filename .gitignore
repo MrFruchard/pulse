@@ -1,0 +1,36 @@
+# Env
+.env
+.env.local
+.env.*.local
+
+# Secrets / credentials
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Internal / docs
+.claude/
+CLAUDE.md
+pulse-certif/
+
+# Docker volumes
+postgres_data/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Go
+/backend/tmp/
+*.test
+
+# Logs
+*.log
