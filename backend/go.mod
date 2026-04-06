@@ -1,6 +1,6 @@
 module github.com/MrFruchard/pulse/backend
 
-go 1.22
+go 1.25.0
 
 require (
 	github.com/go-chi/chi/v5 v5.0.11
@@ -10,7 +10,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
 	github.com/robfig/cron/v3 v3.0.1
-	golang.org/x/crypto v0.20.0
+	golang.org/x/crypto v0.49.0
 )
 
-require golang.org/x/net v0.21.0 // indirect
+require golang.org/x/net v0.51.0 // indirect
