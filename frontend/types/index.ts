@@ -1,8 +1,9 @@
 export type UserRole = 'user' | 'moderator' | 'admin'
 export type UserStatus = 'active' | 'dormant' | 'suspended'
 export type PostIntention = 'QUESTION' | 'SHARE' | 'PROJECT' | 'CHALLENGE'
+export type PostPrivacy = 'PUBLIC' | 'FOLLOWERS' | 'PRIVATE'
 export type ReactionType = 'LIKE' | 'FIRE' | 'INSIGHTFUL' | 'SUPPORT'
-export type NotificationType = 'SESSION_OPEN' | 'REACTION' | 'COMMENT' | 'FOLLOW' | 'REPORT'
+export type NotificationType = 'SESSION_OPEN' | 'REACTION' | 'COMMENT' | 'FOLLOW' | 'REPORT' | 'FOLLOW_REQUEST' | 'FOLLOW_ACCEPTED'
 export type ReportReason = 'SPAM' | 'INAPPROPRIATE' | 'HARASSMENT' | 'OTHER'
 
 export interface User {
@@ -13,6 +14,15 @@ export interface User {
   role: UserRole
   streak: number
   status: UserStatus
+  isPrivate: boolean
+  createdAt: string
+}
+
+export interface FollowRequest {
+  id: string
+  requesterId: string
+  pseudo: string
+  avatarUrl: string | null
   createdAt: string
 }
 
@@ -36,6 +46,7 @@ export interface Post {
   sessionId: string
   content: string
   intention: PostIntention
+  privacy: PostPrivacy
   imageUrl: string | null
   isFlagged: boolean
   createdAt: string

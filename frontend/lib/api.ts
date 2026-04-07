@@ -40,7 +40,7 @@ export const posts = {
     return request(`/posts${qs ? `?${qs}` : ''}`)
   },
 
-  create: (data: { content: string; intention: string; imageUrl?: string }) =>
+  create: (data: { content: string; intention: string; privacy?: string; imageUrl?: string; allowedUserIds?: string[] }) =>
     request('/posts', { method: 'POST', body: JSON.stringify(data) }),
 
   delete: (id: string) => request(`/posts/${id}`, { method: 'DELETE' }),
@@ -71,10 +71,18 @@ export const users = {
 
   following: (id: string) => request(`/users/${id}/following`),
 
-  updateMe: (data: { pseudo?: string; avatarUrl?: string; bio?: string }) =>
+  updateMe: (data: { pseudo?: string; avatarUrl?: string; bio?: string; isPrivate?: boolean }) =>
     request('/me', { method: 'PUT', body: JSON.stringify(data) }),
 
   deleteMe: () => request('/me', { method: 'DELETE' }),
+}
+
+// Follow requests
+export const followRequests = {
+  list: () => request<{ requests: import('@/types').FollowRequest[] }>('/follow-requests'),
+
+  respond: (id: string, action: 'ACCEPT' | 'DECLINE') =>
+    request(`/follow-requests/${id}`, { method: 'PUT', body: JSON.stringify({ action }) }),
 }
 
 // Admin

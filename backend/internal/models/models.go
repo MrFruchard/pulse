@@ -9,6 +9,7 @@ import (
 type UserRole string
 type UserStatus string
 type PostIntention string
+type PostPrivacy string
 type ReactionType string
 type NotificationType string
 type ReportReason string
@@ -28,16 +29,22 @@ const (
 	IntentionProject   PostIntention = "PROJECT"
 	IntentionChallenge PostIntention = "CHALLENGE"
 
+	PrivacyPublic    PostPrivacy = "PUBLIC"
+	PrivacyFollowers PostPrivacy = "FOLLOWERS"
+	PrivacyPrivate   PostPrivacy = "PRIVATE"
+
 	ReactionLike       ReactionType = "LIKE"
 	ReactionFire       ReactionType = "FIRE"
 	ReactionInsightful ReactionType = "INSIGHTFUL"
 	ReactionSupport    ReactionType = "SUPPORT"
 
-	NotifSessionOpen NotificationType = "SESSION_OPEN"
-	NotifReaction    NotificationType = "REACTION"
-	NotifComment     NotificationType = "COMMENT"
-	NotifFollow      NotificationType = "FOLLOW"
-	NotifReport      NotificationType = "REPORT"
+	NotifSessionOpen    NotificationType = "SESSION_OPEN"
+	NotifReaction       NotificationType = "REACTION"
+	NotifComment        NotificationType = "COMMENT"
+	NotifFollow         NotificationType = "FOLLOW"
+	NotifReport         NotificationType = "REPORT"
+	NotifFollowRequest  NotificationType = "FOLLOW_REQUEST"
+	NotifFollowAccepted NotificationType = "FOLLOW_ACCEPTED"
 
 	ReportSpam         ReportReason = "SPAM"
 	ReportInappropiate ReportReason = "INAPPROPRIATE"
@@ -59,8 +66,26 @@ type User struct {
 	Role         UserRole   `db:"role" json:"role"`
 	Streak       int        `db:"streak" json:"streak"`
 	Status       UserStatus `db:"status" json:"status"`
+	IsPrivate    bool       `db:"is_private" json:"isPrivate"`
 	CreatedAt    time.Time  `db:"created_at" json:"createdAt"`
 	UpdatedAt    time.Time  `db:"updated_at" json:"updatedAt"`
+}
+
+type FollowRequestStatus string
+
+const (
+	FollowRequestPending  FollowRequestStatus = "PENDING"
+	FollowRequestAccepted FollowRequestStatus = "ACCEPTED"
+	FollowRequestDeclined FollowRequestStatus = "DECLINED"
+)
+
+type FollowRequest struct {
+	ID          uuid.UUID           `db:"id" json:"id"`
+	RequesterID uuid.UUID           `db:"requester_id" json:"requesterId"`
+	TargetID    uuid.UUID           `db:"target_id" json:"targetId"`
+	Status      FollowRequestStatus `db:"status" json:"status"`
+	CreatedAt   time.Time           `db:"created_at" json:"createdAt"`
+	UpdatedAt   time.Time           `db:"updated_at" json:"updatedAt"`
 }
 
 type Session struct {
@@ -77,6 +102,7 @@ type Post struct {
 	SessionID uuid.UUID     `db:"session_id" json:"sessionId"`
 	Content   string        `db:"content" json:"content"`
 	Intention PostIntention `db:"intention" json:"intention"`
+	Privacy   PostPrivacy   `db:"privacy" json:"privacy"`
 	ImageURL  *string       `db:"image_url" json:"imageUrl"`
 	IsFlagged bool          `db:"is_flagged" json:"isFlagged"`
 	CreatedAt time.Time     `db:"created_at" json:"createdAt"`

@@ -7,6 +7,11 @@ const INTENTIONS = {
   CHALLENGE: { label: 'Challenge', color: 'text-orange-400 bg-orange-400/10' },
 }
 
+const PRIVACY_BADGE: Record<string, string> = {
+  FOLLOWERS: '👥',
+  PRIVATE:   '🔒',
+}
+
 const REACTIONS: { type: ReactionType; emoji: string }[] = [
   { type: 'LIKE', emoji: '👍' },
   { type: 'FIRE', emoji: '🔥' },
@@ -38,6 +43,11 @@ export function PostCard({ post, onReact }: PostCardProps) {
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${intention.color}`}>
               {intention.label}
             </span>
+            {PRIVACY_BADGE[post.privacy] && (
+              <span className="text-xs text-gray-500" title={post.privacy === 'FOLLOWERS' ? 'Abonnés seulement' : 'Privé'}>
+                {PRIVACY_BADGE[post.privacy]}
+              </span>
+            )}
             <span className="text-xs text-gray-500 ml-auto">
               {new Date(post.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
             </span>

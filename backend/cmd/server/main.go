@@ -82,6 +82,8 @@ func main() {
 	r.With(jwtMiddleware).Delete("/api/users/{id}/follow", handlers.UnfollowHandler(database))
 	r.Get("/api/users/{id}/followers", handlers.GetFollowersHandler(database))
 	r.Get("/api/users/{id}/following", handlers.GetFollowingHandler(database))
+	r.With(jwtMiddleware).Get("/api/follow-requests", handlers.GetFollowRequestsHandler(database))
+	r.With(jwtMiddleware).Put("/api/follow-requests/{id}", handlers.RespondFollowRequestHandler(database))
 
 	// Notifications
 	r.With(jwtMiddleware).Get("/api/notifications", handlers.GetNotificationsHandler(database))

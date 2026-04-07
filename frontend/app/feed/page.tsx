@@ -10,6 +10,7 @@ import { SessionBar } from '@/components/SessionBar'
 import { Countdown } from '@/components/Countdown'
 import { PostCard } from '@/components/PostCard'
 import { PostComposer } from '@/components/PostComposer'
+import { FollowRequestsPanel } from '@/components/FollowRequestsPanel'
 import type { Post, PostIntention, ReactionType, User } from '@/types'
 
 type FeedFilter = 'global' | 'following'
@@ -111,7 +112,8 @@ export default function FeedPage() {
             </div>
           ) : (
             <>
-              <PostComposer onPost={fetchPosts} />
+              <FollowRequestsPanel />
+              <PostComposer onPost={fetchPosts} currentUserId={me.id} />
 
               {/* Filtres */}
               <div className="flex items-center gap-2 mt-6 mb-4 flex-wrap">

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -20,7 +21,7 @@ func GetProfileHandler(db *sqlx.DB) http.HandlerFunc {
 
 		var user models.User
 		if err := db.QueryRowx(`
-			SELECT id, pseudo, avatar_url, bio, role, streak, status, created_at, updated_at
+			SELECT id, pseudo, avatar_url, bio, role, streak, status, is_private, created_at, updated_at
 			FROM users WHERE pseudo = $1`, pseudo,
 		).StructScan(&user); err != nil {
 			respondError(w, http.StatusNotFound, "user not found")
@@ -62,11 +63,12 @@ func SearchUsersHandler(db *sqlx.DB) http.HandlerFunc {
 			AvatarURL *string   `db:"avatar_url" json:"avatarUrl"`
 			Streak    int       `db:"streak"     json:"streak"`
 			Status    string    `db:"status"     json:"status"`
+			IsPrivate bool      `db:"is_private" json:"isPrivate"`
 		}
 
 		var users []result
 		if err := db.Select(&users, `
-			SELECT id, pseudo, avatar_url, streak, status
+			SELECT id, pseudo, avatar_url, streak, status, is_private
 			FROM users
 			WHERE pseudo ILIKE $1 AND status != 'suspended'
 			ORDER BY pseudo ASC
@@ -84,6 +86,7 @@ func SearchUsersHandler(db *sqlx.DB) http.HandlerFunc {
 	}
 }
 
+// FollowHandler : follow direct si profil public, follow request si profil privé
 func FollowHandler(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		claims := r.Context().Value(middleware.ClaimsKey).(*services.Claims)
@@ -100,12 +103,51 @@ func FollowHandler(db *sqlx.DB) http.HandlerFunc {
 			return
 		}
 
-		var count int
-		if err := db.Get(&count, `SELECT COUNT(*) FROM users WHERE id = $1`, targetID); err != nil || count == 0 {
+		var target struct {
+			ID        uuid.UUID `db:"id"`
+			IsPrivate bool      `db:"is_private"`
+		}
+		if err := db.QueryRowx(`SELECT id, is_private FROM users WHERE id = $1`, targetID).StructScan(&target); err != nil {
 			respondError(w, http.StatusNotFound, "user not found")
 			return
 		}
 
+		// Vérifier si déjà follower
+		var alreadyFollowing int
+		db.Get(&alreadyFollowing, `SELECT COUNT(*) FROM follows WHERE follower_id = $1 AND following_id = $2`, claims.UserID, targetID)
+		if alreadyFollowing > 0 {
+			respondError(w, http.StatusConflict, "already following this user")
+			return
+		}
+
+		if target.IsPrivate {
+			// Profil privé → créer une follow request
+			_, err = db.Exec(`
+				INSERT INTO follow_requests (requester_id, target_id)
+				VALUES ($1, $2)
+				ON CONFLICT (requester_id, target_id) DO NOTHING`,
+				claims.UserID, targetID,
+			)
+			if err != nil {
+				slog.Error("follow request insert", "error", err)
+				respondError(w, http.StatusInternalServerError, "internal error")
+				return
+			}
+
+			// Notification à la cible
+			payload, _ := json.Marshal(map[string]string{"requesterId": claims.UserID.String()})
+			db.Exec(`
+				INSERT INTO notifications (user_id, type, payload)
+				VALUES ($1, 'FOLLOW_REQUEST', $2)`,
+				targetID, payload,
+			)
+
+			slog.Info("follow request sent", "requester", claims.UserID, "target", targetID)
+			respond(w, http.StatusCreated, map[string]string{"status": "pending"})
+			return
+		}
+
+		// Profil public → follow direct
 		_, err = db.Exec(`
 			INSERT INTO follows (follower_id, following_id)
 			VALUES ($1, $2)`, claims.UserID, targetID,
@@ -141,8 +183,117 @@ func UnfollowHandler(db *sqlx.DB) http.HandlerFunc {
 
 		rows, _ := result.RowsAffected()
 		if rows == 0 {
-			respondError(w, http.StatusNotFound, "follow not found")
+			// Peut-être une follow request en attente
+			db.Exec(`DELETE FROM follow_requests WHERE requester_id = $1 AND target_id = $2`, claims.UserID, targetID)
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+// GetFollowRequestsHandler : liste des demandes reçues (PENDING)
+func GetFollowRequestsHandler(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		claims := r.Context().Value(middleware.ClaimsKey).(*services.Claims)
+
+		type requestRow struct {
+			ID          uuid.UUID `db:"id"           json:"id"`
+			RequesterID uuid.UUID `db:"requester_id" json:"requesterId"`
+			Pseudo      string    `db:"pseudo"       json:"pseudo"`
+			AvatarURL   *string   `db:"avatar_url"   json:"avatarUrl"`
+			CreatedAt   string    `db:"created_at"   json:"createdAt"`
+		}
+
+		var requests []requestRow
+		if err := db.Select(&requests, `
+			SELECT fr.id, fr.requester_id, u.pseudo, u.avatar_url, fr.created_at::text
+			FROM follow_requests fr
+			JOIN users u ON u.id = fr.requester_id
+			WHERE fr.target_id = $1 AND fr.status = 'PENDING'
+			ORDER BY fr.created_at DESC`, claims.UserID,
+		); err != nil {
+			slog.Error("get follow requests", "error", err)
+			respondError(w, http.StatusInternalServerError, "internal error")
 			return
+		}
+
+		if requests == nil {
+			requests = []requestRow{}
+		}
+
+		respond(w, http.StatusOK, map[string]any{"requests": requests})
+	}
+}
+
+// RespondFollowRequestHandler : accepter ou refuser une follow request
+func RespondFollowRequestHandler(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		claims := r.Context().Value(middleware.ClaimsKey).(*services.Claims)
+		requestID := chi.URLParam(r, "id")
+
+		var req struct {
+			Action string `json:"action"` // "ACCEPT" | "DECLINE"
+		}
+		if err := decodeJSON(r, &req); err != nil {
+			respondError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+		if req.Action != "ACCEPT" && req.Action != "DECLINE" {
+			respondError(w, http.StatusUnprocessableEntity, "action must be ACCEPT or DECLINE")
+			return
+		}
+
+		// Récupérer la request et vérifier qu'elle appartient bien à cet utilisateur
+		var fr models.FollowRequest
+		if err := db.QueryRowx(`
+			SELECT id, requester_id, target_id, status
+			FROM follow_requests
+			WHERE id = $1 AND target_id = $2 AND status = 'PENDING'`,
+			requestID, claims.UserID,
+		).StructScan(&fr); err != nil {
+			respondError(w, http.StatusNotFound, "follow request not found")
+			return
+		}
+
+		newStatus := models.FollowRequestDeclined
+		if req.Action == "ACCEPT" {
+			newStatus = models.FollowRequestAccepted
+		}
+
+		_, err := db.Exec(`
+			UPDATE follow_requests SET status = $1, updated_at = NOW()
+			WHERE id = $2`, newStatus, requestID,
+		)
+		if err != nil {
+			slog.Error("update follow request", "error", err)
+			respondError(w, http.StatusInternalServerError, "internal error")
+			return
+		}
+
+		if req.Action == "ACCEPT" {
+			// Créer le follow
+			_, err = db.Exec(`
+				INSERT INTO follows (follower_id, following_id)
+				VALUES ($1, $2)
+				ON CONFLICT DO NOTHING`, fr.RequesterID, claims.UserID,
+			)
+			if err != nil {
+				slog.Error("accept follow: insert follow", "error", err)
+				respondError(w, http.StatusInternalServerError, "internal error")
+				return
+			}
+
+			// Notification au demandeur
+			payload, _ := json.Marshal(map[string]string{"userId": claims.UserID.String()})
+			db.Exec(`
+				INSERT INTO notifications (user_id, type, payload)
+				VALUES ($1, 'FOLLOW_ACCEPTED', $2)`,
+				fr.RequesterID, payload,
+			)
+
+			slog.Info("follow request accepted", "requester", fr.RequesterID, "target", claims.UserID)
+		} else {
+			slog.Info("follow request declined", "requester", fr.RequesterID, "target", claims.UserID)
 		}
 
 		w.WriteHeader(http.StatusOK)

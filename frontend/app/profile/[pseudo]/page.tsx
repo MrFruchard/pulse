@@ -16,6 +16,8 @@ interface ProfileData {
   posts: Post[]
 }
 
+type FollowState = 'none' | 'following' | 'pending'
+
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   active:    { label: 'Actif',    color: 'text-green-400' },
   dormant:   { label: 'Dormant',  color: 'text-yellow-400' },
@@ -30,8 +32,9 @@ export default function ProfilePage() {
   const [me, setMe] = useState<User | null>(null)
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
-  const [isFollowing, setIsFollowing] = useState(false)
+  const [followState, setFollowState] = useState<FollowState>('none')
   const [followLoading, setFollowLoading] = useState(false)
+  const [privacyLoading, setPrivacyLoading] = useState(false)
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
@@ -54,17 +57,35 @@ export default function ProfilePage() {
     if (!profile) return
     setFollowLoading(true)
     try {
-      if (isFollowing) {
+      if (followState === 'following') {
         await usersApi.unfollow(profile.user.id)
-        setIsFollowing(false)
+        setFollowState('none')
         setProfile(p => p ? { ...p, followerCount: p.followerCount - 1 } : p)
+      } else if (followState === 'pending') {
+        await usersApi.unfollow(profile.user.id)
+        setFollowState('none')
       } else {
-        await usersApi.follow(profile.user.id)
-        setIsFollowing(true)
-        setProfile(p => p ? { ...p, followerCount: p.followerCount + 1 } : p)
+        const res = await usersApi.follow(profile.user.id) as { status?: string } | undefined
+        if (res && (res as { status?: string }).status === 'pending') {
+          setFollowState('pending')
+        } else {
+          setFollowState('following')
+          setProfile(p => p ? { ...p, followerCount: p.followerCount + 1 } : p)
+        }
       }
     } catch { /* ignore */ }
     finally { setFollowLoading(false) }
+  }
+
+  async function handleTogglePrivacy() {
+    if (!me || !profile) return
+    setPrivacyLoading(true)
+    try {
+      const updated = await usersApi.updateMe({ isPrivate: !me.isPrivate }) as { user: User }
+      setMe(updated.user)
+      setProfile(p => p ? { ...p, user: { ...p.user, isPrivate: updated.user.isPrivate } } : p)
+    } catch { /* ignore */ }
+    finally { setPrivacyLoading(false) }
   }
 
   if (notFound) {
@@ -82,6 +103,10 @@ export default function ProfilePage() {
   const isMe = me?.id === user.id
   const status = STATUS_LABELS[user.status] ?? STATUS_LABELS.active
 
+  const followLabel = followState === 'following' ? 'Abonné'
+    : followState === 'pending' ? 'Demande envoyée'
+    : 'Suivre'
+
   return (
     <>
       <NavBar pseudo={me?.pseudo} />
@@ -95,7 +120,12 @@ export default function ProfilePage() {
                 {user.pseudo[0].toUpperCase()}
               </div>
               <div>
-                <h1 className="text-lg font-bold">{user.pseudo}</h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg font-bold">{user.pseudo}</h1>
+                  {user.isPrivate && (
+                    <span className="text-xs text-gray-500 border border-gray-700 rounded px-1.5 py-0.5">Privé</span>
+                  )}
+                </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className={`text-xs ${status.color}`}>{status.label}</span>
                   {user.streak > 0 && (
@@ -108,16 +138,27 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {!isMe && me && (
-              <Button
-                variant={isFollowing ? 'secondary' : 'primary'}
-                onClick={handleFollow}
-                loading={followLoading}
-                className="shrink-0"
-              >
-                {isFollowing ? 'Abonné' : 'Suivre'}
-              </Button>
-            )}
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              {!isMe && me && (
+                <Button
+                  variant={followState === 'none' ? 'primary' : 'secondary'}
+                  onClick={handleFollow}
+                  loading={followLoading}
+                >
+                  {followLabel}
+                </Button>
+              )}
+
+              {isMe && (
+                <button
+                  onClick={handleTogglePrivacy}
+                  disabled={privacyLoading}
+                  className="text-xs px-3 py-1.5 border border-gray-700 text-gray-400 rounded-lg hover:border-gray-600 transition disabled:opacity-50"
+                >
+                  {me?.isPrivate ? 'Rendre public' : 'Rendre privé'}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-6 mt-5 pt-5 border-t border-gray-800">

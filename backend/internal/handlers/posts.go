@@ -21,12 +21,17 @@ var validIntentions = map[string]bool{
 	"QUESTION": true, "SHARE": true, "PROJECT": true, "CHALLENGE": true,
 }
 
+var validPrivacies = map[string]bool{
+	"PUBLIC": true, "FOLLOWERS": true, "PRIVATE": true,
+}
+
 type postRow struct {
 	ID        uuid.UUID            `db:"id"`
 	UserID    uuid.UUID            `db:"user_id"`
 	SessionID uuid.UUID            `db:"session_id"`
 	Content   string               `db:"content"`
 	Intention models.PostIntention `db:"intention"`
+	Privacy   models.PostPrivacy   `db:"privacy"`
 	ImageURL  *string              `db:"image_url"`
 	IsFlagged bool                 `db:"is_flagged"`
 	CreatedAt string               `db:"created_at"`
@@ -55,6 +60,7 @@ func (p postRow) toMap() map[string]any {
 		"sessionId": p.SessionID,
 		"content":   p.Content,
 		"intention": p.Intention,
+		"privacy":   p.Privacy,
 		"imageUrl":  p.ImageURL,
 		"isFlagged": p.IsFlagged,
 		"createdAt": p.CreatedAt,
@@ -71,7 +77,7 @@ func (p postRow) toMap() map[string]any {
 
 const feedBaseQuery = `
 	SELECT
-		p.id, p.user_id, p.session_id, p.content, p.intention,
+		p.id, p.user_id, p.session_id, p.content, p.intention, p.privacy,
 		p.image_url, p.is_flagged, p.created_at::text,
 		u.pseudo AS author_pseudo, u.avatar_url AS author_avatar_url, u.streak AS author_streak,
 		COUNT(DISTINCT CASE WHEN r.type = 'LIKE'       THEN r.id END) AS like_count,
@@ -110,6 +116,21 @@ func GetFeedHandler(db *sqlx.DB) http.HandlerFunc {
 			query += ` WHERE 1=1`
 		}
 
+		// Filtre privacy : exclure les posts non accessibles
+		// PUBLIC → visible par tous
+		// FOLLOWERS → visible uniquement si on suit le créateur (ou si on est le créateur)
+		// PRIVATE → visible uniquement si dans post_allowed_users (ou si on est le créateur)
+		query += ` AND (
+			p.privacy = 'PUBLIC'
+			OR p.user_id = $1
+			OR (p.privacy = 'FOLLOWERS' AND EXISTS (
+				SELECT 1 FROM follows WHERE follower_id = $1 AND following_id = p.user_id
+			))
+			OR (p.privacy = 'PRIVATE' AND EXISTS (
+				SELECT 1 FROM post_allowed_users WHERE post_id = p.id AND user_id = $1
+			))
+		)`
+
 		// Filtre intention
 		if intention != "" {
 			args = append(args, intention)
@@ -139,9 +160,11 @@ func CreatePostHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 		claims := r.Context().Value(middleware.ClaimsKey).(*services.Claims)
 
 		var req struct {
-			Content   string  `json:"content"`
-			Intention string  `json:"intention"`
-			ImageURL  *string `json:"imageUrl"`
+			Content        string    `json:"content"`
+			Intention      string    `json:"intention"`
+			Privacy        string    `json:"privacy"`
+			ImageURL       *string   `json:"imageUrl"`
+			AllowedUserIDs []string  `json:"allowedUserIds"`
 		}
 		if err := decodeJSON(r, &req); err != nil {
 			respondError(w, http.StatusBadRequest, "invalid request body")
@@ -150,6 +173,10 @@ func CreatePostHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 
 		req.Content = strings.TrimSpace(req.Content)
 		req.Intention = strings.ToUpper(strings.TrimSpace(req.Intention))
+		req.Privacy = strings.ToUpper(strings.TrimSpace(req.Privacy))
+		if req.Privacy == "" {
+			req.Privacy = "PUBLIC"
+		}
 
 		if req.Content == "" {
 			respondError(w, http.StatusUnprocessableEntity, "content is required")
@@ -161,6 +188,10 @@ func CreatePostHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 		}
 		if !validIntentions[req.Intention] {
 			respondError(w, http.StatusUnprocessableEntity, "intention must be one of QUESTION, SHARE, PROJECT, CHALLENGE")
+			return
+		}
+		if !validPrivacies[req.Privacy] {
+			respondError(w, http.StatusUnprocessableEntity, "privacy must be one of PUBLIC, FOLLOWERS, PRIVATE")
 			return
 		}
 
@@ -194,10 +225,10 @@ func CreatePostHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 		// Insérer le post
 		var post models.Post
 		err = db.QueryRowx(`
-			INSERT INTO posts (user_id, session_id, content, intention, image_url)
-			VALUES ($1, $2, $3, $4::post_intention, $5)
-			RETURNING id, user_id, session_id, content, intention, image_url, is_flagged, created_at`,
-			claims.UserID, session.ID, req.Content, req.Intention, req.ImageURL,
+			INSERT INTO posts (user_id, session_id, content, intention, privacy, image_url)
+			VALUES ($1, $2, $3, $4::post_intention, $5::post_privacy, $6)
+			RETURNING id, user_id, session_id, content, intention, privacy, image_url, is_flagged, created_at`,
+			claims.UserID, session.ID, req.Content, req.Intention, req.Privacy, req.ImageURL,
 		).StructScan(&post)
 		if err != nil {
 			slog.Error("create post", "user_id", claims.UserID, "error", err)
@@ -205,33 +236,51 @@ func CreatePostHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 			return
 		}
 
+		// Insérer les utilisateurs autorisés pour les posts PRIVATE
+		if req.Privacy == "PRIVATE" && len(req.AllowedUserIDs) > 0 {
+			for _, uid := range req.AllowedUserIDs {
+				targetUUID, err := uuid.Parse(uid)
+				if err != nil {
+					continue
+				}
+				// Vérifier que c'est bien un follower
+				var isFollower int
+				db.Get(&isFollower, `SELECT COUNT(*) FROM follows WHERE follower_id = $1 AND following_id = $2`, targetUUID, claims.UserID)
+				if isFollower == 0 {
+					continue
+				}
+				db.Exec(`INSERT INTO post_allowed_users (post_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, post.ID, targetUUID)
+			}
+		}
+
 		// Enregistrer présence en session
-		_, err = db.Exec(`
+		if _, err = db.Exec(`
 			INSERT INTO session_attendances (user_id, session_id)
 			VALUES ($1, $2) ON CONFLICT DO NOTHING`,
 			claims.UserID, session.ID,
-		)
-		if err != nil {
+		); err != nil {
 			slog.Error("record attendance", "user_id", claims.UserID, "error", err)
 		}
 
-		// Broadcast WebSocket
-		var author models.User
-		db.QueryRowx(`SELECT pseudo, avatar_url, streak FROM users WHERE id = $1`, claims.UserID).StructScan(&author)
+		// Broadcast WebSocket uniquement pour les posts PUBLIC
+		if req.Privacy == "PUBLIC" {
+			var author models.User
+			db.QueryRowx(`SELECT pseudo, avatar_url, streak FROM users WHERE id = $1`, claims.UserID).StructScan(&author)
 
-		msg, _ := json.Marshal(map[string]any{
-			"type": "new_post",
-			"post": map[string]any{
-				"id": post.ID, "content": post.Content, "intention": post.Intention,
-				"createdAt": post.CreatedAt,
-				"author":    map[string]any{"pseudo": author.Pseudo, "avatarUrl": author.AvatarURL, "streak": author.Streak},
-				"reactions": map[string]int{"LIKE": 0, "FIRE": 0, "INSIGHTFUL": 0, "SUPPORT": 0},
-				"commentCount": 0,
-			},
-		})
-		hub.Broadcast(msg)
+			msg, _ := json.Marshal(map[string]any{
+				"type": "new_post",
+				"post": map[string]any{
+					"id": post.ID, "content": post.Content, "intention": post.Intention,
+					"privacy": post.Privacy, "createdAt": post.CreatedAt,
+					"author":       map[string]any{"pseudo": author.Pseudo, "avatarUrl": author.AvatarURL, "streak": author.Streak},
+					"reactions":    map[string]int{"LIKE": 0, "FIRE": 0, "INSIGHTFUL": 0, "SUPPORT": 0},
+					"commentCount": 0,
+				},
+			})
+			hub.Broadcast(msg)
+		}
 
-		slog.Info("post created", "user_id", claims.UserID, "post_id", post.ID)
+		slog.Info("post created", "user_id", claims.UserID, "post_id", post.ID, "privacy", req.Privacy)
 		respond(w, http.StatusCreated, map[string]any{"post": post})
 	}
 }
