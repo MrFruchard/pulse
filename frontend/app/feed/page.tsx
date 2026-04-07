@@ -54,9 +54,9 @@ export default function FeedPage() {
   }, [feedFilter, intentionFilter])
 
   useEffect(() => {
-    if (sessionState?.isActive) fetchPosts()
+    if (sessionState?.isActive || me?.role === 'admin') fetchPosts()
     else setFeedPosts([])
-  }, [sessionState, fetchPosts])
+  }, [sessionState, fetchPosts, me?.role])
 
   // Temps réel
   useWebSocket((msg) => {
@@ -104,7 +104,7 @@ export default function FeedPage() {
         {sessionState && <SessionBar session={sessionState} />}
 
         <main className="max-w-2xl mx-auto px-4 py-6">
-          {!sessionState?.isActive ? (
+          {!sessionState?.isActive && me?.role !== 'admin' ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <p className="text-gray-500 text-sm mb-8">La prochaine session commence dans</p>
               <Countdown />

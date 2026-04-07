@@ -62,6 +62,19 @@ export interface Notification {
   createdAt: string
 }
 
+export type ReportStatus = 'PENDING' | 'REVIEWED' | 'DISMISSED'
+
+export interface Report {
+  id: string
+  postId: string
+  reporterId: string
+  reason: ReportReason
+  status: ReportStatus
+  createdAt: string
+  postContent: string
+  reporterPseudo: string
+}
+
 export type FeedType = 'global' | 'following'
 
 export interface ApiError {

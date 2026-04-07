@@ -31,10 +31,19 @@ func GetProfileHandler(db *sqlx.DB) http.HandlerFunc {
 		db.Get(&followerCount, `SELECT COUNT(*) FROM follows WHERE following_id = $1`, user.ID)
 		db.Get(&followingCount, `SELECT COUNT(*) FROM follows WHERE follower_id = $1`, user.ID)
 
+		var userPosts []models.Post
+		if err := db.Select(&userPosts, `
+			SELECT id, user_id, session_id, content, intention, image_url, is_flagged, created_at
+			FROM posts WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, user.ID,
+		); err != nil {
+			userPosts = []models.Post{}
+		}
+
 		respond(w, http.StatusOK, map[string]any{
-			"user":          user,
-			"followerCount": followerCount,
+			"user":           user,
+			"followerCount":  followerCount,
 			"followingCount": followingCount,
+			"posts":          userPosts,
 		})
 	}
 }
@@ -102,7 +111,7 @@ func FollowHandler(db *sqlx.DB) http.HandlerFunc {
 			VALUES ($1, $2)`, claims.UserID, targetID,
 		)
 		if err != nil {
-			if strings.Contains(err.Error(), "uq_follow") {
+			if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "unique") {
 				respondError(w, http.StatusConflict, "already following this user")
 				return
 			}

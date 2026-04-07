@@ -77,6 +77,20 @@ export const users = {
   deleteMe: () => request('/me', { method: 'DELETE' }),
 }
 
+// Admin
+export const admin = {
+  reports: (status?: string) => {
+    const qs = status ? `?status=${encodeURIComponent(status)}` : ''
+    return request(`/admin/reports${qs}`)
+  },
+
+  updateReport: (id: string, status: 'REVIEWED' | 'DISMISSED') =>
+    request(`/admin/reports/${id}`, { method: 'PUT', body: JSON.stringify({ status }) }),
+
+  suspendUser: (id: string) =>
+    request(`/admin/users/${id}/suspend`, { method: 'PUT' }),
+}
+
 // Notifications
 export const notifications = {
   list: () => request('/notifications'),

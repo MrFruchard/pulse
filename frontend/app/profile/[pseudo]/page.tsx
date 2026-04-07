@@ -13,6 +13,7 @@ interface ProfileData {
   user: User
   followerCount: number
   followingCount: number
+  posts: Post[]
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -41,16 +42,13 @@ export default function ProfilePage() {
 
   useEffect(() => {
     usersApi.profile(pseudo)
-      .then((data) => setProfile(data as ProfileData))
+      .then((data) => {
+        const d = data as ProfileData
+        setProfile(d)
+        setPosts(d.posts ?? [])
+      })
       .catch(() => setNotFound(true))
   }, [pseudo])
-
-  // Posts du profil via le feed global filtré
-  useEffect(() => {
-    if (!profile) return
-    // Récupérer les posts via search (simple — en prod on aurait GET /api/users/:id/posts)
-    setPosts([])
-  }, [profile])
 
   async function handleFollow() {
     if (!profile) return

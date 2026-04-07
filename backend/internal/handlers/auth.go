@@ -3,13 +3,13 @@ package handlers
 import (
 	"log/slog"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/MrFruchard/pulse/backend/internal/middleware"
 	"github.com/MrFruchard/pulse/backend/internal/models"
@@ -78,7 +78,7 @@ func RegisterHandler(db *sqlx.DB, jwtService *services.JWTService) http.HandlerF
 			return
 		}
 
-		hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
+		hash, err := services.HashPassword(req.Password)
 		if err != nil {
 			slog.Error("register: bcrypt", "error", err)
 			respondError(w, http.StatusInternalServerError, "internal error")
@@ -107,7 +107,7 @@ func RegisterHandler(db *sqlx.DB, jwtService *services.JWTService) http.HandlerF
 
 		setTokenCookie(w, token)
 		slog.Info("user registered", "user_id", user.ID, "pseudo", user.Pseudo)
-		respond(w, http.StatusCreated, map[string]any{"user": user, "token": token})
+		respond(w, http.StatusCreated, map[string]any{"user": user})
 	}
 }
 
@@ -136,13 +136,13 @@ func LoginHandler(db *sqlx.DB, jwtService *services.JWTService) http.HandlerFunc
 		).StructScan(&user)
 		if err != nil {
 			// Simuler un hash compare pour éviter les timing attacks
-			bcrypt.CompareHashAndPassword([]byte("$2a$12$dummy"), []byte(req.Password)) //nolint
+			services.ComparePassword("$2a$12$dummydummydummydummydummydummydummydumm", req.Password) //nolint
 			slog.Warn("login: email not found", "email", req.Email)
 			respondError(w, http.StatusUnauthorized, invalidCreds)
 			return
 		}
 
-		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		if !services.ComparePassword(user.PasswordHash, req.Password) {
 			slog.Warn("login: wrong password", "user_id", user.ID)
 			respondError(w, http.StatusUnauthorized, invalidCreds)
 			return
@@ -260,18 +260,19 @@ func DeleteMeHandler(db *sqlx.DB) http.HandlerFunc {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{Name: "token", MaxAge: -1, Path: "/"})
+		http.SetCookie(w, &http.Cookie{Name: "token", Value: "", MaxAge: -1, Path: "/", HttpOnly: true, SameSite: http.SameSiteStrictMode})
 		slog.Info("account deleted", "user_id", claims.UserID)
 		w.WriteHeader(http.StatusOK)
 	}
 }
 
 func setTokenCookie(w http.ResponseWriter, token string) {
+	secure := os.Getenv("APP_ENV") == "production"
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
 		Value:    token,
 		HttpOnly: true,
-		Secure:   false, // true en production HTTPS
+		Secure:   secure,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
 		Expires:  time.Now().Add(24 * time.Hour),
