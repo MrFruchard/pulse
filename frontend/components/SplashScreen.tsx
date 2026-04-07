@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-type Phase =
-  | 'fade-in'      // 0 → 500ms  : "Pulse" apparaît
-  | 'beat-1'       // 500 → 1300ms : premier battement + onde
-  | 'rest'         // 1300 → 1700ms : silence
-  | 'beat-2'       // 1700 → 2100ms : deuxième battement (plus doux)
-  | 'fade-out'     // 2100 → 2500ms : disparition
-  | 'done'         // 2500ms+  : retiré du DOM
+type Phase = 'fade-in' | 'beat-1' | 'rest' | 'beat-2' | 'fade-out' | 'done'
 
 export function SplashScreen({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>('fade-in')
@@ -16,60 +10,47 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
   const [ripple2, setRipple2] = useState(false)
 
   useEffect(() => {
-    const t1 = setTimeout(() => { setPhase('beat-1'); setRipple(true) },  500)
-    const t2 = setTimeout(() => { setRipple(false) },                      1300)
-    const t3 = setTimeout(() => { setPhase('rest') },                      1300)
-    const t4 = setTimeout(() => { setPhase('beat-2'); setRipple2(true) },  1700)
-    const t5 = setTimeout(() => { setRipple2(false) },                     2100)
-    const t6 = setTimeout(() => { setPhase('fade-out') },                  2100)
-    const t7 = setTimeout(() => { setPhase('done'); onDone() },            2500)
+    const t1 = setTimeout(() => { setPhase('beat-1'); setRipple(true) },   500)
+    const t2 = setTimeout(() => { setRipple(false); setPhase('rest') },    1350)
+    const t3 = setTimeout(() => { setPhase('beat-2'); setRipple2(true) }, 1750)
+    const t4 = setTimeout(() => { setRipple2(false); setPhase('fade-out') }, 2100)
+    const t5 = setTimeout(() => { setPhase('done'); onDone() },            2500)
 
-    return () => [t1, t2, t3, t4, t5, t6, t7].forEach(clearTimeout)
+    return () => [t1, t2, t3, t4, t5].forEach(clearTimeout)
   }, [onDone])
 
   if (phase === 'done') return null
 
+  const textClass =
+    phase === 'fade-in' ? 'splash-fade-in' :
+    phase === 'beat-1'  ? 'splash-heartbeat' :
+    phase === 'beat-2'  ? 'splash-heartbeat-soft' :
+    ''
+
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-gray-950
-        ${phase === 'fade-out' ? 'animate-fade-out' : ''}`}
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-gray-950 ${phase === 'fade-out' ? 'splash-fade-out' : ''}`}
     >
-      <div className="relative flex items-center justify-center">
+      <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
 
-        {/* Onde 1 */}
+        {/* Ondes battement 1 */}
         {ripple && (
-          <span
-            key="ripple-1"
-            className="absolute inset-0 rounded-full border border-white/30 animate-ripple"
-            style={{ width: '120px', height: '120px', margin: 'auto' }}
-          />
-        )}
-        {/* Onde 1 décalée */}
-        {ripple && (
-          <span
-            key="ripple-1b"
-            className="absolute inset-0 rounded-full border border-white/15 animate-ripple"
-            style={{ width: '120px', height: '120px', margin: 'auto', animationDelay: '120ms' }}
-          />
+          <>
+            <span className="splash-ripple absolute rounded-full border border-white/25" style={{ width: 100, height: 100, top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
+            <span className="splash-ripple-delayed absolute rounded-full border border-white/15" style={{ width: 100, height: 100, top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
+          </>
         )}
 
-        {/* Onde 2 */}
+        {/* Ondes battement 2 */}
         {ripple2 && (
-          <span
-            key="ripple-2"
-            className="absolute inset-0 rounded-full border border-white/20 animate-ripple"
-            style={{ width: '120px', height: '120px', margin: 'auto' }}
-          />
+          <span className="splash-ripple absolute rounded-full border border-white/20" style={{ width: 100, height: 100, top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
         )}
 
-        {/* Texte principal */}
+        {/* Texte */}
         <h1
-          className={`text-6xl font-bold tracking-tight select-none
-            ${phase === 'fade-in'  ? 'animate-fade-in opacity-0' : ''}
-            ${phase === 'beat-1'   ? 'animate-heartbeat' : ''}
-            ${phase === 'beat-2'   ? 'animate-heartbeat' : ''}
-          `}
-          style={phase === 'beat-2' ? { animationDuration: '0.7s', animationTimingFunction: 'ease-in-out' } : {}}
+          key={phase}
+          className={`text-6xl font-bold tracking-tight select-none text-white ${textClass}`}
+          style={{ opacity: phase === 'fade-in' ? 0 : 1 }}
         >
           Pulse
         </h1>

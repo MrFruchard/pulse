@@ -4,31 +4,33 @@ import { useCallback, useEffect, useState } from 'react'
 import { SplashScreen } from '@/components/SplashScreen'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  // SSR : pas de splash, contenu visible par défaut
   const [showSplash, setShowSplash] = useState(false)
-  const [ready, setReady] = useState(false)
+  const [contentVisible, setContentVisible] = useState(true)
 
   useEffect(() => {
-    // Splash uniquement au premier chargement de la session (pas sur chaque navigation)
     const seen = sessionStorage.getItem('pulse_splash_seen')
     if (!seen) {
+      // Premier chargement : cacher le contenu et montrer la splash
+      setContentVisible(false)
       setShowSplash(true)
-    } else {
-      setReady(true)
     }
   }, [])
 
   const handleDone = useCallback(() => {
     sessionStorage.setItem('pulse_splash_seen', '1')
     setShowSplash(false)
-    setReady(true)
+    setContentVisible(true)
   }, [])
 
   return (
     <>
       {showSplash && <SplashScreen onDone={handleDone} />}
       <div
-        className="transition-opacity duration-500"
-        style={{ opacity: ready ? 1 : 0 }}
+        style={{
+          opacity: contentVisible ? 1 : 0,
+          transition: contentVisible ? 'opacity 0.5s ease-in' : 'none',
+        }}
       >
         {children}
       </div>
