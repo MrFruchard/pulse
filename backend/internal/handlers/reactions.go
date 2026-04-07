@@ -7,9 +7,11 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/MrFruchard/pulse/backend/internal/middleware"
+	"github.com/MrFruchard/pulse/backend/internal/models"
 	"github.com/MrFruchard/pulse/backend/internal/services"
 	"github.com/MrFruchard/pulse/backend/internal/websocket"
 )
@@ -37,9 +39,11 @@ func CreateReactionHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 			return
 		}
 
-		// Vérifier que le post existe
-		var count int
-		if err := db.Get(&count, `SELECT COUNT(*) FROM posts WHERE id = $1`, postID); err != nil || count == 0 {
+		// Récupérer le post et son propriétaire
+		var post struct {
+			UserID uuid.UUID `db:"user_id"`
+		}
+		if err := db.QueryRowx(`SELECT user_id FROM posts WHERE id = $1`, postID).StructScan(&post); err != nil {
 			respondError(w, http.StatusNotFound, "post not found")
 			return
 		}
@@ -50,7 +54,7 @@ func CreateReactionHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 			postID, claims.UserID, req.Type,
 		)
 		if err != nil {
-			if strings.Contains(err.Error(), "uq_reaction_per_user_post") {
+			if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "unique") {
 				respondError(w, http.StatusConflict, "already reacted to this post")
 				return
 			}
@@ -59,10 +63,24 @@ func CreateReactionHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 			return
 		}
 
-		// Broadcast
+		// Notifier le créateur du post (pas si c'est lui-même qui réagit)
+		if post.UserID != claims.UserID {
+			payload, _ := json.Marshal(map[string]string{
+				"postId":      postID,
+				"reactorId":   claims.UserID.String(),
+				"reactionType": req.Type,
+			})
+			db.Exec(`
+				INSERT INTO notifications (user_id, type, payload)
+				VALUES ($1, $2, $3)`,
+				post.UserID, models.NotifReaction, payload,
+			)
+		}
+
+		// Broadcast WebSocket
 		msg, _ := json.Marshal(map[string]any{
-			"type":   "new_reaction",
-			"postId": postID,
+			"type":     "new_reaction",
+			"postId":   postID,
 			"reaction": req.Type,
 		})
 		hub.Broadcast(msg)

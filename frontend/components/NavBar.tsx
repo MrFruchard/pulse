@@ -30,16 +30,23 @@ export function NavBar({ pseudo, unreadCount = 0 }: NavBarProps) {
           {pseudo && (
             <>
               <Link
+                href="/notifications"
+                className="relative text-sm text-gray-400 hover:text-gray-100 transition px-2 py-1"
+                title="Notifications"
+              >
+                🔔
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-white text-gray-900 rounded-full text-[10px] font-bold flex items-center justify-center px-1">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+              <Link
                 href={`/profile/${pseudo}`}
                 className="text-sm text-gray-400 hover:text-gray-100 transition px-2 py-1"
               >
                 {pseudo}
               </Link>
-              {unreadCount > 0 && (
-                <span className="text-xs bg-white text-gray-900 rounded-full px-1.5 py-0.5 font-bold">
-                  {unreadCount}
-                </span>
-              )}
               <Button variant="ghost" onClick={handleLogout} className="text-xs">
                 Déconnexion
               </Button>

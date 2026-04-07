@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { auth, posts as postsApi } from '@/lib/api'
 import { useSession } from '@/hooks/useSession'
 import { useWebSocket } from '@/hooks/useWebSocket'
+import { useNotifications } from '@/hooks/useNotifications'
 import { NavBar } from '@/components/NavBar'
 import { SessionBar } from '@/components/SessionBar'
 import { Countdown } from '@/components/Countdown'
@@ -26,6 +27,7 @@ const INTENTION_FILTERS: { value: PostIntention | ''; label: string }[] = [
 export default function FeedPage() {
   const router = useRouter()
   const { sessionState, loading: sessionLoading } = useSession()
+  const { unreadCount } = useNotifications()
   const [me, setMe] = useState<User | null>(null)
   const [feedPosts, setFeedPosts] = useState<Post[]>([])
   const [feedFilter, setFeedFilter] = useState<FeedFilter>('global')
@@ -99,7 +101,7 @@ export default function FeedPage() {
 
   return (
     <>
-      <NavBar pseudo={me.pseudo} />
+      <NavBar pseudo={me.pseudo} unreadCount={unreadCount} />
 
       <div className="pt-14">
         {sessionState && <SessionBar session={sessionState} />}

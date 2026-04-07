@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/MrFruchard/pulse/backend/internal/middleware"
+	"github.com/MrFruchard/pulse/backend/internal/models"
 	"github.com/MrFruchard/pulse/backend/internal/services"
 )
 
@@ -42,9 +44,16 @@ func CreateCommentHandler(db *sqlx.DB) http.HandlerFunc {
 			respondError(w, http.StatusUnprocessableEntity, "content is required")
 			return
 		}
+		if len([]rune(req.Content)) > 500 {
+			respondError(w, http.StatusUnprocessableEntity, "comment must be 500 characters or less")
+			return
+		}
 
-		var count int
-		if err := db.Get(&count, `SELECT COUNT(*) FROM posts WHERE id = $1`, postID); err != nil || count == 0 {
+		// Récupérer le post et son propriétaire
+		var post struct {
+			UserID uuid.UUID `db:"user_id"`
+		}
+		if err := db.QueryRowx(`SELECT user_id FROM posts WHERE id = $1`, postID).StructScan(&post); err != nil {
 			respondError(w, http.StatusNotFound, "post not found")
 			return
 		}
@@ -66,6 +75,20 @@ func CreateCommentHandler(db *sqlx.DB) http.HandlerFunc {
 			slog.Error("create comment", "error", err)
 			respondError(w, http.StatusInternalServerError, "internal error")
 			return
+		}
+
+		// Notifier le créateur du post (pas si c'est lui-même qui commente)
+		if post.UserID != claims.UserID {
+			payload, _ := json.Marshal(map[string]string{
+				"postId":        postID,
+				"commenterId":   claims.UserID.String(),
+				"commentExcerpt": truncate(req.Content, 80),
+			})
+			db.Exec(`
+				INSERT INTO notifications (user_id, type, payload)
+				VALUES ($1, $2, $3)`,
+				post.UserID, models.NotifComment, payload,
+			)
 		}
 
 		slog.Info("comment created", "user_id", claims.UserID, "post_id", postID)
@@ -103,4 +126,12 @@ func GetCommentsHandler(db *sqlx.DB) http.HandlerFunc {
 
 		respond(w, http.StatusOK, map[string]any{"comments": comments})
 	}
+}
+
+func truncate(s string, max int) string {
+	runes := []rune(s)
+	if len(runes) <= max {
+		return s
+	}
+	return string(runes[:max]) + "…"
 }
