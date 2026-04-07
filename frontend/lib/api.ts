@@ -48,8 +48,8 @@ export const posts = {
   react: (id: string, type: string) =>
     request(`/posts/${id}/reactions`, { method: 'POST', body: JSON.stringify({ type }) }),
 
-  comment: (id: string, content: string) =>
-    request(`/posts/${id}/comments`, { method: 'POST', body: JSON.stringify({ content }) }),
+  comment: (id: string, content: string, imageUrl?: string) =>
+    request(`/posts/${id}/comments`, { method: 'POST', body: JSON.stringify({ content, ...(imageUrl ? { imageUrl } : {}) }) }),
 
   comments: (id: string) => request(`/posts/${id}/comments`),
 

@@ -61,8 +61,10 @@ export interface Comment {
   postId: string
   userId: string
   content: string
+  imageUrl: string | null
   createdAt: string
-  author: Pick<User, 'pseudo' | 'avatarUrl'>
+  authorPseudo: string
+  authorAvatarUrl: string | null
 }
 
 export interface Notification {

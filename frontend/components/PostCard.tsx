@@ -1,3 +1,7 @@
+'use client'
+
+import { useState } from 'react'
+import { CommentSection } from '@/components/CommentSection'
 import type { Post, ReactionType } from '@/types'
 
 const INTENTIONS = {
@@ -26,6 +30,7 @@ interface PostCardProps {
 
 export function PostCard({ post, onReact }: PostCardProps) {
   const intention = INTENTIONS[post.intention]
+  const [showComments, setShowComments] = useState(false)
 
   return (
     <article className="bg-gray-900 rounded-xl p-5 border border-gray-800 hover:border-gray-700 transition">
@@ -81,10 +86,15 @@ export function PostCard({ post, onReact }: PostCardProps) {
                 )}
               </button>
             ))}
-            <span className="text-xs text-gray-500 ml-auto">
-              {post.commentCount} commentaire{post.commentCount !== 1 ? 's' : ''}
-            </span>
+            <button
+              onClick={() => setShowComments(v => !v)}
+              className="text-xs text-gray-500 hover:text-gray-300 ml-auto transition"
+            >
+              💬 {post.commentCount} commentaire{post.commentCount !== 1 ? 's' : ''}
+            </button>
           </div>
+
+          {showComments && <CommentSection postId={post.id} />}
         </div>
       </div>
     </article>

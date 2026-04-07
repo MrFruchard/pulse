@@ -21,6 +21,7 @@ type commentResponse struct {
 	PostID    uuid.UUID `json:"postId"    db:"post_id"`
 	UserID    uuid.UUID `json:"userId"    db:"user_id"`
 	Content   string    `json:"content"   db:"content"`
+	ImageURL  *string   `json:"imageUrl"  db:"image_url"`
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 	AuthorPseudo    string  `json:"authorPseudo"    db:"author_pseudo"`
 	AuthorAvatarURL *string `json:"authorAvatarUrl" db:"author_avatar_url"`
@@ -32,7 +33,8 @@ func CreateCommentHandler(db *sqlx.DB) http.HandlerFunc {
 		postID := chi.URLParam(r, "id")
 
 		var req struct {
-			Content string `json:"content"`
+			Content  string  `json:"content"`
+			ImageURL *string `json:"imageUrl"`
 		}
 		if err := decodeJSON(r, &req); err != nil {
 			respondError(w, http.StatusBadRequest, "invalid request body")
@@ -40,8 +42,8 @@ func CreateCommentHandler(db *sqlx.DB) http.HandlerFunc {
 		}
 
 		req.Content = strings.TrimSpace(req.Content)
-		if req.Content == "" {
-			respondError(w, http.StatusUnprocessableEntity, "content is required")
+		if req.Content == "" && req.ImageURL == nil {
+			respondError(w, http.StatusUnprocessableEntity, "content or image is required")
 			return
 		}
 		if len([]rune(req.Content)) > 500 {
@@ -61,15 +63,15 @@ func CreateCommentHandler(db *sqlx.DB) http.HandlerFunc {
 		var comment commentResponse
 		err := db.QueryRowx(`
 			WITH inserted AS (
-				INSERT INTO comments (post_id, user_id, content)
-				VALUES ($1, $2, $3)
-				RETURNING id, post_id, user_id, content, created_at
+				INSERT INTO comments (post_id, user_id, content, image_url)
+				VALUES ($1, $2, $3, $4)
+				RETURNING id, post_id, user_id, content, image_url, created_at
 			)
-			SELECT i.id, i.post_id, i.user_id, i.content, i.created_at,
+			SELECT i.id, i.post_id, i.user_id, i.content, i.image_url, i.created_at,
 				u.pseudo AS author_pseudo, u.avatar_url AS author_avatar_url
 			FROM inserted i
 			JOIN users u ON u.id = i.user_id`,
-			postID, claims.UserID, req.Content,
+			postID, claims.UserID, req.Content, req.ImageURL,
 		).StructScan(&comment)
 		if err != nil {
 			slog.Error("create comment", "error", err)
@@ -108,7 +110,7 @@ func GetCommentsHandler(db *sqlx.DB) http.HandlerFunc {
 
 		var comments []commentResponse
 		if err := db.Select(&comments, `
-			SELECT c.id, c.post_id, c.user_id, c.content, c.created_at,
+			SELECT c.id, c.post_id, c.user_id, c.content, c.image_url, c.created_at,
 				u.pseudo AS author_pseudo, u.avatar_url AS author_avatar_url
 			FROM comments c
 			JOIN users u ON u.id = c.user_id
