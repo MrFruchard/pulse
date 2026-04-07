@@ -15,6 +15,7 @@ import (
 	"github.com/MrFruchard/pulse/backend/internal/middleware"
 	"github.com/MrFruchard/pulse/backend/internal/models"
 	"github.com/MrFruchard/pulse/backend/internal/services"
+	"github.com/MrFruchard/pulse/backend/internal/storage"
 	"github.com/MrFruchard/pulse/backend/internal/websocket"
 )
 
@@ -39,6 +40,12 @@ func main() {
 	jwtService := services.NewJWTService(cfg.JWTSecret)
 	hub := websocket.NewHub()
 
+	storageDriver, err := storage.NewLocalDriver(cfg.UploadsDir, "/uploads")
+	if err != nil {
+		slog.Error("failed to init storage", "error", err)
+		os.Exit(1)
+	}
+
 	sessionManager := cron.NewSessionManager(database, hub, cfg.SessionOpenHour, cfg.SessionDurationMin)
 	sessionManager.Start()
 
@@ -53,6 +60,9 @@ func main() {
 
 	// Health
 	r.Get("/api/health", handlers.HealthHandler(database))
+
+	// Upload
+	r.With(jwtMiddleware).Post("/api/uploads", handlers.UploadHandler(storageDriver, cfg.UploadMaxSizeMB))
 
 	// Auth
 	r.Post("/api/auth/register", handlers.RegisterHandler(database, jwtService))

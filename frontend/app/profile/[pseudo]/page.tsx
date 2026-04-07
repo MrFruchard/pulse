@@ -7,6 +7,7 @@ import { auth, users as usersApi } from '@/lib/api'
 import { NavBar } from '@/components/NavBar'
 import { PostCard } from '@/components/PostCard'
 import { Button } from '@/components/ui/Button'
+import { ImagePicker } from '@/components/ImagePicker'
 import type { Post, User } from '@/types'
 
 interface ProfileData {
@@ -116,8 +117,28 @@ export default function ProfilePage() {
         <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 mb-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold shrink-0">
-                {user.pseudo[0].toUpperCase()}
+              <div className="relative shrink-0">
+                {user.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.avatarUrl} alt={user.pseudo} className="w-14 h-14 rounded-full object-cover" />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold">
+                    {user.pseudo[0].toUpperCase()}
+                  </div>
+                )}
+                {isMe && (
+                  <div className="absolute -bottom-1 -right-1">
+                    <ImagePicker
+                      label="✏️"
+                      onUpload={async (url) => {
+                        if (!url) return
+                        const updated = await usersApi.updateMe({ avatarUrl: url }) as { user: User }
+                        setMe(updated.user)
+                        setProfile(p => p ? { ...p, user: { ...p.user, avatarUrl: updated.user.avatarUrl } } : p)
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <div className="flex items-center gap-2">

@@ -12,6 +12,8 @@ type Config struct {
 	SessionOpenHour    int
 	SessionDurationMin int
 	Port               string
+	UploadsDir         string
+	UploadMaxSizeMB    int64
 }
 
 func Load() (*Config, error) {
@@ -45,6 +47,18 @@ func Load() (*Config, error) {
 	cfg.Port = os.Getenv("PORT")
 	if cfg.Port == "" {
 		cfg.Port = "8080"
+	}
+
+	cfg.UploadsDir = os.Getenv("UPLOADS_DIR")
+	if cfg.UploadsDir == "" {
+		cfg.UploadsDir = "/app/uploads"
+	}
+
+	cfg.UploadMaxSizeMB = 5
+	if v := os.Getenv("UPLOAD_MAX_SIZE_MB"); v != "" {
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil && n > 0 {
+			cfg.UploadMaxSizeMB = n
+		}
 	}
 
 	return cfg, nil

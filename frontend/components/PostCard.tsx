@@ -55,6 +55,15 @@ export function PostCard({ post, onReact }: PostCardProps) {
 
           <p className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
 
+          {post.imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={post.imageUrl}
+              alt="post image"
+              className="mt-3 rounded-lg max-h-80 object-cover border border-gray-800"
+            />
+          )}
+
           <div className="flex items-center gap-3 mt-3 flex-wrap">
             {REACTIONS.map(({ type, emoji }) => (
               <button

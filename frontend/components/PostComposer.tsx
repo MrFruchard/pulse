@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { posts as postsApi, users as usersApi } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
-import type { PostIntention, PostPrivacy, User } from '@/types'
+import { ImagePicker } from '@/components/ImagePicker'
+import type { PostIntention, PostPrivacy } from '@/types'
 
 const INTENTIONS: { value: PostIntention; label: string; color: string }[] = [
   { value: 'QUESTION',  label: 'Question',  color: 'border-blue-500 text-blue-400 bg-blue-500/10' },
@@ -33,6 +34,7 @@ export function PostComposer({ onPost, currentUserId }: PostComposerProps) {
   const [content, setContent] = useState('')
   const [intention, setIntention] = useState<PostIntention | ''>('')
   const [privacy, setPrivacy] = useState<PostPrivacy>('PUBLIC')
+  const [imageUrl, setImageUrl] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -72,11 +74,13 @@ export function PostComposer({ onPost, currentUserId }: PostComposerProps) {
         content: content.trim(),
         intention,
         privacy,
+        ...(imageUrl ? { imageUrl } : {}),
         ...(privacy === 'PRIVATE' ? { allowedUserIds: Array.from(selectedIds) } : {}),
       })
       setContent('')
       setIntention('')
       setPrivacy('PUBLIC')
+      setImageUrl('')
       setSelectedIds(new Set())
       onPost?.()
     } catch (err: unknown) {
@@ -93,6 +97,8 @@ export function PostComposer({ onPost, currentUserId }: PostComposerProps) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+      <ImagePicker onUpload={setImageUrl} />
+
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}

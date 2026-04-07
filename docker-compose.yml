@@ -7,6 +7,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - uploads_data:/app/uploads:ro
     depends_on:
       - frontend
       - backend
@@ -30,6 +31,10 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - SESSION_OPEN_HOUR=${SESSION_OPEN_HOUR}
       - SESSION_DURATION_MIN=${SESSION_DURATION_MIN}
+      - UPLOADS_DIR=/app/uploads
+      - UPLOAD_MAX_SIZE_MB=5
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       database:
         condition: service_healthy
@@ -53,6 +58,7 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:
 
 networks:
   default:
