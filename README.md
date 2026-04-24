@@ -6,7 +6,7 @@
 
 Pas d'algorithme. Pas de scroll infini. Juste une fenêtre d'une heure, synchronisée pour tous les utilisateurs, chaque jour.
 
-[Concept](#-concept) · [Stack](#-stack-technique) · [Démarrage](#-démarrage-rapide) · [Architecture](#-architecture) · [📋 Dossier de certification](DOSSIER_CERTIFICATION.md)
+[Concept](#-concept) · [Stack](#-stack-technique) · [Démarrage](#-démarrage-rapide) · [Architecture](#-architecture) · [📋 Dossier de certification](DOSSIER_CERTIFICATION.md) · [🌐 Maquettes live](https://mrfruchard.github.io/pulse/)
 
 ---
 
@@ -46,7 +46,7 @@ Il inclut :
 | Section | Chemin | Contenu |
 |---|---|---|
 | 📌 Cadrage | [`pulse-certif/01-cadrage/`](pulse-certif/01-cadrage/) | Contexte, problématique, 8 épics, 28 user stories, backlog 3 sprints |
-| 🎨 Conception | [`pulse-certif/02-conception/`](pulse-certif/02-conception/) | MCD, MLD, MPD SQL, dictionnaire de données, UML, 4 maquettes HTML |
+| 🎨 Conception | [`pulse-certif/02-conception/`](pulse-certif/02-conception/) | MCD, MLD, MPD SQL, dictionnaire de données, UML, [maquettes interactives](https://mrfruchard.github.io/pulse/02-conception/maquettes/) |
 | 🏗️ Architecture | [`pulse-certif/03-architecture/`](pulse-certif/03-architecture/) | 4 couches, Docker, CI/CD, justifications |
 | 🔒 Sécurité | [`pulse-certif/04-securite/`](pulse-certif/04-securite/) | OWASP Top 10, RGPD, matrice des risques |
 | 🚀 Déploiement | [`pulse-certif/05-deploiement/`](pulse-certif/05-deploiement/) | 3 environnements, GitHub Actions, migrations, rollback |

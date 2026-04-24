@@ -6,6 +6,7 @@
 > **Projet** : Pulse — réseau social à fenêtre temporelle
 > **Session jury** : _à compléter_
 > **Date de rendu** : _à compléter_
+> **Ressources interactives** : [https://mrfruchard.github.io/pulse/](https://mrfruchard.github.io/pulse/) (maquettes, MCD, MLD)
 
 ---
 
@@ -78,7 +79,7 @@ Référentiel utilisé : titre RNCP 37873 (CDA, France Compétences).
 
 | Compétence | Preuves |
 |---|---|
-| **C1. Maquetter une application** | [`02-conception/maquettes/`](pulse-certif/02-conception/maquettes/) (4 maquettes HTML interactives : accueil, feed, création post, profil) + [`02-conception/uml/uml-diagrammes.md`](pulse-certif/02-conception/uml/uml-diagrammes.md) (cas d'usage) |
+| **C1. Maquetter une application** | [Maquettes interactives en ligne](https://mrfruchard.github.io/pulse/02-conception/maquettes/) · [`02-conception/maquettes/`](pulse-certif/02-conception/maquettes/) (4 maquettes HTML : accueil, feed, création post, profil) + [`02-conception/uml/uml-diagrammes.md`](pulse-certif/02-conception/uml/uml-diagrammes.md) (cas d'usage) |
 | **C2. Développer une interface utilisateur web dynamique** | `frontend/app/` (Next.js App Router, RSC + client components) · `frontend/components/` (splash animé, AppShell, feed) · `frontend/lib/api.ts` (wrapper auth) |
 | **C3. Réaliser une interface avec CMS/E-commerce** | *Non applicable — projet fullstack custom sans CMS* |
 | **C4. Développer le back-end d'une application web sécurisée** | `backend/cmd/main.go` · `backend/internal/handlers/` (auth, posts, sessions, users) · `backend/internal/middleware/` (JWT, RBAC) · [`04-securite/plan-securisation.md`](pulse-certif/04-securite/plan-securisation.md) |
