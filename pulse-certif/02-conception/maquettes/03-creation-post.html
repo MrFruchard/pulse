@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse — Wireframe 3 : Création d'un post</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f5f5;padding:40px 20px;display:flex;flex-direction:column;align-items:center}
+h1{font-size:14px;font-weight:600;color:#555;margin-bottom:20px;text-transform:uppercase;letter-spacing:0.05em}
+.screen{border:1px solid #ddd;border-radius:12px;background:#fff;overflow:hidden;width:375px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #eee}
+.topbar-title{font-size:16px;font-weight:600;color:#111}
+.topbar-cancel{font-size:14px;color:#999;cursor:pointer}
+.topbar-timer{font-size:13px;color:#15803d;font-weight:600}
+.section{padding:16px;border-bottom:1px solid #eee}
+.section-label{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px}
+.intents{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.intent-btn{padding:10px 12px;border-radius:8px;border:1px solid #eee;background:#f9f9f9;cursor:pointer;text-align:left}
+.intent-btn.selected{border-color:#93c5fd;background:#eff6ff}
+.intent-name{font-size:13px;font-weight:600;color:#333}
+.intent-btn.selected .intent-name{color:#1d4ed8}
+.intent-desc{font-size:11px;color:#aaa;margin-top:2px}
+.intent-btn.selected .intent-desc{color:#3b82f6}
+textarea{width:100%;min-height:110px;resize:none;border:1px solid #eee;border-radius:8px;padding:12px;font-size:14px;color:#333;background:#fff;font-family:Arial,sans-serif;line-height:1.6}
+.char-count{font-size:12px;color:#aaa;text-align:right;margin-top:4px}
+.img-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid #eee;border-radius:8px;background:#f9f9f9;font-size:13px;color:#777;cursor:pointer;margin-top:10px}
+.img-icon{width:16px;height:16px;border-radius:3px;background:#ddd}
+.preview-section{padding:16px;border-bottom:1px solid #eee}
+.preview-card{background:#f9f9f9;border-radius:8px;padding:12px 14px}
+.preview-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.avatar{width:28px;height:28px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#1d4ed8}
+.preview-user{font-size:13px;font-weight:600;color:#111}
+.preview-badge{margin-left:auto;font-size:11px;padding:2px 8px;border-radius:10px;background:#dbeafe;color:#1e40af}
+.preview-text{font-size:13px;color:#333;line-height:1.6}
+.bottom{padding:16px;display:flex;flex-direction:column;gap:8px}
+.rule{font-size:12px;color:#aaa;text-align:center}
+.submit-btn{width:100%;padding:12px;background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;font-size:15px;font-weight:600;color:#1d4ed8;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>Wireframe 3 — Création d'un post</h1>
+<div class="screen">
+  <div class="topbar">
+    <div class="topbar-cancel">Annuler</div>
+    <div class="topbar-title">Nouveau post</div>
+    <div class="topbar-timer">38:12 restantes</div>
+  </div>
+  <div class="section">
+    <div class="section-label">Intention</div>
+    <div class="intents">
+      <div class="intent-btn selected">
+        <div class="intent-name">Question</div>
+        <div class="intent-desc">Pose une question à la communauté</div>
+      </div>
+      <div class="intent-btn">
+        <div class="intent-name">Partage</div>
+        <div class="intent-desc">Partage une ressource, un lien</div>
+      </div>
+      <div class="intent-btn">
+        <div class="intent-name">Projet</div>
+        <div class="intent-desc">Montre ce sur quoi tu travailles</div>
+      </div>
+      <div class="intent-btn">
+        <div class="intent-name">Challenge</div>
+        <div class="intent-desc">Lance un défi à la communauté</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-label">Contenu</div>
+    <textarea>Quelqu'un a des retours sur l'utilisation de Bun en production ? Je cherche à remplacer Node sur mon API.</textarea>
+    <div class="char-count">87 / 500</div>
+    <div class="img-btn"><div class="img-icon"></div>Ajouter une image</div>
+  </div>
+  <div class="preview-section">
+    <div class="section-label">Aperçu</div>
+    <div class="preview-card">
+      <div class="preview-header">
+        <div class="avatar">RF</div>
+        <div class="preview-user">romain_f</div>
+        <div class="preview-badge">Question</div>
+      </div>
+      <div class="preview-text">Quelqu'un a des retours sur l'utilisation de Bun en production ? Je cherche à remplacer Node sur mon API.</div>
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="rule">1 post par session — choisis bien tes mots</div>
+    <button class="submit-btn">Publier mon post</button>
+  </div>
+</div>
+</body>
+</html>

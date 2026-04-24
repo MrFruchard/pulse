@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulse — Wireframe 2 : Feed pendant la session</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f5f5;padding:40px 20px;display:flex;flex-direction:column;align-items:center}
+h1{font-size:14px;font-weight:600;color:#555;margin-bottom:20px;text-transform:uppercase;letter-spacing:0.05em}
+.screen{border:1px solid #ddd;border-radius:12px;background:#fff;overflow:hidden;width:375px}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #eee}
+.nav-logo{font-size:18px;font-weight:600;color:#111}
+.pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#639922;margin-right:6px}
+.avatar{width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#1d4ed8}
+.session-bar{display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;border-bottom:1px solid #bbf7d0;padding:8px 16px}
+.session-live{display:flex;align-items:center;gap:6px;font-size:13px;color:#15803d;font-weight:600}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#639922}
+.session-timer{font-size:13px;color:#15803d}
+.tabs{display:flex;border-bottom:1px solid #eee}
+.tab{flex:1;text-align:center;padding:10px;font-size:13px;color:#999;border-bottom:2px solid transparent;cursor:pointer}
+.tab.active{color:#111;font-weight:600;border-bottom-color:#111}
+.feed{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.post-card{background:#fff;border:1px solid #eee;border-radius:12px;padding:12px 14px}
+.post-card.new{border-color:#93c5fd}
+.post-new-label{font-size:11px;color:#1d4ed8;margin-bottom:8px;font-weight:600}
+.post-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.post-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.av1{background:#dbeafe;color:#1d4ed8}
+.av2{background:#fef3c7;color:#92400e}
+.av3{background:#fce7f3;color:#9d174d}
+.post-user{font-size:14px;font-weight:600;color:#111}
+.post-time{font-size:12px;color:#aaa}
+.intent-badge{margin-left:auto;font-size:11px;padding:3px 8px;border-radius:10px}
+.bq{background:#dbeafe;color:#1e40af}
+.bp{background:#dcfce7;color:#166534}
+.bs{background:#fef3c7;color:#92400e}
+.post-body{font-size:14px;color:#333;line-height:1.6;margin-bottom:10px}
+.post-actions{display:flex;gap:14px;padding-top:8px;border-top:1px solid #f0f0f0}
+.action{display:flex;align-items:center;gap:5px;font-size:13px;color:#999;cursor:pointer}
+.action-icon{width:16px;height:16px;border-radius:3px;background:#f0f0f0}
+.new-post-btn{margin:0 16px 12px;padding:11px;background:#dbeafe;border-radius:8px;text-align:center;font-size:14px;font-weight:600;color:#1d4ed8;cursor:pointer;border:1px solid #93c5fd}
+.nav-bar{display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#999}
+.nav-icon{width:20px;height:20px;border-radius:4px;background:#f0f0f0}
+.nav-item.active .nav-icon{background:#dbeafe}
+.nav-item.active{color:#1d4ed8}
+</style>
+</head>
+<body>
+<h1>Wireframe 2 — Feed pendant la session (session ouverte)</h1>
+<div class="screen">
+  <div class="nav">
+    <div class="nav-logo"><span class="pulse-dot"></span>Pulse</div>
+    <div class="avatar">RF</div>
+  </div>
+  <div class="session-bar">
+    <div class="session-live"><span class="live-dot"></span>Session en cours</div>
+    <div class="session-timer">Fermeture dans 38:24</div>
+  </div>
+  <div class="tabs">
+    <div class="tab active">Global</div>
+    <div class="tab">Abonnements</div>
+    <div class="tab">Question</div>
+    <div class="tab">Projet</div>
+  </div>
+  <div class="feed">
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-avatar av1">AL</div>
+        <div><div class="post-user">alice_dev</div><div class="post-time">il y a 2 min</div></div>
+        <span class="intent-badge bp">Projet</span>
+      </div>
+      <div class="post-body">Premier commit sur mon side project ce soir. Stresssant mais trop bien !</div>
+      <div class="post-actions">
+        <div class="action"><div class="action-icon"></div>12</div>
+        <div class="action"><div class="action-icon"></div>3</div>
+        <div class="action"><div class="action-icon"></div>Réagir</div>
+      </div>
+    </div>
+    <div class="post-card new">
+      <div class="post-new-label">Nouveau</div>
+      <div class="post-header">
+        <div class="post-avatar av2">MX</div>
+        <div><div class="post-user">maxou</div><div class="post-time">à l'instant</div></div>
+        <span class="intent-badge bq">Question</span>
+      </div>
+      <div class="post-body">Quelqu'un a testé Bun en production ? Retours d'expé ?</div>
+      <div class="post-actions">
+        <div class="action"><div class="action-icon"></div>4</div>
+        <div class="action"><div class="action-icon"></div>0</div>
+        <div class="action"><div class="action-icon"></div>Réagir</div>
+      </div>
+    </div>
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-avatar av3">JL</div>
+        <div><div class="post-user">jeanlo</div><div class="post-time">il y a 8 min</div></div>
+        <span class="intent-badge bs">Partage</span>
+      </div>
+      <div class="post-body">Un article incroyable sur la performance des WebSockets en Go. À lire absolument.</div>
+      <div class="post-actions">
+        <div class="action"><div class="action-icon"></div>27</div>
+        <div class="action"><div class="action-icon"></div>5</div>
+        <div class="action"><div class="action-icon"></div>Réagir</div>
+      </div>
+    </div>
+  </div>
+  <div class="new-post-btn">Rédiger mon post du jour</div>
+  <div class="nav-bar">
+    <div class="nav-item"><div class="nav-icon"></div>Accueil</div>
+    <div class="nav-item active"><div class="nav-icon"></div>Feed</div>
+    <div class="nav-item"><div class="nav-icon"></div>Recherche</div>
+    <div class="nav-item"><div class="nav-icon"></div>Profil</div>
+  </div>
+</div>
+</body>
+</html>

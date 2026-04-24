@@ -17,8 +17,6 @@ Thumbs.db
 
 # Internal / docs
 .claude/
-CLAUDE.md
-pulse-certif/
 
 # Docker volumes
 postgres_data/
