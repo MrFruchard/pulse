@@ -6,6 +6,7 @@ import { auth, posts as postsApi } from '@/lib/api'
 import { useSession } from '@/hooks/useSession'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { useNotifications } from '@/hooks/useNotifications'
+import { HeartbeatScreen } from '@/components/HeartbeatScreen'
 import { NavBar } from '@/components/NavBar'
 import { SessionBar } from '@/components/SessionBar'
 import { Countdown } from '@/components/Countdown'
@@ -69,13 +70,22 @@ export default function FeedPage() {
     if (msg.type === 'new_reaction') {
       setFeedPosts(prev => prev.map(p => {
         if (p.id !== msg.postId) return p
-        return {
-          ...p,
-          reactions: {
-            ...p.reactions,
-            [msg.reaction as string]: (p.reactions[msg.reaction as ReactionType] ?? 0) + 1,
-          },
+        const updated = { ...p.reactions }
+        if (msg.prevReaction && msg.prevReaction !== msg.reaction) {
+          updated[msg.prevReaction as ReactionType] = Math.max(0, (updated[msg.prevReaction as ReactionType] ?? 0) - 1)
         }
+        if (!msg.prevReaction || msg.prevReaction !== msg.reaction) {
+          updated[msg.reaction as ReactionType] = (updated[msg.reaction as ReactionType] ?? 0) + 1
+        }
+        return { ...p, reactions: updated }
+      }))
+    }
+    if (msg.type === 'remove_reaction') {
+      setFeedPosts(prev => prev.map(p => {
+        if (p.id !== msg.postId) return p
+        const updated = { ...p.reactions }
+        if (msg.prevReaction) updated[msg.prevReaction as ReactionType] = Math.max(0, (updated[msg.prevReaction as ReactionType] ?? 0) - 1)
+        return { ...p, reactions: updated }
       }))
     }
     if (msg.type === 'session_opened' || msg.type === 'session_closed') {
@@ -84,17 +94,15 @@ export default function FeedPage() {
   })
 
   async function handleReact(postId: string, type: ReactionType) {
+    const post = feedPosts.find(p => p.id === postId)
+    const isSame = post?.userReaction === type
     try {
-      await postsApi.react(postId, type)
-      setFeedPosts(prev => prev.map(p => {
-        if (p.id !== postId) return p
-        return {
-          ...p,
-          userReaction: type,
-          reactions: { ...p.reactions, [type]: (p.reactions[type] ?? 0) + 1 },
-        }
-      }))
-    } catch { /* déjà réagi */ }
+      if (isSame) {
+        await postsApi.unreact(postId)
+      } else {
+        await postsApi.react(postId, type)
+      }
+    } catch { /* erreur réseau */ }
   }
 
   if (sessionLoading || !me) return null
@@ -108,10 +116,7 @@ export default function FeedPage() {
 
         <main className="max-w-2xl mx-auto px-4 py-6">
           {!sessionState?.isActive && me?.role !== 'admin' ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <p className="text-gray-500 text-sm mb-8">La prochaine session commence dans</p>
-              <Countdown />
-            </div>
+            <HeartbeatScreen opensAt={sessionState?.opensAt ?? new Date(Date.now() + 3600_000).toISOString()} />
           ) : (
             <>
               <FollowRequestsPanel />
