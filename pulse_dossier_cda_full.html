@@ -18,7 +18,7 @@
           secondaryColor: '#f8fafc',
           tertiaryColor: '#f0fdf4',
           fontFamily: 'Inter, -apple-system, sans-serif',
-          fontSize: '14px',
+          fontSize: '15px',
         },
         er: { diagramPadding: 30, layoutDirection: 'TB', minEntityWidth: 100, minEntityHeight: 75 },
         flowchart: { curve: 'basis', padding: 20 },
@@ -28,6 +28,7 @@
   </script>
   <style>
     .mermaid { background: white; border-radius: 18px; padding: 24px; margin: 20px 0; border: 1px solid var(--line); }
+    .mermaid-lg { background: white; border-radius: 18px; padding: 32px; margin: 28px -40px; border: 1px solid var(--line); overflow-x: auto; }
   </style>
   <style>
     :root{
@@ -130,17 +131,20 @@
     h2{
       font-size:30px;
       padding-top:42px;
-      border-top:1px solid var(--line);
+      border-top:2px solid #dbeafe;
       margin-top:52px;
+      color:#111827;
     }
-    h3{font-size:22px;margin-top:34px}
+    /* Numéro de section coloré ex: "3.7 Titre" → le chiffre en bleu */
+    h2::first-line{ color: var(--accent); }
+    h3{font-size:22px;margin-top:34px;color:#1e3a5f}
     p{margin:0 0 16px}
     .chapter{
       margin:72px -72px 42px;
       padding:72px;
-      background:#f7f9fc;
-      border-top:1px solid var(--line);
-      border-bottom:1px solid var(--line);
+      background:linear-gradient(135deg,#eff6ff 0%,#f0f9ff 100%);
+      border-top:2px solid #bfdbfe;
+      border-bottom:2px solid #bfdbfe;
     }
     .chapter .num{
       color:var(--accent);
@@ -166,18 +170,21 @@
       box-shadow:0 8px 24px rgba(17,24,39,.04);
     }
     .metric .k{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
-    .metric .v{font-size:26px;font-weight:800;margin-top:8px}
+    .metric .v{font-size:26px;font-weight:800;margin-top:8px;color:var(--accent)}
     .callout{
-      border:1px solid #bfdbfe;
+      border-left:4px solid #2563eb;
+      border-top:1px solid #bfdbfe;
+      border-right:1px solid #bfdbfe;
+      border-bottom:1px solid #bfdbfe;
       background:#eff6ff;
       border-radius:18px;
       padding:22px 24px;
       margin:26px 0;
     }
     .callout strong{color:#1d4ed8}
-    .danger{background:#fef2f2;border-color:#fecaca}
+    .danger{background:#fef2f2;border-color:#fecaca;border-left:4px solid #b91c1c}
     .danger strong{color:#b91c1c}
-    .good{background:#f0fdf4;border-color:#bbf7d0}
+    .good{background:#f0fdf4;border-color:#bbf7d0;border-left:4px solid #15803d}
     .good strong{color:#15803d}
     .muted{color:var(--muted)}
     table{
@@ -196,11 +203,19 @@
       vertical-align:top;
       text-align:left;
     }
-    th{background:#f8fafc;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#374151}
+    th{background:#eff6ff;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#1d4ed8}
     tr:last-child td{border-bottom:0}
     code,pre{
       font-family:"SFMono-Regular", Consolas, "Liberation Mono", monospace;
       font-size:14px;
+    }
+    /* code inline */
+    :not(pre) > code{
+      background:#eff6ff;
+      color:#1d4ed8;
+      border-radius:6px;
+      padding:2px 6px;
+      font-size:13px;
     }
     pre{
       background:#0f172a;
@@ -235,13 +250,14 @@
       flex-wrap:wrap;
     }
     .node{
-      border:1px solid var(--line);
+      border:1px solid #bfdbfe;
       border-radius:16px;
-      background:#f8fafc;
+      background:#eff6ff;
       padding:16px 18px;
       min-width:150px;
       text-align:center;
       font-weight:700;
+      color:#1e3a5f;
     }
     .node small{display:block;color:var(--muted);font-weight:500;margin-top:4px}
     .arrow{color:var(--muted);font-size:26px}
@@ -253,13 +269,14 @@
       margin:auto;
     }
     .layer{
-      border:1px solid var(--line);
+      border:1px solid #bfdbfe;
       border-radius:18px;
       padding:18px 24px;
       background:#f8fafc;
       display:flex;
       justify-content:space-between;
       gap:20px;
+      border-left:4px solid var(--accent);
     }
     .layer strong{font-size:18px}
     .layer span{color:var(--muted)}
@@ -365,7 +382,7 @@
     }
     /* ── Quote + Résumé ── */
     .quote-resume-page{
-      min-height:100vh;
+      min-height:auto;
       display:flex;
       align-items:center;
       background:#111827;
@@ -421,47 +438,46 @@
       background:
         radial-gradient(circle at 90% 10%, rgba(37,99,235,.07), transparent 40%),
         #fff;
-      padding:72px;
-      min-height:80vh;
+      padding:38px 72px;
       display:flex;
       align-items:center;
     }
     .presenter-inner{ max-width:760px; margin:0 auto; width:100%; }
     .presenter-avatar{
-      width:72px; height:72px;
+      width:58px; height:58px;
       border-radius:50%;
       background:var(--accent);
       color:white;
-      font-size:24px;
+      font-size:20px;
       font-weight:800;
       display:flex;
       align-items:center;
       justify-content:center;
-      margin-bottom:20px;
+      margin-bottom:13px;
     }
-    .presenter-name{ font-size:36px; font-weight:800; margin-bottom:6px; }
-    .presenter-role{ font-size:16px; color:var(--muted); margin-bottom:28px; }
-    .presenter-bio{ font-size:15px; color:#374151; line-height:1.7; margin-bottom:36px; }
+    .presenter-name{ font-size:30px; font-weight:800; margin-bottom:3px; }
+    .presenter-role{ font-size:14px; color:var(--muted); margin-bottom:16px; }
+    .presenter-bio{ font-size:13.5px; color:#374151; line-height:1.65; margin-bottom:20px; }
     .presenter-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:20px;
+      gap:12px;
     }
     .presenter-block{
       background:#f7f9fc;
       border:1px solid var(--line);
-      border-radius:16px;
-      padding:20px 22px;
+      border-radius:14px;
+      padding:14px 16px;
     }
     .presenter-block-title{
-      font-size:11px;
+      font-size:10px;
       font-weight:800;
       text-transform:uppercase;
       letter-spacing:.12em;
       color:var(--accent);
-      margin-bottom:10px;
+      margin-bottom:8px;
     }
-    .presenter-block p{ font-size:14px; color:#374151; margin:0; line-height:1.6; }
+    .presenter-block p{ font-size:13px; color:#374151; margin:0; line-height:1.55; }
 
     .print-note{
       background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
@@ -486,7 +502,7 @@
       .presenter-page { break-after:page; break-inside:avoid; }
 
       /* ── Sommaire sur sa propre page ── */
-      .toc-section { break-before:page; break-after:page; }
+      .toc-section { break-after:page; }
 
       /* ── Chapitres toujours en tête de page ── */
       .chapter { break-before:page; }
@@ -521,6 +537,12 @@
 
       /* ── Maquettes : indivisibles ── */
       .wf-wrap { break-inside:avoid; page-break-inside:avoid; }
+    .screenshot-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:28px 0; }
+    .screenshot-item { break-inside:avoid; }
+    .screenshot-item img { width:100%; border-radius:12px; border:1px solid var(--line); box-shadow:0 8px 24px rgba(17,24,39,.08); }
+    .screenshot-caption { font-size:12px; color:var(--muted); text-align:center; margin-top:8px; font-style:italic; }
+    .screenshot-full { margin:24px 0; break-inside:avoid; }
+    .screenshot-full img { width:100%; border-radius:12px; border:1px solid var(--line); box-shadow:0 8px 24px rgba(17,24,39,.08); }
 
       /* ── Maquettes : forcer toutes les couleurs dark ── */
       .wf-wrap, .wf-bar, .wf-card, .wf-session-bar, .wf-auth-card,
@@ -666,9 +688,14 @@
       </a>
       <a href="#annexes" class="toc-secondary">
         <span class="toc-num">—</span>
-        <span class="toc-title">Annexes A – E</span>
+        <span class="toc-title">Annexes A – H</span>
         <span class="toc-dots"></span>
       </a>
+      <a href="#annexe-d" class="toc-sub"><span class="toc-sub-num">D</span><span class="toc-sub-title">Parcours utilisateur (flowcharts)</span><span class="toc-dots"></span></a>
+      <a href="#annexe-e" class="toc-sub"><span class="toc-sub-num">E</span><span class="toc-sub-title">Dictionnaire de données</span><span class="toc-dots"></span></a>
+      <a href="#annexe-f" class="toc-sub"><span class="toc-sub-num">F</span><span class="toc-sub-title">Arborescence du projet</span><span class="toc-dots"></span></a>
+      <a href="#annexe-g" class="toc-sub"><span class="toc-sub-num">G</span><span class="toc-sub-title">Glossaire technique</span><span class="toc-dots"></span></a>
+      <a href="#annexe-h" class="toc-sub"><span class="toc-sub-num">H</span><span class="toc-sub-title">Captures d'écran de l'application</span><span class="toc-dots"></span></a>
     </nav>
     </div>
 
@@ -975,7 +1002,7 @@ erDiagram
     </div>
 
     <h3>MLD — Modèle Logique des Données</h3>
-    <div class="mermaid">
+    <div class="mermaid mermaid-lg">
 erDiagram
     users {
         UUID id PK
@@ -1918,6 +1945,282 @@ CREATE INDEX idx_posts_created_at   ON posts(created_at DESC);</pre>
     </div>
 
   </section>
+
+    <h2 id="annexe-d">Annexe D — Parcours utilisateur</h2>
+    <p>Les trois flowcharts ci-dessous illustrent les flux principaux de l'application.</p>
+
+    <h3>Flux d'inscription</h3>
+    <div class="mermaid">
+flowchart TD
+    A[Utilisateur arrive sur /register] --> B[Saisit email, pseudo, password]
+    B --> C[POST /api/auth/register]
+    C --> D{Email unique ?\nPseudo unique ?\nPassword valide ?}
+    D -->|Non| E[400 Bad Request\nRetour formulaire]
+    E --> B
+    D -->|Oui| F[Hashage bcrypt coût 12]
+    F --> G[INSERT users\nstatus=active, role=user]
+    G --> H[Génération JWT 24h]
+    H --> I[SET cookie httpOnly]
+    I --> J[201 Created]
+    J --> K[Redirect /feed ou /waiting]
+    </div>
+
+    <h3>Flux de connexion</h3>
+    <div class="mermaid">
+flowchart TD
+    A[Utilisateur arrive sur /login] --> B[Saisit email + password]
+    B --> C[POST /api/auth/login]
+    C --> D[SELECT users WHERE email = $1]
+    D --> E{Utilisateur trouvé ?}
+    E -->|Non| F[401 — Message générique]
+    E -->|Oui| G[bcrypt.CompareHashAndPassword]
+    G --> H{Hash valide ?}
+    H -->|Non| F
+    H -->|Oui| I{Status suspended ?}
+    I -->|Oui| J[403 — Account suspended]
+    I -->|Non| K[Génération JWT]
+    K --> L[SET cookie httpOnly SameSite=Strict]
+    L --> M[GET /api/session/current]
+    M --> N{Session active ?}
+    N -->|Oui| O[Redirect /feed]
+    N -->|Non| P[Redirect /waiting\nCompte à rebours]
+    </div>
+
+    <h3>Cycle de vie d'une session</h3>
+    <div class="mermaid">
+flowchart TD
+    A[Cron — chaque minute] --> B{Heure == SESSION_OPEN_HOUR ?}
+    B -->|Non| C{Session active\nexpirée ?}
+    C -->|Non| Z[Fin du tick]
+    B -->|Oui| D[INSERT sessions\nis_active=true]
+    D --> E[Broadcast WebSocket\nsession_opened]
+    E --> F[Utilisateurs postent\nPOST /api/posts]
+    F --> G{1 post/session ?\nSession active ?}
+    G -->|Non| H[409 / 403]
+    G -->|Oui| I[INSERT posts\nINSERT session_attendances]
+    I --> J[Broadcast new_post\nà tous les connectés]
+    C -->|Oui| K[UPDATE sessions is_active=false]
+    K --> L[Broadcast session_closed]
+    L --> M[StreakCalculator]
+    M --> N[Vérifier session_attendances\n7 derniers jours par user]
+    N --> O[UPDATE users.streak]
+    O --> P{7 sessions\nmanquées ?}
+    P -->|Oui| Q[UPDATE status=dormant]
+    P -->|Non| Z
+    Q --> Z
+    </div>
+
+    <h2 id="annexe-e">Annexe E — Dictionnaire de données</h2>
+
+    <h3>users</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL, UNIQUE</td><td>Adresse email</td></tr>
+      <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Hash bcrypt, jamais en clair</td></tr>
+      <tr><td>pseudo</td><td>VARCHAR(50)</td><td>NOT NULL, UNIQUE</td><td>Pseudonyme public</td></tr>
+      <tr><td>avatar_url</td><td>VARCHAR(500)</td><td></td><td>URL image de profil</td></tr>
+      <tr><td>bio</td><td>TEXT</td><td></td><td>Biographie libre</td></tr>
+      <tr><td>role</td><td>user_role</td><td>DEFAULT 'user'</td><td>user | moderator | admin</td></tr>
+      <tr><td>streak</td><td>INTEGER</td><td>DEFAULT 0</td><td>Sessions consécutives participées</td></tr>
+      <tr><td>status</td><td>user_status</td><td>DEFAULT 'active'</td><td>active | dormant | suspended</td></tr>
+      <tr><td>is_private</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Profil privé</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création</td></tr>
+      <tr><td>updated_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Dernière modification</td></tr>
+    </table>
+
+    <h3>sessions</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>opens_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>Heure d'ouverture (UTC)</td></tr>
+      <tr><td>closes_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>Heure de fermeture (UTC)</td></tr>
+      <tr><td>is_active</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Une seule session active à la fois</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création du record</td></tr>
+    </table>
+
+    <h3>posts</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Auteur du post</td></tr>
+      <tr><td>session_id</td><td>UUID</td><td>FK sessions, CASCADE</td><td>Session de publication</td></tr>
+      <tr><td>content</td><td>TEXT</td><td>NOT NULL</td><td>Contenu textuel</td></tr>
+      <tr><td>intention</td><td>post_intention</td><td>NOT NULL</td><td>QUESTION | SHARE | PROJECT | CHALLENGE</td></tr>
+      <tr><td>privacy</td><td>post_privacy</td><td>DEFAULT 'PUBLIC'</td><td>PUBLIC | FOLLOWERS | PRIVATE</td></tr>
+      <tr><td>image_url</td><td>VARCHAR(500)</td><td></td><td>Image jointe optionnelle</td></tr>
+      <tr><td>is_flagged</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Signalé pour modération</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de publication</td></tr>
+    </table>
+
+    <h3>comments</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>post_id</td><td>UUID</td><td>FK posts, CASCADE</td><td>Post commenté</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Auteur du commentaire</td></tr>
+      <tr><td>content</td><td>TEXT</td><td>NOT NULL</td><td>Texte du commentaire</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création</td></tr>
+    </table>
+
+    <h3>reactions</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>post_id</td><td>UUID</td><td>FK posts, CASCADE</td><td>Post réactionné</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur qui réagit</td></tr>
+      <tr><td>type</td><td>reaction_type</td><td>NOT NULL</td><td>LIKE | FIRE | INSIGHTFUL | SUPPORT</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de réaction</td></tr>
+      <tr><td colspan="4"><em>UNIQUE(post_id, user_id) — une réaction par utilisateur par post</em></td></tr>
+    </table>
+
+    <h3>follows</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>follower_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur qui suit</td></tr>
+      <tr><td>following_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur suivi</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date du suivi</td></tr>
+      <tr><td colspan="4"><em>UNIQUE(follower_id, following_id) · CHECK(follower_id != following_id)</em></td></tr>
+    </table>
+
+    <h3>notifications</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Destinataire</td></tr>
+      <tr><td>type</td><td>notification_type</td><td>NOT NULL</td><td>SESSION_OPEN | REACTION | COMMENT | FOLLOW | REPORT</td></tr>
+      <tr><td>payload</td><td>JSONB</td><td>DEFAULT '{}'</td><td>Données contextuelles (JSON)</td></tr>
+      <tr><td>is_read</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Statut de lecture</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création</td></tr>
+    </table>
+
+    <h3>reports</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>post_id</td><td>UUID</td><td>FK posts, CASCADE</td><td>Post signalé</td></tr>
+      <tr><td>reporter_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur qui signale</td></tr>
+      <tr><td>reason</td><td>report_reason</td><td>NOT NULL</td><td>SPAM | INAPPROPRIATE | HARASSMENT | OTHER</td></tr>
+      <tr><td>status</td><td>report_status</td><td>DEFAULT 'PENDING'</td><td>PENDING | REVIEWED | DISMISSED</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date du signalement</td></tr>
+    </table>
+
+    <h3>session_attendances</h3>
+    <table>
+      <tr><th>Champ</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PRIMARY KEY</td><td>Identifiant unique</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur participant</td></tr>
+      <tr><td>session_id</td><td>UUID</td><td>FK sessions, CASCADE</td><td>Session concernée</td></tr>
+      <tr><td>joined_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Heure de participation</td></tr>
+      <tr><td colspan="4"><em>UNIQUE(user_id, session_id) — un enregistrement par utilisateur par session</em></td></tr>
+    </table>
+
+    <h2 id="annexe-f">Annexe F — Arborescence du projet</h2>
+    <pre>pulse/
+├── docker-compose.yml          Orchestration des conteneurs
+├── .env.example                Variables d'environnement requises
+├── nginx/
+│   └── nginx.conf              Reverse proxy, SSL, rate limiting
+├── migrations/
+│   ├── 001_init_schema.sql     Schéma PostgreSQL complet
+│   └── 002_seed_dev.sql        Données de développement
+├── backend/
+│   ├── cmd/server/
+│   │   └── main.go             Point d'entrée, démarrage serveur
+│   └── internal/
+│       ├── config/             Variables d'environnement
+│       ├── cron/               SessionManager (ouverture/fermeture/streaks)
+│       ├── db/                 Connexion PostgreSQL via sqlx
+│       ├── handlers/           Handlers HTTP par domaine
+│       │   ├── auth.go         Register, login, logout
+│       │   ├── posts.go        CRUD posts + règles métier
+│       │   ├── reactions.go    UPSERT réactions + notifications
+│       │   ├── session.go      État session courante
+│       │   ├── users.go        Profils, follow, search
+│       │   └── ws.go           Upgrade WebSocket
+│       ├── middleware/
+│       │   ├── jwt.go          Vérification JWT, extraction claims
+│       │   └── rbac.go         Contrôle accès par rôle
+│       ├── models/             Structs Go (User, Post, Session…)
+│       ├── services/           Logique métier (JWT, bcrypt, streak)
+│       ├── storage/            Upload fichiers
+│       └── websocket/
+│           └── hub.go          Hub connexions WebSocket
+└── frontend/
+    ├── app/
+    │   ├── (auth)/             Login, register
+    │   ├── feed/               Feed principal
+    │   ├── notifications/      Notifications
+    │   ├── profile/[pseudo]/   Profil utilisateur
+    │   └── admin/              Interface admin/modération
+    ├── components/
+    │   ├── ui/                 Composants atomiques
+    │   ├── AppShell.tsx        Layout principal
+    │   ├── PostCard.tsx        Affichage d'un post
+    │   └── SplashScreen.tsx    Écran d'attente animé
+    ├── hooks/
+    │   ├── useWebSocket.ts     Connexion temps réel
+    │   ├── useSession.ts       État session courante
+    │   └── useBpm.ts           Animation battement
+    └── lib/
+        └── api.ts              Wrapper fetch avec auth JWT</pre>
+
+    <h2 id="annexe-g">Annexe G — Glossaire technique</h2>
+    <table>
+      <tr><th>Terme</th><th>Définition</th></tr>
+      <tr><td><strong>JWT</strong></td><td>JSON Web Token — token signé contenant l'identité de l'utilisateur (id, rôle). Stocké en cookie httpOnly, expiration 24h, vérifié à chaque requête authentifiée.</td></tr>
+      <tr><td><strong>WebSocket</strong></td><td>Protocole de communication bidirectionnelle persistante. Utilisé pour diffuser en temps réel les nouveaux posts, réactions et événements de session à tous les connectés.</td></tr>
+      <tr><td><strong>Streak</strong></td><td>Compteur de sessions consécutives auxquelles un utilisateur a participé. S'incrémente après chaque session, remis à 0 si une session est manquée. Élément de gamification de Pulse.</td></tr>
+      <tr><td><strong>UPSERT</strong></td><td>Opération SQL combinant INSERT et UPDATE — crée si absent, met à jour si présent. Utilisé pour les réactions : <code>INSERT … ON CONFLICT DO UPDATE SET type = EXCLUDED.type</code>.</td></tr>
+      <tr><td><strong>RBAC</strong></td><td>Role-Based Access Control — contrôle d'accès par rôle. Pulse : <code>user</code> (standard), <code>moderator</code> (gère les reports), <code>admin</code> (config, suspension). Vérifié en middleware.</td></tr>
+      <tr><td><strong>Goroutine</strong></td><td>Thread léger en Go. Le SessionManager, le Hub WebSocket et les traitements asynchrones tournent en goroutines parallèles sans bloquer le serveur HTTP.</td></tr>
+      <tr><td><strong>Hub</strong></td><td>Composant central (<code>internal/websocket/hub.go</code>) gérant toutes les connexions WebSocket actives. Maintient une map de clients, diffuse les événements, déconnecte à la fermeture de session.</td></tr>
+      <tr><td><strong>Bcrypt</strong></td><td>Algorithme de hashage adaptatif pour les mots de passe. Pulse utilise le coût 12 (minimum recommandé). Le hash est irréversible et jamais retourné par l'API.</td></tr>
+      <tr><td><strong>Cron</strong></td><td>Tâche planifiée s'exécutant périodiquement. Le SessionManager s'exécute chaque minute pour ouvrir/fermer les sessions et déclencher le calcul des streaks.</td></tr>
+      <tr><td><strong>Chi</strong></td><td>Router HTTP léger en Go (<code>github.com/go-chi/chi</code>). Gère les groupes de routes, les middlewares chaînés et le context HTTP. Choisi pour sa légèreté vs frameworks complets.</td></tr>
+      <tr><td><strong>sqlx</strong></td><td>Extension de <code>database/sql</code> en Go avec binding nommé et struct scanning. Toutes les requêtes Pulse utilisent des paramètres préparés (<code>$1, $2…</code>) — zéro concaténation SQL.</td></tr>
+      <tr><td><strong>Intention</strong></td><td>Champ obligatoire à la création d'un post : QUESTION, SHARE, PROJECT ou CHALLENGE. Force l'utilisateur à déclarer son objectif, filtre le feed, améliore la qualité des échanges.</td></tr>
+      <tr><td><strong>session_attendance</strong></td><td>Table de jonction reliant un utilisateur à une session. Enregistrée dès qu'un utilisateur se connecte pendant une session active. Base du calcul des streaks.</td></tr>
+      <tr><td><strong>Dormant</strong></td><td>Statut utilisateur automatique après 7 sessions consécutives manquées. Visible sur le profil, n'empêche pas la connexion. Signale une absence prolongée.</td></tr>
+    </table>
+
+
+    <h2 id="annexe-h">Annexe H — Captures d'écran de l'application</h2>
+    <p>Captures réelles de l'application Pulse en fonctionnement local (Docker Compose). Les pages publiques utilisent le thème sombre par défaut.</p>
+
+    <div class="screenshot-full">
+      <img src="screenshots/01_splash.png" alt="Écran d'attente — session fermée" />
+      <div class="screenshot-caption">Écran d'accueil / attente — session fermée, compte à rebours avant la prochaine session</div>
+    </div>
+
+    <div class="screenshot-grid">
+      <div class="screenshot-item">
+        <img src="screenshots/02_login.png" alt="Page de connexion" />
+        <div class="screenshot-caption">Page de connexion</div>
+      </div>
+      <div class="screenshot-item">
+        <img src="screenshots/03_register.png" alt="Page d'inscription" />
+        <div class="screenshot-caption">Page d'inscription (email, pseudo, mot de passe)</div>
+      </div>
+    </div>
+
+    <div class="screenshot-full">
+      <img src="screenshots/04_feed.png" alt="Feed principal — session active" />
+      <div class="screenshot-caption">Feed principal — zone de composition d'un post (intentions : Question, Partage, Projet, Challenge), filtres Global/Abonnements, affichage des posts avec réactions</div>
+    </div>
+
+    <div class="screenshot-grid">
+      <div class="screenshot-item">
+        <img src="screenshots/05_notifications.png" alt="Page notifications" />
+        <div class="screenshot-caption">Page notifications</div>
+      </div>
+      <div class="screenshot-item">
+        <img src="screenshots/06_profile.png" alt="Page profil utilisateur" />
+        <div class="screenshot-caption">Page profil — pseudo, statut, abonnés/abonnements, historique des posts</div>
+      </div>
+    </div>
+
 </main>
 </body>
 </html>
