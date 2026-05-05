@@ -1,0 +1,1923 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PULSE — Dossier professionnel CDA</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'base',
+        themeVariables: {
+          primaryColor: '#eff6ff',
+          primaryTextColor: '#111827',
+          primaryBorderColor: '#bfdbfe',
+          lineColor: '#6b7280',
+          secondaryColor: '#f8fafc',
+          tertiaryColor: '#f0fdf4',
+          fontFamily: 'Inter, -apple-system, sans-serif',
+          fontSize: '14px',
+        },
+        er: { diagramPadding: 30, layoutDirection: 'TB', minEntityWidth: 100, minEntityHeight: 75 },
+        flowchart: { curve: 'basis', padding: 20 },
+        sequence: { actorMargin: 60, boxMargin: 10, messageMargin: 40 },
+      });
+    });
+  </script>
+  <style>
+    .mermaid { background: white; border-radius: 18px; padding: 24px; margin: 20px 0; border: 1px solid var(--line); }
+  </style>
+  <style>
+    :root{
+      --ink:#111827;
+      --muted:#6b7280;
+      --soft:#f4f6f8;
+      --line:#d9dee7;
+      --panel:#ffffff;
+      --accent:#2563eb;
+      --accent2:#111827;
+      --green:#15803d;
+      --red:#b91c1c;
+      --amber:#b45309;
+      --shadow:0 14px 40px rgba(17,24,39,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:#eef1f5;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height:1.65;
+      font-size:16px;
+    }
+    .page{
+      width:min(1120px, calc(100% - 32px));
+      margin:28px auto;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .cover{
+      min-height:760px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:72px;
+      background:
+        radial-gradient(circle at 85% 15%, rgba(37,99,235,.12), transparent 34%),
+        linear-gradient(135deg,#fff 0%,#f7f9fc 100%);
+    }
+    .eyebrow{
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+    .brand{
+      margin-top:88px;
+      font-size:96px;
+      letter-spacing:.10em;
+      font-weight:800;
+      line-height:.9;
+    }
+    .subtitle{
+      font-size:28px;
+      margin-top:20px;
+      color:#1f2937;
+    }
+    .tagline{
+      margin-top:34px;
+      font-size:22px;
+      font-style:italic;
+      color:#374151;
+      border-left:4px solid var(--accent);
+      padding-left:18px;
+    }
+    .cover-footer{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+      border-top:1px solid var(--line);
+      padding-top:28px;
+      color:#374151;
+    }
+    .quote-page{
+      min-height:420px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:80px;
+      background:#111827;
+      color:white;
+    }
+    .quote-page blockquote{
+      max-width:760px;
+      font-size:34px;
+      line-height:1.35;
+      font-weight:300;
+      margin:0;
+    }
+    .content{padding:56px 72px 80px}
+    h1,h2,h3{line-height:1.2;margin:0 0 18px}
+    h1{font-size:42px;margin-top:30px}
+    h2{
+      font-size:30px;
+      padding-top:42px;
+      border-top:1px solid var(--line);
+      margin-top:52px;
+    }
+    h3{font-size:22px;margin-top:34px}
+    p{margin:0 0 16px}
+    .chapter{
+      margin:72px -72px 42px;
+      padding:72px;
+      background:#f7f9fc;
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+    }
+    .chapter .num{
+      color:var(--accent);
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.15em;
+      font-size:13px;
+      margin-bottom:16px;
+    }
+    .chapter h1{margin:0;font-size:46px}
+    .chapter em{display:block;margin-top:12px;font-size:20px;color:var(--muted)}
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin:28px 0 34px;
+    }
+    .metric,.card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:20px;
+      box-shadow:0 8px 24px rgba(17,24,39,.04);
+    }
+    .metric .k{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+    .metric .v{font-size:26px;font-weight:800;margin-top:8px}
+    .callout{
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      border-radius:18px;
+      padding:22px 24px;
+      margin:26px 0;
+    }
+    .callout strong{color:#1d4ed8}
+    .danger{background:#fef2f2;border-color:#fecaca}
+    .danger strong{color:#b91c1c}
+    .good{background:#f0fdf4;border-color:#bbf7d0}
+    .good strong{color:#15803d}
+    .muted{color:var(--muted)}
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      margin:24px 0;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:white;
+    }
+    th,td{
+      padding:13px 15px;
+      border-bottom:1px solid var(--line);
+      vertical-align:top;
+      text-align:left;
+    }
+    th{background:#f8fafc;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#374151}
+    tr:last-child td{border-bottom:0}
+    code,pre{
+      font-family:"SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size:14px;
+    }
+    pre{
+      background:#0f172a;
+      color:#e5e7eb;
+      border-radius:18px;
+      padding:20px;
+      overflow:auto;
+      margin:20px 0;
+      line-height:1.5;
+    }
+    .diagram{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:22px;
+      padding:26px;
+      margin:26px 0 34px;
+      box-shadow:0 8px 24px rgba(17,24,39,.04);
+    }
+    .diagram-title{
+      font-size:13px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.10em;
+      font-weight:800;
+      margin-bottom:18px;
+    }
+    .flow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .node{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#f8fafc;
+      padding:16px 18px;
+      min-width:150px;
+      text-align:center;
+      font-weight:700;
+    }
+    .node small{display:block;color:var(--muted);font-weight:500;margin-top:4px}
+    .arrow{color:var(--muted);font-size:26px}
+    .layers{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      max-width:740px;
+      margin:auto;
+    }
+    .layer{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px 24px;
+      background:#f8fafc;
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+    }
+    .layer strong{font-size:18px}
+    .layer span{color:var(--muted)}
+    .timeline{
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+    .timeline:before{
+      content:"";
+      position:absolute;
+      top:34px;
+      left:8%;
+      right:8%;
+      height:3px;
+      background:#dbeafe;
+      z-index:0;
+    }
+    .event{
+      position:relative;
+      z-index:1;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      text-align:center;
+    }
+    .dot{
+      width:18px;height:18px;border-radius:50%;
+      background:var(--accent);margin:10px auto 14px;
+      box-shadow:0 0 0 6px #dbeafe;
+    }
+    .event b{display:block}
+    .event small{color:var(--muted)}
+    .adr{
+      border-left:5px solid var(--accent);
+      background:#f8fafc;
+      border-radius:16px;
+      padding:20px 22px;
+      margin:22px 0;
+    }
+    .adr h3{margin-top:0}
+    .badge{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      background:#e0ecff;
+      color:#1d4ed8;
+      margin-right:8px;
+    }
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:22px;
+      margin:24px 0;
+    }
+    .toc{
+      columns:1;
+      margin:30px 0 10px;
+    }
+    .toc a{
+      display:grid;
+      grid-template-columns:32px 1fr auto;
+      align-items:baseline;
+      gap:0 10px;
+      color:#111827;
+      text-decoration:none;
+      padding:11px 16px;
+      border-radius:12px;
+      margin-bottom:4px;
+      transition:background .15s;
+    }
+    .toc a:hover{ background:#f4f6f8; }
+    .toc-num{
+      font-weight:800;
+      font-size:13px;
+      color:var(--accent);
+      font-variant-numeric:tabular-nums;
+    }
+    .toc-secondary .toc-num{ color:var(--muted); font-weight:500; }
+    .toc-title{ font-size:15px; font-weight:500; }
+    .toc-secondary .toc-title{ font-size:14px; color:var(--muted); }
+    .toc-dots{
+      border-bottom:2px dotted #d1d5db;
+      width:100%;
+      min-width:40px;
+      height:1px;
+      align-self:center;
+      display:none; /* visible uniquement à l'impression */
+    }
+    .toc-section{
+      padding:48px 0 32px;
+    }
+    @media print{
+      .toc a{ padding:8px 0; background:none !important; border-radius:0; border-bottom:none; }
+      .toc-dots{ display:block; }
+      .toc-title{ font-size:12pt; }
+      .toc-num{ font-size:11pt; }
+    }
+    /* ── Quote + Résumé ── */
+    .quote-resume-page{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      background:#111827;
+      padding:72px;
+    }
+    .quote-resume-inner{ max-width:760px; margin:0 auto; }
+    .quote-resume-quote{
+      font-size:28px;
+      font-weight:300;
+      font-style:italic;
+      color:white;
+      border-left:4px solid var(--accent);
+      padding-left:24px;
+      margin:0 0 48px;
+      line-height:1.4;
+    }
+    .quote-resume-title{
+      font-size:32px;
+      color:white;
+      margin:0 0 20px;
+    }
+    .quote-resume-body p{ color:#d1d5db; margin-bottom:16px; line-height:1.7; }
+    .quote-resume-body strong{ color:white; }
+
+    /* ── Page synthèse visuelle ── */
+    .synth-page{
+      min-height:60vh;
+      display:flex;
+      align-items:center;
+      background:#f7f9fc;
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      padding:64px 72px;
+    }
+    .synth-inner{ width:100%; }
+
+    /* ── Sous-entrées TOC ── */
+    .toc-chapter{ font-weight:700; margin-top:6px; }
+    .toc-sub{
+      display:grid !important;
+      grid-template-columns:52px 1fr auto !important;
+      padding:4px 16px 4px 48px !important;
+      margin-bottom:0 !important;
+    }
+    .toc-sub-num{ font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .toc-sub-title{ font-size:13px; color:#374151; }
+    .toc-sub:hover{ background:#f4f6f8; }
+
+    /* ── Page présentation ── */
+    .presenter-page{
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      background:
+        radial-gradient(circle at 90% 10%, rgba(37,99,235,.07), transparent 40%),
+        #fff;
+      padding:72px;
+      min-height:80vh;
+      display:flex;
+      align-items:center;
+    }
+    .presenter-inner{ max-width:760px; margin:0 auto; width:100%; }
+    .presenter-avatar{
+      width:72px; height:72px;
+      border-radius:50%;
+      background:var(--accent);
+      color:white;
+      font-size:24px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:20px;
+    }
+    .presenter-name{ font-size:36px; font-weight:800; margin-bottom:6px; }
+    .presenter-role{ font-size:16px; color:var(--muted); margin-bottom:28px; }
+    .presenter-bio{ font-size:15px; color:#374151; line-height:1.7; margin-bottom:36px; }
+    .presenter-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:20px;
+    }
+    .presenter-block{
+      background:#f7f9fc;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:20px 22px;
+    }
+    .presenter-block-title{
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--accent);
+      margin-bottom:10px;
+    }
+    .presenter-block p{ font-size:14px; color:#374151; margin:0; line-height:1.6; }
+
+    .print-note{
+      background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
+      border-radius:16px;padding:16px;margin:24px 0;
+    }
+    @media print{
+      /* ── Marges et base ── */
+      @page { margin: 18mm 20mm; }
+      body { background:white; font-size:11pt; line-height:1.55; }
+      .page { width:100%; margin:0; border:0; border-radius:0; box-shadow:none; }
+
+      /* ── Page de garde : intacte ── */
+      .cover { min-height:100vh; break-after:page; }
+
+      /* ── Quote + résumé : une page ── */
+      .quote-resume-page { min-height:100vh; break-after:page; break-inside:avoid; }
+
+      /* ── Synthèse visuelle : une page ── */
+      .synth-page { break-after:page; break-inside:avoid; }
+
+      /* ── Présentation : une page ── */
+      .presenter-page { break-after:page; break-inside:avoid; }
+
+      /* ── Sommaire sur sa propre page ── */
+      .toc-section { break-before:page; break-after:page; }
+
+      /* ── Chapitres toujours en tête de page ── */
+      .chapter { break-before:page; }
+
+      /* ── h2 : NE PAS forcer une page par h2 ──
+         On empêche juste les orphelins (titre sans contenu) */
+      h1,h2,h3 {
+        break-after:avoid;
+        orphans:3;
+        widows:3;
+      }
+
+      /* ── Blocs indivisibles ── */
+      .diagram, .card, .callout, .adr, .metric,
+      .summary-grid, .print-note {
+        break-inside:avoid;
+      }
+      table { break-inside:avoid; }
+      tr    { break-inside:avoid; }
+
+      /* ── Paragraphes : éviter les veuves/orphelins ── */
+      p { orphans:3; widows:3; }
+
+      /* ── Liens ── */
+      a { color:inherit; text-decoration:none; }
+
+      /* ── Mermaid : forcer les couleurs ── */
+      .mermaid, .mermaid svg {
+        print-color-adjust:exact;
+        -webkit-print-color-adjust:exact;
+      }
+
+      /* ── Maquettes : indivisibles ── */
+      .wf-wrap { break-inside:avoid; page-break-inside:avoid; }
+
+      /* ── Maquettes : forcer toutes les couleurs dark ── */
+      .wf-wrap, .wf-bar, .wf-card, .wf-session-bar, .wf-auth-card,
+      .wf-chip, .wf-filter-btn, .wf-digit-block, .wf-hb-body,
+      .wf-reaction-btn, .wf-privacy-btn, .wf-auth-body,
+      .wf-profile-header, .wf-profile-stats, .wf-body {
+        print-color-adjust:exact;
+        -webkit-print-color-adjust:exact;
+      }
+
+      /* ── Une maquette par page ── */
+      .wf-page-break {
+        break-before:page;
+        page-break-before:always;
+      }
+    }
+    @media (max-width:850px){
+      .cover,.content{padding:36px 24px}
+      .brand{font-size:58px}
+      .summary-grid,.two-col{grid-template-columns:1fr}
+      .toc{columns:1}
+      .chapter{margin-left:-24px;margin-right:-24px;padding:36px 24px}
+      .timeline{grid-template-columns:1fr}
+      .timeline:before{display:none}
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+  <section class="cover">
+    <div>
+      <div class="eyebrow">Dossier professionnel — Titre RNCP Concepteur Développeur d’Applications</div>
+      <div class="brand">PULSE</div>
+      <div class="subtitle">Réseau social à fenêtre temporelle</div>
+      <div class="tagline">Une heure par jour pour échanger autrement.</div>
+    </div>
+    <div class="cover-footer">
+      <div>
+        <strong>Projet personnel support de certification</strong><br>
+        Parcours Zone01 Normandie
+      </div>
+      <div style="text-align:right">
+        <strong>Romain SAVARY</strong><br>
+        2026
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page citation + résumé ── -->
+  <section class="quote-resume-page">
+    <div class="quote-resume-inner">
+      <blockquote class="quote-resume-quote">« Concevoir une temporalité partagée plutôt qu’un flux infini. »</blockquote>
+      <div class="quote-resume-body">
+        <h1 class="quote-resume-title" id="resume">Résumé exécutif</h1>
+        <p><strong>Pulse</strong> est une application web full stack pensée comme un réseau social alternatif. Son principe fondateur est simple : l’application n’est réellement active qu’une heure par jour, à heure fixe, pour tous les utilisateurs. Cette contrainte crée un rendez-vous collectif, limite la consommation continue et concentre les échanges sur un moment choisi.</p>
+        <p>Le projet a été réalisé comme projet personnel support de certification dans le cadre du parcours Zone01 Normandie. Il vise à démontrer une démarche complète de concepteur développeur d’applications : analyser un besoin, concevoir une architecture, modéliser les données, développer une application sécurisée, préparer le déploiement et prendre du recul sur les choix effectués.</p>
+        <p>La réalisation significative du projet est le <strong>moteur de session temporelle</strong>. Il articule un gestionnaire de session lancé via robfig/cron, un hub WebSocket basé sur mutex et map, une logique de clôture quotidienne, et un calcul de streak post-session. Ce moteur illustre le lien direct entre la vision produit — une temporalité partagée — et l’architecture technique — concurrence Go, découplage par messages et diffusion temps réel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Page synthèse visuelle ── -->
+  <section class="synth-page">
+    <div class="synth-inner">
+      <div class="summary-grid">
+        <div class="metric"><div class="k">Produit</div><div class="v">Réseau social temporel</div></div>
+        <div class="metric"><div class="k">Session</div><div class="v">1h / jour</div></div>
+        <div class="metric"><div class="k">Stack</div><div class="v">Go · Next · PostgreSQL</div></div>
+        <div class="metric"><div class="k">Réalisation clé</div><div class="v">Session engine</div></div>
+      </div>
+      <div class="diagram" style="margin-top:32px">
+        <div class="diagram-title">Proposition de valeur</div>
+        <div class="flow">
+          <div class="node">Rareté<small>1h par jour</small></div>
+          <div class="arrow">+</div>
+          <div class="node">Synchronicité<small>tout le monde ensemble</small></div>
+          <div class="arrow">+</div>
+          <div class="node">Intention<small>échanges structurés</small></div>
+          <div class="arrow">=</div>
+          <div class="node" style="background:#eff6ff;border-color:#bfdbfe">Qualité d’échange<small>moins de bruit</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="toc-section">
+    <h2 style="border-top:none;margin-top:0;padding-top:0">Sommaire</h2>
+    <nav class="toc">
+
+      <a href="#chap1" class="toc-chapter">
+        <span class="toc-num">I</span>
+        <span class="toc-title">Analyse du besoin et cadrage projet</span>
+        <span class="toc-dots"></span>
+      </a>
+      <a href="#chap1" class="toc-sub"><span class="toc-sub-num">1.1</span><span class="toc-sub-title">Contexte</span><span class="toc-dots"></span></a>
+      <a href="#chap1" class="toc-sub"><span class="toc-sub-num">1.2</span><span class="toc-sub-title">Réponse proposée</span><span class="toc-dots"></span></a>
+      <a href="#chap1" class="toc-sub"><span class="toc-sub-num">1.3</span><span class="toc-sub-title">Cible et positionnement</span><span class="toc-dots"></span></a>
+      <a href="#chap1" class="toc-sub"><span class="toc-sub-num">1.4 – 1.7</span><span class="toc-sub-title">Principes, arbitrages, gestion de projet</span><span class="toc-dots"></span></a>
+
+      <a href="#chap2" class="toc-chapter">
+        <span class="toc-num">II</span>
+        <span class="toc-title">Conception fonctionnelle et technique</span>
+        <span class="toc-dots"></span>
+      </a>
+      <a href="#chap2" class="toc-sub"><span class="toc-sub-num">2.1 – 2.3</span><span class="toc-sub-title">Stack, architecture globale et backend</span><span class="toc-dots"></span></a>
+      <a href="#chap2" class="toc-sub"><span class="toc-sub-num">2.4 – 2.6</span><span class="toc-sub-title">Choix Go, Chi, sqlx</span><span class="toc-dots"></span></a>
+      <a href="#chap2" class="toc-sub"><span class="toc-sub-num">2.7 – 2.8</span><span class="toc-sub-title">Modélisation des données, patterns</span><span class="toc-dots"></span></a>
+
+      <a href="#chap3" class="toc-chapter">
+        <span class="toc-num">III</span>
+        <span class="toc-title">Réalisation technique</span>
+        <span class="toc-dots"></span>
+      </a>
+      <a href="#chap3" class="toc-sub"><span class="toc-sub-num">3.1 – 3.2</span><span class="toc-sub-title">Moteur de session, SessionManager</span><span class="toc-dots"></span></a>
+      <a href="#chap3" class="toc-sub"><span class="toc-sub-num">3.3 – 3.6</span><span class="toc-sub-title">Privacy feed, découplage, Hub WebSocket</span><span class="toc-dots"></span></a>
+      <a href="#chap3" class="toc-sub"><span class="toc-sub-num">3.9 – 3.11</span><span class="toc-sub-title">WebSocket privacy, réactions UPSERT, erreurs</span><span class="toc-dots"></span></a>
+
+      <a href="#chap4" class="toc-chapter">
+        <span class="toc-num">IV</span>
+        <span class="toc-title">Sécurisation, qualité et déploiement</span>
+        <span class="toc-dots"></span>
+      </a>
+      <a href="#chap4" class="toc-sub"><span class="toc-sub-num">4.1 – 4.3</span><span class="toc-sub-title">Timing attack, JWT, RBAC</span><span class="toc-dots"></span></a>
+      <a href="#chap4" class="toc-sub"><span class="toc-sub-num">4.4 – 4.8</span><span class="toc-sub-title">OWASP, Nginx, Docker, CI/CD, accessibilité</span><span class="toc-dots"></span></a>
+
+      <a href="#chap5" class="toc-chapter">
+        <span class="toc-num">V</span>
+        <span class="toc-title">Bilan, apprentissages et perspectives</span>
+        <span class="toc-dots"></span>
+      </a>
+      <a href="#chap5" class="toc-sub"><span class="toc-sub-num">5.1 – 5.5</span><span class="toc-sub-title">Difficultés, apprentissages, IA, améliorations, conclusion</span><span class="toc-dots"></span></a>
+
+      <a href="#adr" class="toc-secondary">
+        <span class="toc-num">—</span>
+        <span class="toc-title">Décisions d’architecture (ADR 001–005)</span>
+        <span class="toc-dots"></span>
+      </a>
+      <a href="#mapping" class="toc-secondary">
+        <span class="toc-num">—</span>
+        <span class="toc-title">Mapping compétences CDA</span>
+        <span class="toc-dots"></span>
+      </a>
+      <a href="#annexes" class="toc-secondary">
+        <span class="toc-num">—</span>
+        <span class="toc-title">Annexes A – E</span>
+        <span class="toc-dots"></span>
+      </a>
+    </nav>
+    </div>
+
+    <!-- ── Page de présentation ── -->
+    <div class="presenter-page" id="presenter">
+      <div class="presenter-inner">
+        <div class="presenter-avatar">RS</div>
+        <div class="presenter-name">Romain SAVARY</div>
+        <div class="presenter-role">Concepteur Développeur d’Applications — Zone01 Normandie</div>
+        <div class="presenter-bio">
+          <p>
+            Après dix ans en management commercial (Carrefour, BUT) — encadrement d’équipes jusqu’à 15 personnes,
+            pilotage de budgets jusqu’à 4 M€ — j’ai engagé une reconversion vers le développement logiciel.
+            En fin de formation CDA (Bac+3) à Zone01 Normandie, je rejoins Klian en juin 2026
+            en alternance Chef de Projet IT (Bac+5) pour mettre au service de projets techniques
+            une double culture : rigueur opérationnelle du terrain et maîtrise des outils du développeur moderne.
+          </p>
+        </div>
+        <div class="presenter-grid">
+          <div class="presenter-block">
+            <div class="presenter-block-title">Formation</div>
+            <p>
+              Bac+5 Management Commercial (antérieur)<br>
+              CDA Bac+3 — Zone01 Normandie (2024–2026)<br>
+              Chef de Projet IT Bac+5 — alternance Klian (dès juin 2026)
+            </p>
+          </div>
+          <div class="presenter-block">
+            <div class="presenter-block-title">Compétences</div>
+            <p>
+              <strong>Tech :</strong> Go · TypeScript · Next.js 15 · PostgreSQL · Docker<br>
+              <strong>Méthodes :</strong> Git / CI-CD · Architecture REST · Tests automatisés<br>
+              <strong>Savoir-faire :</strong> Gestion de projet · Leadership · Communication transverse
+            </p>
+          </div>
+          <div class="presenter-block">
+            <div class="presenter-block-title">Contact</div>
+            <p>
+              romain.savary2@gmail.com<br>
+              <a href="https://www.linkedin.com/in/romain-savary1/">linkedin.com/in/romain-savary1</a><br>
+              <a href="https://portfolio-beta-six-85.vercel.app/">portfolio (Vercel)</a>
+            </p>
+          </div>
+          <div class="presenter-block">
+            <div class="presenter-block-title">Projet</div>
+            <p>
+              <strong>Pulse</strong> — réseau social à fenêtre temporelle.<br>
+              1 heure par jour, 1 post par session, tous connectés simultanément.<br>
+              Stack : Go · Next.js 15 · PostgreSQL · WebSocket · Docker<br>
+              <a href="https://github.com/MrFruchard/pulse">github.com/MrFruchard/pulse</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chapter" id="chap1">
+      <div class="num">CHAPITRE I</div>
+      <h1>Analyse du besoin et cadrage projet</h1>
+      <em>Formaliser une intuition produit</em>
+    </div>
+
+    <h2>1.1 Contexte</h2>
+    <p>Les réseaux sociaux actuels sont souvent construits autour de la disponibilité permanente, du scroll infini, de l’optimisation de l’engagement et de la recommandation algorithmique. Ces mécanismes favorisent une consommation continue du contenu, au détriment d’échanges plus intentionnels.</p>
+    <p>Pulse part d’une intuition différente : plutôt que d’augmenter le temps passé, il s’agit de <strong>concentrer le temps d’échange</strong>. Le produit ne cherche pas à être accessible en permanence. Il propose un rendez-vous quotidien limité, collectif et assumé.</p>
+
+    <div class="callout">
+      <strong>Problématique :</strong> comment concevoir un réseau social engageant sans reproduire les mécanismes addictifs classiques des plateformes sociales actuelles ?
+    </div>
+
+    <h2>1.2 Réponse proposée</h2>
+    <p>La réponse apportée est un réseau social à fenêtre temporelle : une session collective d’une heure par jour, à heure fixe, commune à tous les utilisateurs. Pendant cette session, les utilisateurs peuvent publier, commenter, réagir et participer au feed temps réel. En dehors de la session, l’application reste consultable, mais les actions d’écriture liées aux échanges sont verrouillées.</p>
+    <p>Ce fonctionnement transforme l’application en <strong>rendez-vous social</strong> plutôt qu’en flux continu. L’objectif est de permettre un moment d’échange assumé, puis de laisser l’utilisateur revenir à ses autres activités.</p>
+
+    <h2>1.3 Cible et positionnement</h2>
+    <p>Le projet est initialement pensé comme un produit de niche, destiné à un premier cercle d’utilisateurs intéressés par des échanges plus qualitatifs : profils tech, makers, créateurs, communautés à forte intensité d’idées ou d’actualité. L’objectif n’est pas de partir immédiatement sur un réseau social généraliste, mais de valider un usage concentré avant d’étendre progressivement le périmètre.</p>
+    <p>La vision long terme est de faire de Pulse un rendez-vous quotidien d’échange autour d’idées, de grandes tendances ou de sujets du moment : un espace où l’on vient poser une question, prendre la température d’une communauté et confronter des points de vue.</p>
+
+    <h2>1.4 Principes structurants</h2>
+    <table>
+      <tr><th>Principe</th><th>Rôle dans Pulse</th></tr>
+      <tr><td>Temporalité contrainte</td><td>Limiter l’accès actif à une fenêtre d’une heure pour créer de la rareté et du rendez-vous.</td></tr>
+      <tr><td>Synchronicité collective</td><td>Permettre à tous les utilisateurs d’échanger au même moment.</td></tr>
+      <tr><td>Feed chronologique</td><td>Ne pas recourir à un algorithme de recommandation ou de ranking.</td></tr>
+      <tr><td>Intentions de publication</td><td>Structurer les échanges pour éviter de perdre une heure dans du contenu vague.</td></tr>
+      <tr><td>Consultation hors session</td><td>Conserver l’historique et les profils accessibles sans casser la contrainte d’écriture.</td></tr>
+    </table>
+
+    <h2>1.5 Pourquoi une heure ?</h2>
+    <p>La durée d’une heure est un compromis. Une fenêtre trop courte empêcherait les interactions de se développer et risquerait de réduire l’expérience à un passage rapide. Une fenêtre trop longue diluerait la rareté et rapprocherait Pulse d’un réseau social classique.</p>
+    <p>Une heure permet de « chiller », d’échanger et de participer à un débat sans basculer dans une consommation continue. Elle permet aussi de déplacer ensuite la discussion vers d’autres espaces, y compris la vie réelle, et de retrouver une logique de productivité après la session.</p>
+
+    <h2>1.6 Arbitrages de périmètre</h2>
+    <h3>Absence volontaire de recommandation algorithmique</h3>
+    <p>L’absence de recommandation algorithmique n’est pas une fonctionnalité manquante ou reportée : c’est un choix fondateur. Un algorithme de ranking introduirait une hiérarchisation artificielle des contenus et pourrait réintroduire les mécanismes de captation que Pulse cherche à éviter.</p>
+    <div class="callout good"><strong>Décision produit :</strong> aucun feed algorithmique n’est prévu. Le feed chronologique est une décision d’identité produit.</div>
+
+    <h3>Pas de messagerie privée dans le MVP</h3>
+    <p>La messagerie privée a été exclue de la première version. Elle aurait déplacé le produit vers un usage de messagerie classique, ajouté une complexité forte de modération et de confidentialité, et éloigné Pulse de son cœur : un espace d’échange public pendant une temporalité partagée.</p>
+
+    <h2>1.7 Gestion de projet</h2>
+    <p>Le projet est mené en autonomie, sur environ deux mois de développement, avec une phase finale encore en cours. La méthode retenue est un Scrum adapté solo : backlog priorisé, sprints courts, documentation vivante et jalons fonctionnels.</p>
+    <table>
+      <tr><th>Élément</th><th>Adaptation</th></tr>
+      <tr><td>Product Owner</td><td>Romain SAVARY — vision produit et priorisation.</td></tr>
+      <tr><td>Scrum Master</td><td>Romain SAVARY — maintien de la méthode et organisation.</td></tr>
+      <tr><td>Développeur</td><td>Romain SAVARY — conception, développement, documentation.</td></tr>
+      <tr><td>Sprints</td><td>Organisation hebdomadaire avec jalons fonctionnels.</td></tr>
+    </table>
+
+    <div class="diagram">
+      <div class="diagram-title">Timeline produit d’une session quotidienne</div>
+      <div class="timeline">
+        <div class="event"><div class="dot"></div><b>Avant ouverture</b><small>Compte à rebours</small></div>
+        <div class="event"><div class="dot"></div><b>Ouverture</b><small>Session active</small></div>
+        <div class="event"><div class="dot"></div><b>Échanges live</b><small>Posts, réactions, commentaires</small></div>
+        <div class="event"><div class="dot"></div><b>Clôture</b><small>Écriture bloquée</small></div>
+        <div class="event"><div class="dot"></div><b>Hors session</b><small>Lecture + prochaine session</small></div>
+      </div>
+    </div>
+
+    <div class="chapter" id="chap2">
+      <div class="num">CHAPITRE II</div>
+      <h1>Conception fonctionnelle et technique</h1>
+      <em>Transformer une idée en architecture</em>
+    </div>
+
+    <h2>2.1 Stack technique</h2>
+    <table>
+      <tr><th>Couche</th><th>Technologies</th></tr>
+      <tr><td>Frontend</td><td>Next.js 15 App Router, TypeScript, Tailwind CSS</td></tr>
+      <tr><td>Backend</td><td>Go 1.22, Chi Router, sqlx, golang-jwt, gorilla/websocket</td></tr>
+      <tr><td>Base de données</td><td>PostgreSQL 16</td></tr>
+      <tr><td>Reverse proxy</td><td>Nginx — SSL, rate limiting, routage API et WebSocket</td></tr>
+      <tr><td>Conteneurs</td><td>Docker + Docker Compose</td></tr>
+      <tr><td>CI/CD</td><td>GitHub Actions</td></tr>
+    </table>
+
+    <h2>2.2 Architecture globale</h2>
+    <p>Pulse repose sur une architecture multicouche. Le frontend Next.js fournit l’interface et les interactions utilisateur. Nginx joue le rôle de point d’entrée unique, route les requêtes vers le frontend, le backend Go ou le hub WebSocket. Le backend porte la logique métier, les sessions, l’authentification, les règles d’accès et la diffusion temps réel. PostgreSQL assure la persistance relationnelle.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Architecture globale Pulse</div>
+      <div class="mermaid">
+flowchart LR
+    Browser["🌐 Navigateur\nUtilisateur"]
+    Next["Next.js 15\nUI + App Router"]
+    Nginx["Nginx\nTLS · routing · rate limit"]
+    Go["Go API\nChi · handlers · WS"]
+    PG[("PostgreSQL 16\ndonnées relationnelles")]
+
+    Browser -->|"HTTPS"| Next
+    Next -->|"REST /api"| Nginx
+    Next -->|"WS /ws"| Nginx
+    Nginx -->|":3000"| Next
+    Nginx -->|":8080"| Go
+    Go <-->|"sqlx"| PG
+      </div>
+    </div>
+
+    <h2>2.3 Architecture backend</h2>
+    <p>Le backend est organisé autour d’une séparation claire des responsabilités :</p>
+    <pre>cmd/server
+internal/
+  config
+  cron
+  db
+  handlers
+  middleware
+  models
+  repository
+  services
+  storage
+  websocket</pre>
+
+    <div class="diagram">
+      <div class="diagram-title">Architecture backend en couches</div>
+      <div class="layers">
+        <div class="layer"><strong>Handlers</strong><span>Routes HTTP, parsing, réponses API</span></div>
+        <div class="layer"><strong>Services</strong><span>Logique métier, orchestration, règles domaine</span></div>
+        <div class="layer"><strong>Repository</strong><span>Accès PostgreSQL, requêtes SQL, persistance</span></div>
+        <div class="layer"><strong>Modules transverses</strong><span>Middleware, cron, websocket, config, storage</span></div>
+      </div>
+    </div>
+
+    <div class="callout danger"><strong>État MVP :</strong> dans la version actuelle, la couche Services est partiellement implémentée. Pour les domaines post et session, la logique métier est directement portée par les handlers. Le découplage vers des services dédiés est prévu comme évolution post-MVP (voir section 5.4).</div>
+
+    <h2>2.4 Choix de Go</h2>
+    <p>Go est utilisé pour le backend car il fait partie intégrante du cursus, mais aussi parce qu’il répond particulièrement bien au modèle de Pulse. L’application concentre potentiellement un grand nombre d’utilisateurs pendant une fenêtre courte d’une heure. La gestion de connexions concurrentes, d’un hub WebSocket et d’un gestionnaire de session s’accorde naturellement avec les goroutines et les channels.</p>
+    <p>Le choix de Go n’est donc pas uniquement pédagogique. Il soutient directement la logique produit : la temporalité partagée et la synchronicité collective reposent sur des composants concurrents robustes.</p>
+
+    <h2>2.5 Choix de Chi</h2>
+    <p>Chi est retenu comme routeur HTTP pour son approche idiomatique Go. Il reste proche de <code>net/http</code>, permet une stack middleware claire et évite d’introduire un framework lourd. Cette sobriété est cohérente avec une architecture où les handlers exposent l’API sans absorber la logique métier, qui reste placée dans les services.</p>
+
+    <h2>2.6 Choix de sqlx plutôt qu’un ORM</h2>
+    <p>Le projet utilise sqlx plutôt qu’un ORM complet. Ce choix permet de conserver un contrôle explicite sur les requêtes SQL tout en réduisant le boilerplate du package standard <code>database/sql</code>.</p>
+    <table>
+      <tr><th>Fonction sqlx</th><th>Apport</th></tr>
+      <tr><td>StructScan</td><td>Mappe directement les résultats vers des structs Go via les tags <code>db:""</code>.</td></tr>
+      <tr><td>Named queries</td><td>Facilite les INSERT/UPDATE avec beaucoup de colonnes, par exemple <code>:email</code>, <code>:pseudo</code>.</td></tr>
+      <tr><td>In() helper</td><td>Génère dynamiquement les clauses <code>WHERE id IN (...)</code> depuis un slice.</td></tr>
+    </table>
+    <p>Un ORM comme GORM aurait apporté davantage d’abstraction, mais au prix d’une perte de visibilité sur les requêtes produites. Pour Pulse, le modèle relationnel est explicite et les contraintes métier sont importantes. Garder la maîtrise SQL est donc un avantage.</p>
+
+    <h2>2.7 Modélisation des données</h2>
+    <p>La base PostgreSQL modélise les utilisateurs, sessions, posts, commentaires, réactions, abonnements, notifications, signalements et présences de session. Le choix relationnel est cohérent avec la nature du domaine : nombreuses relations, contraintes d’unicité, cascades de suppression, jointures et intégrité référentielle.</p>
+    <table>
+      <tr><th>Table</th><th>Rôle</th><th>Contraintes clés</th></tr>
+      <tr><td>users</td><td>Comptes utilisateurs</td><td>email unique, pseudo unique, rôle, statut</td></tr>
+      <tr><td>sessions</td><td>Fenêtres quotidiennes</td><td>opens_at, closes_at, état calculable</td></tr>
+      <tr><td>posts</td><td>Publications de session</td><td>FK user, FK session, intention, privacy</td></tr>
+      <tr><td>comments</td><td>Commentaires</td><td>FK post, FK user, ON DELETE CASCADE</td></tr>
+      <tr><td>reactions</td><td>Réactions aux posts</td><td>UNIQUE(post_id, user_id) — une réaction par utilisateur par post</td></tr>
+      <tr><td>follows</td><td>Relations sociales orientées</td><td>UNIQUE(follower_id, following_id), CHECK(follower_id != following_id)</td></tr>
+      <tr><td>session_attendances</td><td>Présence utilisateur</td><td>UNIQUE(user_id, session_id)</td></tr>
+      <tr><td>notifications</td><td>Notifications utilisateur</td><td>payload JSONB, index partiel WHERE is_read = false</td></tr>
+    </table>
+
+    <h3>Enums PostgreSQL synchronisés avec les types Go</h3>
+    <p>Le schéma définit des enums PostgreSQL qui correspondent exactement aux types définis dans <code>models.go</code>. Cette synchronisation empêche toute valeur invalide d’être persistée, que l’erreur vienne de l’application ou d’une requête directe en base.</p>
+    <pre>-- SQL (001_init_schema.sql)
+CREATE TYPE post_intention AS ENUM (‘QUESTION’, ‘SHARE’, ‘PROJECT’, ‘CHALLENGE’);
+CREATE TYPE post_privacy   AS ENUM (‘PUBLIC’, ‘FOLLOWERS’, ‘PRIVATE’);
+CREATE TYPE reaction_type  AS ENUM (‘LIKE’, ‘FIRE’, ‘INSIGHTFUL’, ‘SUPPORT’);
+
+// Go (models.go)
+type PostIntention string
+const (
+    IntentionQuestion  PostIntention = "QUESTION"
+    IntentionShare     PostIntention = "SHARE"
+    IntentionProject   PostIntention = "PROJECT"
+    IntentionChallenge PostIntention = "CHALLENGE"
+)</pre>
+
+    <h3>Contraintes métier au niveau schéma</h3>
+    <p>Plusieurs règles métier sont renforcées directement dans le schéma, indépendamment de l’application :</p>
+    <table>
+      <tr><th>Contrainte</th><th>Table</th><th>Effet</th></tr>
+      <tr><td><code>UNIQUE(post_id, user_id)</code></td><td>reactions</td><td>Une seule réaction par utilisateur par post, au niveau base de données.</td></tr>
+      <tr><td><code>CHECK(follower_id != following_id)</code></td><td>follows</td><td>Auto-follow impossible même par insertion directe.</td></tr>
+      <tr><td><code>ON DELETE CASCADE</code></td><td>posts, comments, reactions</td><td>Suppression d’un compte cascade sur tout son contenu.</td></tr>
+      <tr><td><code>WHERE is_read = false</code></td><td>idx_notifs_user_unread</td><td>Index partiel — optimise les requêtes de notifications non lues sans surcharger l’index global.</td></tr>
+    </table>
+
+    <h3>MCD — Modèle Conceptuel des Données</h3>
+    <div class="mermaid">
+erDiagram
+    UTILISATEUR {
+        UUID id PK
+        string email UK
+        string pseudo UK
+        string role
+        string statut
+        int streak
+    }
+    SESSION {
+        UUID id PK
+        datetime ouverture
+        datetime fermeture
+        bool active
+    }
+    POST {
+        UUID id PK
+        string contenu
+        string intention
+        string privacy
+    }
+    COMMENTAIRE {
+        UUID id PK
+        string contenu
+    }
+    REACTION {
+        UUID id PK
+        string type
+    }
+    NOTIFICATION {
+        UUID id PK
+        string type
+        json payload
+        bool lu
+    }
+    SIGNALEMENT {
+        UUID id PK
+        string raison
+        string statut
+    }
+    PRESENCE_SESSION {
+        UUID id PK
+        datetime rejoint_a
+    }
+
+    UTILISATEUR ||--o{ POST : "publie"
+    UTILISATEUR ||--o{ COMMENTAIRE : "écrit"
+    UTILISATEUR ||--o{ REACTION : "exprime"
+    UTILISATEUR ||--o{ NOTIFICATION : "reçoit"
+    UTILISATEUR ||--o{ SIGNALEMENT : "soumet"
+    UTILISATEUR ||--o{ PRESENCE_SESSION : "participe"
+    UTILISATEUR }o--o{ UTILISATEUR : "suit (follows)"
+    SESSION ||--o{ POST : "contient"
+    SESSION ||--o{ PRESENCE_SESSION : "enregistre"
+    POST ||--o{ COMMENTAIRE : "reçoit"
+    POST ||--o{ REACTION : "accumule"
+    POST ||--o{ SIGNALEMENT : "fait l'objet de"
+    </div>
+
+    <h3>MLD — Modèle Logique des Données</h3>
+    <div class="mermaid">
+erDiagram
+    users {
+        UUID id PK
+        VARCHAR email UK
+        VARCHAR password_hash
+        VARCHAR pseudo UK
+        VARCHAR avatar_url
+        TEXT bio
+        user_role role
+        INTEGER streak
+        user_status status
+        BOOLEAN is_private
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    sessions {
+        UUID id PK
+        TIMESTAMP opens_at
+        TIMESTAMP closes_at
+        BOOLEAN is_active
+        TIMESTAMP created_at
+    }
+    posts {
+        UUID id PK
+        UUID user_id FK
+        UUID session_id FK
+        TEXT content
+        post_intention intention
+        post_privacy privacy
+        VARCHAR image_url
+        BOOLEAN is_flagged
+        TIMESTAMP created_at
+    }
+    comments {
+        UUID id PK
+        UUID post_id FK
+        UUID user_id FK
+        TEXT content
+        TIMESTAMP created_at
+    }
+    reactions {
+        UUID id PK
+        UUID post_id FK
+        UUID user_id FK
+        reaction_type type
+        TIMESTAMP created_at
+    }
+    follows {
+        UUID id PK
+        UUID follower_id FK
+        UUID following_id FK
+        TIMESTAMP created_at
+    }
+    notifications {
+        UUID id PK
+        UUID user_id FK
+        notification_type type
+        JSONB payload
+        BOOLEAN is_read
+        TIMESTAMP created_at
+    }
+    reports {
+        UUID id PK
+        UUID post_id FK
+        UUID reporter_id FK
+        report_reason reason
+        report_status status
+        TIMESTAMP created_at
+    }
+    session_attendances {
+        UUID id PK
+        UUID user_id FK
+        UUID session_id FK
+        TIMESTAMP joined_at
+    }
+
+    users ||--o{ posts : "user_id"
+    users ||--o{ comments : "user_id"
+    users ||--o{ reactions : "user_id"
+    users ||--o{ notifications : "user_id"
+    users ||--o{ reports : "reporter_id"
+    users ||--o{ session_attendances : "user_id"
+    users ||--o{ follows : "follower_id"
+    users ||--o{ follows : "following_id"
+    sessions ||--o{ posts : "session_id"
+    sessions ||--o{ session_attendances : "session_id"
+    posts ||--o{ comments : "post_id"
+    posts ||--o{ reactions : "post_id"
+    posts ||--o{ reports : "post_id"
+    </div>
+
+    <h2>2.8 Patterns mobilisés</h2>
+    <table>
+      <tr><th>Pattern</th><th>Usage dans Pulse</th></tr>
+      <tr><td>Repository Pattern</td><td>Isoler les accès PostgreSQL derrière une couche dédiée.</td></tr>
+      <tr><td>Service Layer</td><td>Porter les règles métier indépendamment du transport HTTP (JWT, bcrypt, validation).</td></tr>
+      <tr><td>Middleware Pattern</td><td>Centraliser l’authentification, RBAC et comportements transverses via Chi <code>.With()</code>.</td></tr>
+      <tr><td>Scheduler Pattern</td><td>Superviser les sessions via SessionManager (robfig/cron).</td></tr>
+      <tr><td>Hub/Broadcast Pattern</td><td>Diffuser les événements temps réel aux clients connectés via mutex + map.</td></tr>
+      <tr><td>UPSERT Pattern</td><td>Réactions idempotentes via <code>INSERT ... ON CONFLICT DO UPDATE</code>.</td></tr>
+      <tr><td>Typed Enum Pattern</td><td>Synchronisation des enums Go ↔ PostgreSQL pour garantir la cohérence des valeurs.</td></tr>
+    </table>
+
+    <div class="chapter" id="chap3">
+      <div class="num">CHAPITRE III</div>
+      <h1>Réalisation technique</h1>
+      <em>Implémenter la contrainte temporelle</em>
+    </div>
+
+    <h2>3.1 Réalisation significative : moteur de session temporelle</h2>
+    <p>La réalisation significative du projet est le moteur de session temporelle. Cette fonctionnalité est centrale car la temporalité n’est pas un simple paramètre d’interface : elle conditionne le comportement global du produit.</p>
+    <p>La session est définie par deux bornes persistées : <code>opens_at</code> et <code>closes_at</code>. L’état actif peut être déduit par la règle suivante :</p>
+    <pre>session ouverte = now >= opens_at AND now < closes_at</pre>
+    <p>Ce choix évite de dépendre uniquement d’un booléen potentiellement incohérent après redémarrage serveur. L’état peut être recalculé depuis la donnée persistée.</p>
+
+    <h2>3.2 SessionManager</h2>
+    <p>Le SessionManager démarre au lancement de l’application. Il utilise la librairie <code>robfig/cron</code> avec une expression <code>"* * * * *"</code> (toutes les minutes) pour appeler la méthode <code>tick()</code>.</p>
+    <pre>func (sm *SessionManager) Start() {
+    c := cron.New()
+    c.AddFunc("* * * * *", sm.tick)
+    c.Start()
+}</pre>
+    <p>À chaque tick, le gestionnaire vérifie l’heure courante, ouvre la session si l’heure d’ouverture est atteinte (<code>SESSION_OPEN_HOUR</code> et minute == 0), ferme les sessions dont <code>closes_at</code> est dépassé, publie un événement de fermeture via le hub WebSocket et déclenche le calcul des streaks en goroutine.</p>
+
+    <div class="diagram">
+      <div class="diagram-title">Orchestration du SessionManager</div>
+      <div class="mermaid">
+sequenceDiagram
+    participant Cron as robfig/cron<br/>(chaque minute)
+    participant SM as SessionManager
+    participant DB as PostgreSQL
+    participant Hub as WebSocket Hub
+    participant Clients as Clients connectés
+
+    Cron->>SM: tick()
+    SM->>DB: UPDATE sessions SET is_active=false WHERE closes_at <= NOW()
+    DB-->>SM: rows affected > 0 ?
+    alt Session vient de fermer
+        SM->>Hub: Broadcast(session_closed)
+        Hub->>Clients: {"type":"session_closed"}
+        SM->>DB: calculateStreaks() [goroutine]
+    end
+    SM->>DB: Heure == SESSION_OPEN_HOUR && minute == 0 ?
+    alt Heure d'ouverture
+        SM->>DB: INSERT INTO sessions ...
+        SM->>Hub: Broadcast(session_opened)
+        Hub->>Clients: {"type":"session_opened"}
+    end
+      </div>
+    </div>
+
+    <h2>3.3 Flux de création d'un post — règles métier</h2>
+    <div class="mermaid">
+flowchart LR
+    A([POST /api/posts]) --> B{JWT ?}
+    B -->|Non| E1([401])
+    B -->|Oui| C{Session\nactive ?}
+    C -->|Non| E2([403])
+    C -->|Oui| D{Contenu\nvalide ?}
+    D -->|Non| E3([422])
+    D -->|Oui| F[INSERT\nposts]
+    F --> G{PRIVATE +\nallowedUserIds ?}
+    G -->|Oui| H[Valider followers\n+ INSERT allowed]
+    G -->|Non| J
+    H --> J[INSERT\nattendances]
+    J --> K{PUBLIC ?}
+    K -->|Oui| L[Broadcast\nnew_post]
+    K -->|Non| M([201])
+    L --> M
+    </div>
+
+    <h2>3.4 Filtrage privacy dans le feed</h2>
+    <p>Le feed implémente un contrôle d'accès à trois niveaux directement dans la requête SQL, évitant tout filtrage applicatif post-requête qui serait à la fois moins sûr et moins performant.</p>
+    <pre>-- posts.go — clause privacy dans la requête feed
+AND (
+    p.privacy = 'PUBLIC'
+    OR p.user_id = $1
+    OR (p.privacy = 'FOLLOWERS' AND EXISTS (
+        SELECT 1 FROM follows
+        WHERE follower_id = $1 AND following_id = p.user_id
+    ))
+    OR (p.privacy = 'PRIVATE' AND EXISTS (
+        SELECT 1 FROM post_allowed_users
+        WHERE post_id = p.id AND user_id = $1
+    ))
+)</pre>
+    <p>Cette approche signifie que les posts non autorisés ne sont jamais récupérés de la base — ils sont exclus par le moteur PostgreSQL avant toute remontée de données. Pour les posts <code>PRIVATE</code>, une table <code>post_allowed_users</code> stocke la liste blanche, avec validation au moment de la création que chaque utilisateur autorisé est bien un follower du créateur.</p>
+
+    <h2>3.5 Découplage SessionManager / Hub</h2>
+    <p>Un point d’architecture important est que le SessionManager ne manipule jamais directement la map des clients connectés. Il ne connaît pas les connexions WebSocket. Il publie uniquement un événement dans le channel <code>broadcast</code>. Le hub est seul responsable de la diffusion aux clients.</p>
+    <div class="callout good"><strong>Principe :</strong> composants concurrents indépendants, communication par channels, couplage minimal.</div>
+
+    <h2>3.6 Hub WebSocket concurrent</h2>
+    <p>Le hub temps réel repose sur une map de clients protégée par un <code>sync.RWMutex</code>, exposée via trois méthodes dédiées :</p>
+    <pre>func (h *Hub) Register(client *Client)
+func (h *Hub) Unregister(client *Client)
+func (h *Hub) Broadcast(message []byte)</pre>
+    <table>
+      <tr><th>Méthode</th><th>Responsabilité</th></tr>
+      <tr><td>Register</td><td>Ajouter un client connecté à la map (lock en écriture).</td></tr>
+      <tr><td>Unregister</td><td>Retirer un client et fermer son channel d’envoi (lock en écriture).</td></tr>
+      <tr><td>Broadcast</td><td>Diffuser un message à tous les clients via leur channel individuel <code>send</code> (lock en lecture).</td></tr>
+    </table>
+    <p>Chaque <code>Client</code> dispose d’un channel <code>send chan []byte</code> consommé par sa goroutine <code>writePump</code>. Le hub diffuse les événements <code>new_post</code>, <code>new_reaction</code>, <code>session_opened</code> ou <code>session_closed</code> sans coupler les producteurs aux connexions clientes. Si un client est trop lent à consommer, son channel est fermé et il est déconnecté.</p>
+
+    <h2>3.7 Pourquoi WebSocket plutôt que SSE ?</h2>
+    <p>Les Server-Sent Events auraient pu suffire pour une diffusion serveur vers client. Cependant Pulse gagne à utiliser WebSocket pour sa bidirectionnalité native, ses mécanismes de ping/pong, son framing et la possibilité d’organiser un hub centralisé classique en Go.</p>
+    <p>Pour un réseau social où tout le monde est connecté pendant une même heure, WebSocket est cohérent avec le besoin de multi-client temps réel. Le choix n’est donc pas seulement technique : il soutient le modèle produit de synchronicité collective.</p>
+
+    <h2>3.8 Calcul du streak</h2>
+    <p>Le streak est calculé après chaque fermeture de session, et non en temps réel à la connexion. La participation est enregistrée dans <code>session_attendances</code>. Ce choix permet de traiter la présence comme un bilan de session.</p>
+    <table>
+      <tr><th>Règle</th><th>Description</th></tr>
+      <tr><td>Incrément</td><td>L’utilisateur est présent sur les sessions consécutives.</td></tr>
+      <tr><td>Reset</td><td>Une session manquée remet le streak à 0.</td></tr>
+      <tr><td>Dormant</td><td>Après 7 sessions consécutives manquées, le statut passe à dormant.</td></tr>
+    </table>
+    <p>La nuance est importante : un utilisateur peut avoir <code>streak = 0</code> sans être dormant. Le statut dormant correspond à une absence durable, pas à une simple interruption.</p>
+
+    <h2>3.9 Privacy-aware WebSocket</h2>
+    <p>Un détail d'implémentation important : le broadcast WebSocket lors de la création d'un post n'est déclenché que pour les posts <code>PUBLIC</code>. Les posts <code>FOLLOWERS</code> et <code>PRIVATE</code> ne sont pas diffusés en temps réel, car il serait impossible de filtrer côté hub les clients autorisés.</p>
+    <pre>// posts.go — broadcast conditionnel
+if req.Privacy == "PUBLIC" {
+    msg, _ := json.Marshal(map[string]any{
+        "type": "new_post",
+        "post": ...,
+    })
+    hub.Broadcast(msg)
+}</pre>
+    <p>Cette cohérence privacy ↔ temps réel évite toute fuite de contenu privé via le canal WebSocket. Les posts non-publics sont accessibles uniquement via l'API REST avec vérification d'accès SQL.</p>
+
+    <h2>3.10 Réactions — UPSERT et notification conditionnelle</h2>
+    <p>Les réactions utilisent le pattern UPSERT : une même requête gère à la fois la création et le changement de réaction. Cela simplifie le client et garantit l'idempotence.</p>
+    <pre>INSERT INTO reactions (post_id, user_id, type)
+VALUES ($1, $2, $3::reaction_type)
+ON CONFLICT (post_id, user_id) DO UPDATE SET type = EXCLUDED.type</pre>
+    <p>La notification au créateur du post n'est déclenchée que si c'est une <em>nouvelle</em> réaction (<code>prevType == ""</code>). Si l'utilisateur change de réaction (LIKE → FIRE), aucune notification supplémentaire n'est générée. Le broadcast WebSocket inclut les deux valeurs pour permettre au frontend de décrémenter l'ancienne réaction et incrémenter la nouvelle sans recharger le feed.</p>
+    <pre>// reactions.go — notification conditionnelle
+if post.UserID != claims.UserID && prevType == "" {
+    // notifier uniquement sur une nouvelle réaction
+}
+
+// broadcast avec ancienne valeur pour mise à jour UI optimiste
+msg := { "type": "new_reaction", "reaction": req.Type, "prevReaction": prevType }</pre>
+
+    <h2>3.11 Erreurs métier</h2>
+    <p>L’API expose des erreurs explicites avec code métier. Cela facilite la gestion côté frontend et rend les règles du domaine plus lisibles.</p>
+    <pre>{ "error": "session not active",     "code": "SESSION_CLOSED" }
+{ "error": "post limit reached",     "code": "POST_LIMIT_REACHED" }
+{ "error": "already reacted",        "code": "REACTION_DUPLICATE" }
+{ "error": "account suspended",      "code": "ACCOUNT_SUSPENDED" }
+{ "error": "cannot follow yourself", "code": "SELF_FOLLOW" }</pre>
+    <p>Note : la règle de limite de post a évolué dans le cadrage produit. Le cœur retenu aujourd’hui est la limitation temporelle de session ; les codes historiques restent documentés comme exemples de structuration métier.</p>
+
+    <div class="chapter" id="chap4">
+      <div class="num">CHAPITRE IV</div>
+      <h1>Sécurisation, qualité et déploiement</h1>
+      <em>Fiabiliser et mettre en production</em>
+    </div>
+
+    <h2>4.1 Sécurité du login — résistance aux attaques timing</h2>
+    <p>Le handler de login implémente une protection contre les attaques de type timing attack. Lorsqu'un email n'est pas trouvé en base, le code exécute quand même un <code>ComparePassword()</code> sur un faux hash bcrypt avant de retourner l'erreur. Sans cette précaution, la différence de temps de réponse entre "email inconnu" (réponse immédiate) et "mauvais mot de passe" (bcrypt lent) permettrait à un attaquant d'énumérer les comptes existants.</p>
+    <pre>// auth.go — protection timing attack
+err := db.QueryRowx(`SELECT ... FROM users WHERE email = $1`, req.Email).StructScan(&user)
+if err != nil {
+    // Simuler un hash compare pour rendre le temps de réponse identique
+    services.ComparePassword("$2a$12$dummydummydummydummydummydumm", req.Password)
+    respondError(w, http.StatusUnauthorized, "invalid credentials")
+    return
+}</pre>
+    <p>Le message d'erreur est identique dans tous les cas d'échec (<code>"invalid credentials"</code>), que l'email soit inconnu, le mot de passe incorrect ou le compte suspendu — empêchant toute inférence sur la cause de l'échec.</p>
+
+    <h2>4.2 Authentification JWT</h2>
+    <p>L’authentification repose sur un JWT unique, sans refresh token dans la spécification actuelle. Le token est recréé lors de la connexion et expire après 24 heures.</p>
+    <table>
+      <tr><th>Paramètre cookie</th><th>Valeur</th><th>Rôle</th></tr>
+      <tr><td>HttpOnly</td><td>true</td><td>Inaccessible au JavaScript, réduit l’exposition XSS.</td></tr>
+      <tr><td>Secure</td><td>true</td><td>Transmission uniquement en HTTPS.</td></tr>
+      <tr><td>SameSite</td><td>Strict</td><td>Réduction forte du risque CSRF.</td></tr>
+      <tr><td>Path</td><td>/</td><td>Disponible pour l’ensemble de l’application.</td></tr>
+      <tr><td>MaxAge</td><td>86400</td><td>Durée de vie de 24 heures.</td></tr>
+    </table>
+
+    <h2>4.3 RBAC</h2>
+    <p>Le contrôle d’accès repose sur trois rôles : <code>user</code>, <code>moderator</code> et <code>admin</code>.</p>
+    <table>
+      <tr><th>Rôle</th><th>Permissions</th></tr>
+      <tr><td>user</td><td>Utiliser les fonctionnalités sociales standard.</td></tr>
+      <tr><td>moderator</td><td>Accès aux reports et suppression de posts signalés.</td></tr>
+      <tr><td>admin</td><td>Droits complets : modération, suspension de comptes, configuration session.</td></tr>
+    </table>
+
+    <h2>4.4 Sécurité OWASP</h2>
+    <table>
+      <tr><th>Risque</th><th>Mesure Pulse</th></tr>
+      <tr><td>Broken Access Control</td><td>JWT + RBAC + vérification des rôles.</td></tr>
+      <tr><td>Cryptographic Failures</td><td>bcrypt pour les mots de passe, JWT en cookie sécurisé.</td></tr>
+      <tr><td>Injection</td><td>Requêtes préparées via sqlx, pas de concaténation SQL.</td></tr>
+      <tr><td>Authentication Failures</td><td>Expiration 24h, erreurs génériques login, statut suspended vérifié.</td></tr>
+      <tr><td>Security Logging</td><td>Logs structurés sur actions sensibles.</td></tr>
+    </table>
+
+    <h2>4.5 Nginx comme reverse proxy</h2>
+    <p>Nginx est placé devant le frontend et le backend. Il centralise l’entrée publique, termine TLS, route les chemins applicatifs et applique le rate limiting avant que les requêtes n’atteignent Go.</p>
+    <pre>/api/*  → backend Go :8080
+/ws     → backend Go :8080 (upgrade WebSocket)
+/*      → frontend Next.js :3000</pre>
+    <p>Le rate limiting est particulièrement important pour Pulse : la fenêtre d’une heure peut créer un pic de connexions simultanées. Bloquer les abus en frontal protège le backend et simplifie la stratégie de défense.</p>
+
+    <h2>4.6 Déploiement Docker</h2>
+    <p>L’infrastructure repose sur Docker Compose avec quatre services : nginx, frontend, backend et database. Seul Nginx expose des ports publics (80/443). Les autres services communiquent via le réseau interne <code>pulse_network</code>.</p>
+    <p>Deux décisions d’infrastructure méritent d’être soulignées :</p>
+    <p><strong>Health check et dépendances :</strong> le backend ne démarre qu’après que PostgreSQL soit opérationnel, grâce à <code>condition: service_healthy</code> combiné au health check <code>pg_isready</code>. Cela évite les crashs de démarrage en cas de base lente à initialiser.</p>
+    <pre>database:
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+    interval: 5s
+    retries: 5
+
+backend:
+  depends_on:
+    database:
+      condition: service_healthy</pre>
+    <p><strong>Migrations automatiques :</strong> les fichiers SQL sont montés dans <code>/docker-entrypoint-initdb.d</code> du container PostgreSQL. Ils s’exécutent automatiquement au premier démarrage, sans intervention manuelle ni outil de migration externe.</p>
+    <div class="mermaid">
+flowchart TB
+    Internet(["🌍 Internet\nHTTPS 80/443"])
+
+    subgraph pulse_network["pulse_network (réseau Docker interne)"]
+        Nginx["nginx:alpine\n:80 · :443"]
+        Frontend["pulse-frontend\nNext.js :3000"]
+        Backend["pulse-backend\nGo :8080"]
+        subgraph db_layer["Persistance"]
+            DB[("postgres:16\n:5432")]
+            Vol1[("📦 postgres_data\nvolume")]
+            Vol2[("📦 uploads_data\nvolume")]
+        end
+    end
+
+    Internet --> Nginx
+    Nginx -->|"/* → :3000"| Frontend
+    Nginx -->|"/api/* → :8080"| Backend
+    Nginx -->|"/ws → :8080"| Backend
+    Frontend --> Backend
+    Backend -->|"sqlx"| DB
+    Backend --- Vol2
+    Nginx -.->|"read-only"| Vol2
+    DB --- Vol1
+    </div>
+
+    <h2>4.7 CI/CD</h2>
+    <p>La spécification prévoit une pipeline GitHub Actions. L’état réel peut être présenté honnêtement : lorsque la pipeline n’est pas encore entièrement industrialisée, l’objectif et les commandes cibles sont documentés.</p>
+    <pre>on: push / pull_request
+
+jobs:
+  - go test ./... -cover
+  - go vet + staticcheck
+  - docker compose build</pre>
+    <p>Cette approche montre la compréhension des contrôles attendus : tests backend, analyse statique, validation de build et préparation au déploiement.</p>
+
+    <h2>4.8 Accessibilité</h2>
+    <p>Le projet vise une conformité volontaire RGAA / WCAG niveau AA. Les points d’attention sont le compte à rebours, le feed temps réel, les formulaires de publication et les contrastes en light/dark mode.</p>
+    <table>
+      <tr><th>Zone</th><th>Mesure prévue</th></tr>
+      <tr><td>Compte à rebours</td><td>Texte alternatif et aria-live polite pour annonces majeures.</td></tr>
+      <tr><td>Feed live</td><td>Ne pas déplacer automatiquement le focus ; bouton pour voir nouveaux posts.</td></tr>
+      <tr><td>Formulaires</td><td>Labels explicites, erreurs liées via aria-describedby.</td></tr>
+      <tr><td>Animations</td><td>Respect de prefers-reduced-motion.</td></tr>
+    </table>
+
+    <div class="chapter" id="chap5">
+      <div class="num">CHAPITRE V</div>
+      <h1>Bilan, apprentissages et perspectives</h1>
+      <em>Prendre du recul sur la conception</em>
+    </div>
+
+    <h2>5.1 Difficultés rencontrées</h2>
+    <h3>Architecture Docker</h3>
+    <p>La première difficulté a été l’organisation de l’architecture conteneurisée : séparer frontend, backend, base de données et reverse proxy, tout en conservant un réseau interne cohérent et une exposition publique minimale.</p>
+    <h3>Sessions temporelles</h3>
+    <p>La seconde difficulté a porté sur la logique de sessions. Le défi n’était pas seulement d’ouvrir et fermer une fenêtre, mais de concevoir une règle métier robuste, persistée et cohérente pour tous les utilisateurs.</p>
+
+    <h2>5.2 Apprentissages</h2>
+    <p>Le principal apprentissage est l’importance de penser l’architecture avant de coder. Pulse a montré qu’un projet solide ne repose pas uniquement sur la production de fonctionnalités, mais sur la cohérence des choix en amont.</p>
+    <p>Le projet a aussi permis de progresser sur Docker, la structuration d’un backend Go, la sécurité web et le déploiement.</p>
+
+    <h2>5.3 Usage de l’IA</h2>
+    <p>L’intelligence artificielle a été utilisée comme assistant de développement : exploration de solutions, aide à la génération de pistes, accélération de certaines tâches. Cependant, l’IA ne remplace pas la conception. Le travail du candidat a consisté à formuler les bons problèmes, challenger les propositions et conserver la maîtrise des décisions techniques.</p>
+    <div class="callout"><strong>Posture assumée :</strong> l’IA est utilisée comme outil d’ingénierie moderne, pas comme substitut à la conception.</div>
+
+    <h2>5.4 Améliorations envisagées</h2>
+    <table>
+      <tr><th>Axe</th><th>Amélioration</th></tr>
+      <tr><td>Tests</td><td>La couverture actuelle couvre JWT, bcrypt et quelques handlers. Les flux critiques (calcul de streak, logique de follow, suppression de post) ne disposent pas encore de tests dédiés. Objectif : test-first sur toutes les règles métier avant mise en production.</td></tr>
+      <tr><td>Architecture</td><td>La couche Services est actuellement partielle : pour les domaines post et session, la logique métier est embarquée dans les handlers. Découpler vers des services dédiés et tendre vers une architecture hexagonale est la prochaine étape structurante.</td></tr>
+      <tr><td>Transactions</td><td>Certaines opérations multi-étapes (création d'un post + enregistrement de l'attendance) ne sont pas encore encapsulées dans une transaction SQL explicite. Un échec partiel peut créer un état incohérent. À corriger avant production.</td></tr>
+      <tr><td>Événementiel</td><td>Faire évoluer sessions, notifications et streak vers une logique plus orientée événements.</td></tr>
+      <tr><td>Produit</td><td>Étendre progressivement la cible sans perdre le principe de rendez-vous collectif.</td></tr>
+    </table>
+
+    <h2>5.5 Conclusion</h2>
+    <p>Pulse démontre davantage une démarche de conception qu’une simple accumulation de fonctionnalités. La temporalité partagée structure la proposition produit, mais aussi les choix techniques : Go, goroutines, channels, WebSocket, SessionManager et architecture découplée.</p>
+    <p>Le projet mobilise l’ensemble des couches d’une application full stack : frontend, backend, base de données, sécurité, tests, déploiement et documentation. Il constitue donc un support pertinent pour démontrer les compétences attendues d’un concepteur développeur d’applications.</p>
+
+    <h1 id="adr">Décisions d’architecture</h1>
+
+    <div class="adr">
+      <h3>ADR-001 — Session quotidienne fixe</h3>
+      <p><span class="badge">Décision</span>La session est ouverte à heure fixe chaque jour, commune à tous.</p>
+      <p><strong>Motivation :</strong> créer un rituel collectif, renforcer l’anticipation et préserver la synchronicité. Une session variable affaiblirait l’identité produit.</p>
+    </div>
+
+    <div class="adr">
+      <h3>ADR-002 — Aucun feed algorithmique</h3>
+      <p><span class="badge">Décision</span>Le feed reste chronologique, sans ranking ou recommandation.</p>
+      <p><strong>Motivation :</strong> cohérence avec la problématique initiale : éviter les mécanismes de captation d’attention.</p>
+    </div>
+
+    <div class="adr">
+      <h3>ADR-003 — WebSocket plutôt que SSE</h3>
+      <p><span class="badge">Décision</span>Utiliser gorilla/websocket et un hub centralisé.</p>
+      <p><strong>Motivation :</strong> bidirectionnalité, ping/pong, modèle broadcast, gestion multi-client cohérente avec Go.</p>
+    </div>
+
+    <div class="adr">
+      <h3>ADR-004 — sqlx plutôt qu’un ORM</h3>
+      <p><span class="badge">Décision</span>Utiliser sqlx pour garder le SQL explicite.</p>
+      <p><strong>Motivation :</strong> contrôle des requêtes, réduction du boilerplate, meilleure visibilité sur performances et contraintes.</p>
+    </div>
+
+    <div class="adr">
+      <h3>ADR-005 — Nginx en reverse proxy frontal</h3>
+      <p><span class="badge">Décision</span>Nginx centralise TLS, routing, rate limiting et proxy WebSocket.</p>
+      <p><strong>Motivation :</strong> protéger le backend, simplifier l’exposition réseau et absorber les pics de session.</p>
+    </div>
+
+    <h1 id="mapping">Mapping compétences CDA</h1>
+    <table>
+      <tr><th>Bloc / compétence</th><th>Mise en œuvre dans Pulse</th><th>Preuves</th></tr>
+      <tr><td>Analyser le besoin</td><td>Problématique, cible, cadrage, arbitrages MVP</td><td>Contexte, backlog, principes produit</td></tr>
+      <tr><td>Concevoir une application</td><td>Architecture multicouche, choix stack, ADR</td><td>Schémas, structure backend, décisions techniques</td></tr>
+      <tr><td>Développer composants UI</td><td>Next.js, feed, compte à rebours, profils, publication</td><td>Maquettes HTML, parcours utilisateur</td></tr>
+      <tr><td>Développer logique métier</td><td>SessionManager, StreakCalculator, RBAC</td><td>Réalisation significative</td></tr>
+      <tr><td>Persistance des données</td><td>PostgreSQL, MCD/MLD/MPD, contraintes</td><td>Dictionnaire données, tables relationnelles</td></tr>
+      <tr><td>Sécuriser l’application</td><td>JWT, cookies sécurisés, OWASP, Nginx rate limiting</td><td>Plan de sécurisation</td></tr>
+      <tr><td>Tester et qualifier</td><td>Tests unitaires JWT, bcrypt, handlers auth/posts ; couverture partielle — règles métier critiques identifiées comme axe d'amélioration</td><td>Plan de tests, tests existants</td></tr>
+      <tr><td>Déployer</td><td>Docker Compose, Nginx, GitHub Actions cible</td><td>Plan de déploiement</td></tr>
+    </table>
+
+    <h1 id="annexes">Annexes</h1>
+
+    <!-- ==================== ANNEXE A ==================== -->
+    <h2 id="annexe-a">Annexe A — Backlog MoSCoW et user stories</h2>
+    <p>Backlog reconstruit depuis le code source. Chaque user story correspond à une fonctionnalité réellement implémentée ou délibérément exclue du MVP.</p>
+
+    <h3>Must Have — Fonctionnalités cœur</h3>
+
+    <div class="adr">
+      <h3>Epic 1 — Authentification</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant que nouvel utilisateur, je veux créer un compte (email, pseudo, mot de passe) afin de rejoindre la plateforme.</td>
+          <td>Email RFC-valide · pseudo 3–50 chars · password ≥ 8 chars · unicité email + pseudo vérifiée · JWT cookie retourné</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux me connecter afin d’accéder à mon compte.</td>
+          <td>Message d’erreur générique (timing-attack resistant) · blocage si compte suspendu · cookie HttpOnly/Secure/SameSite</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux me déconnecter afin de fermer ma session.</td>
+          <td>Cookie supprimé (MaxAge: -1) · HTTP 200</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux supprimer mon compte afin de quitter définitivement la plateforme.</td>
+          <td>Suppression en cascade (posts, réactions, follows) · cookie invalidé</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="adr">
+      <h3>Epic 2 — Session temporelle</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux voir le statut de la session active (ouverte / compte à rebours) afin de savoir si je peux poster.</td>
+          <td>isActive, opensAt, closesAt retournés · prochaine session calculée si aucune active</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant que système, je veux qu’une session s’ouvre et se ferme automatiquement à heure fixe afin de garantir la temporalité partagée.</td>
+          <td>SessionManager cron toutes les minutes · ouverture à SESSION_OPEN_HOUR · fermeture après SESSION_DURATION_MIN · broadcast WS session_opened/session_closed</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’admin, je veux modifier les horaires de session afin d’adapter la fenêtre temporelle.</td>
+          <td>Route admin-only · paramètres openHour (0–23) et durationMin optionnels</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="adr">
+      <h3>Epic 3 — Publication et feed</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux créer un post avec une intention déclarée pendant la session active afin de contribuer au fil.</td>
+          <td>Contenu 1–500 chars · intention obligatoire (QUESTION/SHARE/PROJECT/CHALLENGE) · session active requise · attendance enregistrée</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux voir le feed global chronologique afin de découvrir le contenu de la session.</td>
+          <td>Tri DESC par date · comptages réactions et commentaires inclus · filtrage optionnel par intention</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux voir uniquement les posts des comptes que je suis afin de personnaliser mon expérience.</td>
+          <td>Paramètre feed=following · filtre SQL sur follows</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant que créateur, je veux supprimer mon post afin de le retirer de la plateforme.</td>
+          <td>Vérification propriété (owner ou moderator/admin) · suppression cascade · HTTP 200</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="adr">
+      <h3>Epic 4 — Privacy des posts</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant que créateur, je veux choisir la visibilité de mon post (PUBLIC / FOLLOWERS / PRIVATE) afin de contrôler son audience.</td>
+          <td>Défaut PUBLIC · PRIVATE accepte une liste de followers · contrôle d’accès enforced en SQL dans le feed</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="adr">
+      <h3>Epic 5 — Interactions sociales (réactions, commentaires)</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux réagir à un post (LIKE/FIRE/INSIGHTFUL/SUPPORT) afin d’exprimer mon sentiment.</td>
+          <td>UPSERT (change de réaction sans doublon) · notification au créateur si nouvelle réaction · broadcast WS avec ancienne et nouvelle valeur</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux retirer ma réaction afin de revenir à un état neutre.</td>
+          <td>Suppression de la réaction · broadcast WS remove_reaction</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux commenter un post afin de participer à la discussion.</td>
+          <td>Contenu max 500 chars ou image obligatoire · notification au créateur du post</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux voir les commentaires d’un post afin de lire la discussion.</td>
+          <td>Tri ASC par date · pseudo et avatar inclus</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Should Have — Fonctionnalités importantes</h3>
+
+    <div class="adr">
+      <h3>Epic 6 — Profils et réseau social</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux voir le profil public d’un autre utilisateur afin de découvrir son contenu.</td>
+          <td>Accès par pseudo · pseudo/avatar/bio/streak/compteurs followers · 50 derniers posts</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux modifier mon profil (pseudo, avatar, bio, privacy) afin de personnaliser ma présence.</td>
+          <td>Pseudo unique · update partiel via COALESCE · user retourné</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux suivre un compte afin de voir son contenu dans mon fil personnalisé.</td>
+          <td>Profil public → follow immédiat · profil privé → follow_request PENDING · prévention self-follow et double-follow</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur avec profil privé, je veux accepter ou refuser les demandes de suivi afin de contrôler mon audience.</td>
+          <td>ACCEPT → follow créé + notification · DECLINE → statut DECLINED · demande doit être PENDING</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux rechercher d’autres utilisateurs par pseudo afin de les trouver.</td>
+          <td>ILIKE sur pseudo · min 2 chars · exclut comptes suspendus · max 20 résultats</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="adr">
+      <h3>Epic 7 — Notifications</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux recevoir des notifications (réaction, commentaire, follow, follow_request) afin de rester informé.</td>
+          <td>Créées lors des événements · types : REACTION, COMMENT, FOLLOW, FOLLOW_REQUEST, FOLLOW_ACCEPTED · payload JSONB contextuel</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux voir et marquer mes notifications comme lues afin de suivre mon activité.</td>
+          <td>50 dernières notifications · unreadCount · mark as read par ID</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="adr">
+      <h3>Epic 8 — Modération et administration</h3>
+      <table>
+        <tr><th>User story</th><th>Critères d’acceptance</th><th>Statut</th></tr>
+        <tr>
+          <td>En tant qu’utilisateur, je veux signaler un post abusif afin d’alerter les modérateurs.</td>
+          <td>Raisons : SPAM/INAPPROPRIATE/HARASSMENT/OTHER · report créé avec reporter_id</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant que modérateur, je veux consulter et traiter les signalements afin de modérer le contenu.</td>
+          <td>Liste PENDING/REVIEWED/DISMISSED · REVIEWED supprime le post automatiquement · rôle moderator ou admin requis</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+        <tr>
+          <td>En tant qu’admin, je veux suspendre un compte afin de stopper les abus.</td>
+          <td>Route admin-only · status = suspended · login bloqué pour le compte suspendu</td>
+          <td><span class="badge">✅ Implémenté</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Could Have — Fonctionnalités optionnelles implémentées</h3>
+    <table>
+      <tr><th>Feature</th><th>Description</th><th>Statut</th></tr>
+      <tr><td>Streak de participation</td><td>Calcul automatique après chaque session · statut dormant après 7 sessions manquées</td><td><span class="badge">✅ Implémenté</span></td></tr>
+      <tr><td>Upload d’images</td><td>Posts et commentaires avec image · validation magic bytes · limite configurable (5 MB)</td><td><span class="badge">✅ Implémenté</span></td></tr>
+      <tr><td>Présence de session</td><td>session_attendances enregistrée à chaque post · base pour le streak</td><td><span class="badge">✅ Implémenté</span></td></tr>
+      <tr><td>Profil privé</td><td>is_private sur users · follow via demande si profil privé</td><td><span class="badge">✅ Implémenté</span></td></tr>
+      <tr><td>Temps réel WebSocket</td><td>new_post, new_reaction, remove_reaction, session_opened, session_closed</td><td><span class="badge">✅ Implémenté</span></td></tr>
+    </table>
+
+    <h3>Won’t Have (MVP) — Hors périmètre délibéré</h3>
+    <table>
+      <tr><th>Feature</th><th>Justification</th></tr>
+      <tr><td>Messagerie privée</td><td>Déplace le produit vers un usage de messagerie, hors concept de session collective publique.</td></tr>
+      <tr><td>Édition de post</td><td>Renforcerait la permanence des contributions dans la session — délibérément absent.</td></tr>
+      <tr><td>Commentaires threadés</td><td>Complexité UX non prioritaire pour le MVP.</td></tr>
+      <tr><td>Blocage d’utilisateurs</td><td>Priorité post-MVP — modération suffit pour le premier périmètre.</td></tr>
+      <tr><td>Hashtags et discovery</td><td>Implique un moteur de recommendation, contraire aux principes produit.</td></tr>
+      <tr><td>Vérification email / 2FA</td><td>Sécurité avancée prévue après validation du modèle produit.</td></tr>
+    </table>
+
+    <!-- ==================== ANNEXE B ==================== -->
+    <h2 id="annexe-b">Annexe B — Modélisation</h2>
+    <p>Le MCD, le MLD et le MPD sont intégrés dans le corps du dossier (section 2.7). Le MPD SQL complet est présenté ci-dessous.</p>
+    <h3>MPD SQL — Extrait des contraintes clés</h3>
+    <pre>-- Enums PostgreSQL synchronisés avec les types Go
+CREATE TYPE post_intention AS ENUM (‘QUESTION’,’SHARE’,’PROJECT’,’CHALLENGE’);
+CREATE TYPE post_privacy   AS ENUM (‘PUBLIC’,’FOLLOWERS’,’PRIVATE’);
+CREATE TYPE reaction_type  AS ENUM (‘LIKE’,’FIRE’,’INSIGHTFUL’,’SUPPORT’);
+CREATE TYPE user_role      AS ENUM (‘user’,’moderator’,’admin’);
+CREATE TYPE user_status    AS ENUM (‘active’,’dormant’,’suspended’);
+
+-- Contraintes métier au niveau schéma
+CONSTRAINT uq_reaction_per_user_post UNIQUE (post_id, user_id)   -- reactions
+CONSTRAINT uq_follow                 UNIQUE (follower_id, following_id) -- follows
+CONSTRAINT no_self_follow            CHECK  (follower_id != following_id)
+CONSTRAINT uq_attendance             UNIQUE (user_id, session_id) -- session_attendances
+
+-- Index partiels pour performance
+CREATE INDEX idx_notifs_user_unread ON notifications(user_id, is_read) WHERE is_read = false;
+CREATE INDEX idx_posts_created_at   ON posts(created_at DESC);</pre>
+
+    <!-- ==================== ANNEXE C ==================== -->
+    <h2 id="annexe-c">Annexe C — Maquettes (wireframes)</h2>
+    <p>Wireframes HTML générés depuis les composants React réels du projet.</p>
+
+    <style>
+      .wf-wrap { background:#060606; border-radius:18px; padding:0; overflow:hidden; margin:28px 0; border:1px solid #222; font-family:Inter,-apple-system,sans-serif; print-color-adjust:exact; -webkit-print-color-adjust:exact; break-inside:avoid; page-break-inside:avoid; }
+      .wf-bar  { background:#0d0d0d; border-bottom:1px solid #1f2937; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; }
+      .wf-bar-logo { color:#fff; font-weight:800; font-size:16px; }
+      .wf-bar-right { display:flex; align-items:center; gap:12px; }
+      .wf-notif-btn { position:relative; color:#9ca3af; font-size:18px; cursor:pointer; }
+      .wf-notif-badge { position:absolute; top:-4px; right:-6px; background:white; color:#111; font-size:9px; font-weight:800; border-radius:999px; min-width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+      .wf-user-link { color:#9ca3af; font-size:13px; }
+      .wf-logout { color:#6b7280; font-size:11px; border:1px solid #374151; border-radius:6px; padding:3px 8px; }
+      .wf-session-bar { background:rgba(34,197,94,.1); border-bottom:1px solid rgba(34,197,94,.2); padding:8px 20px; display:flex; align-items:center; justify-content:space-between; }
+      .wf-session-dot { width:8px; height:8px; border-radius:50%; background:#4ade80; display:inline-block; margin-right:8px; animation:pulse 2s infinite; }
+      .wf-session-text { color:#4ade80; font-size:13px; font-weight:500; }
+      .wf-session-timer { color:rgba(74,222,128,.7); font-size:11px; font-family:monospace; }
+      .wf-body { padding:20px; max-width:640px; margin:0 auto; }
+      .wf-card { background:#111827; border:1px solid #1f2937; border-radius:12px; padding:16px; margin-bottom:12px; }
+      .wf-card:hover { border-color:#374151; }
+      .wf-composer-textarea { width:100%; background:transparent; border:none; color:#e5e7eb; font-size:14px; resize:none; outline:none; font-family:inherit; }
+      .wf-intention-chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+      .wf-chip { padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid; cursor:pointer; }
+      .wf-chip-q  { color:#60a5fa; border-color:#1d4ed8; background:rgba(29,78,216,.15); }
+      .wf-chip-s  { color:#4ade80; border-color:#15803d; background:rgba(21,128,61,.15); }
+      .wf-chip-p  { color:#c084fc; border-color:#7e22ce; background:rgba(126,34,206,.15); }
+      .wf-chip-c  { color:#fb923c; border-color:#c2410c; background:rgba(194,65,12,.15); }
+      .wf-chip-selected { background:rgba(255,255,255,.1); color:#fff; }
+      .wf-privacy-btns { display:flex; gap:8px; margin-top:10px; align-items:center; }
+      .wf-privacy-label { color:#6b7280; font-size:12px; }
+      .wf-privacy-btn { padding:4px 10px; border-radius:8px; font-size:11px; border:1px solid #374151; color:#9ca3af; cursor:pointer; }
+      .wf-privacy-btn-active { background:#1f2937; color:#fff; border-color:#6b7280; }
+      .wf-composer-footer { display:flex; justify-content:space-between; align-items:center; margin-top:12px; border-top:1px solid #1f2937; padding-top:12px; }
+      .wf-char-count { color:#9ca3af; font-size:11px; }
+      .wf-publish-btn { background:white; color:#111; font-size:12px; font-weight:700; padding:6px 16px; border-radius:8px; border:none; cursor:pointer; }
+      .wf-post-header { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+      .wf-avatar { width:36px; height:36px; border-radius:50%; background:#374151; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-weight:700; font-size:14px; flex-shrink:0; }
+      .wf-post-meta { flex:1; }
+      .wf-post-author { color:#f3f4f6; font-size:13px; font-weight:600; }
+      .wf-post-streak { color:#eab308; font-size:11px; margin-left:6px; }
+      .wf-post-badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:10px; font-weight:700; margin-left:6px; }
+      .wf-badge-q { background:rgba(29,78,216,.2); color:#60a5fa; }
+      .wf-badge-s { background:rgba(21,128,61,.2); color:#4ade80; }
+      .wf-badge-p { background:rgba(126,34,206,.2); color:#c084fc; }
+      .wf-badge-c { background:rgba(194,65,12,.2); color:#fb923c; }
+      .wf-post-time { color:#4b5563; font-size:11px; margin-left:auto; }
+      .wf-post-content { color:#d1d5db; font-size:13px; line-height:1.6; margin-bottom:12px; }
+      .wf-reactions { display:flex; gap:6px; align-items:center; }
+      .wf-reaction-btn { display:flex; align-items:center; gap:4px; padding:4px 8px; border-radius:8px; border:1px solid #1f2937; color:#6b7280; font-size:12px; cursor:pointer; }
+      .wf-reaction-btn-active { background:rgba(255,255,255,.08); border-color:#374151; color:#fff; }
+      .wf-comment-btn { margin-left:auto; color:#6b7280; font-size:12px; display:flex; align-items:center; gap:4px; cursor:pointer; }
+      .wf-filter-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+      .wf-filter-btn { padding:5px 12px; border-radius:999px; border:1px solid #374151; color:#9ca3af; font-size:12px; cursor:pointer; }
+      .wf-filter-btn-active { background:#1f2937; color:#fff; border-color:#6b7280; }
+      /* Heartbeat screen */
+      .wf-hb-body { min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; text-align:center; }
+      .wf-hb-title { font-size:80px; font-weight:800; color:#fff; letter-spacing:.08em; margin-bottom:24px; }
+      .wf-countdown-wrap { text-align:center; }
+      .wf-countdown-label { color:#6b7280; font-size:11px; text-transform:uppercase; letter-spacing:.15em; margin-bottom:16px; }
+      .wf-countdown-digits { display:flex; align-items:center; gap:6px; justify-content:center; }
+      .wf-digit-block { background:#111827; border:1px solid #1f2937; border-radius:10px; padding:12px 16px; min-width:64px; text-align:center; }
+      .wf-digit { font-size:40px; font-weight:800; font-family:monospace; color:#fff; }
+      .wf-digit-label { font-size:9px; color:#4b5563; text-transform:uppercase; letter-spacing:.1em; margin-top:4px; }
+      .wf-sep { font-size:32px; color:#374151; font-weight:800; }
+      /* Profile */
+      .wf-profile-header { display:flex; align-items:center; gap:16px; padding:20px; }
+      .wf-avatar-lg { width:56px; height:56px; border-radius:50%; background:#374151; display:flex; align-items:center; justify-content:center; color:#9ca3af; font-weight:800; font-size:20px; flex-shrink:0; }
+      .wf-profile-name { color:#f3f4f6; font-size:17px; font-weight:700; }
+      .wf-profile-bio { color:#6b7280; font-size:12px; margin-top:4px; }
+      .wf-follow-btn { margin-left:auto; background:white; color:#111; font-size:12px; font-weight:700; padding:6px 16px; border-radius:8px; border:none; }
+      .wf-profile-stats { border-top:1px solid #1f2937; padding:14px 20px; display:flex; gap:32px; }
+      .wf-stat { text-align:center; }
+      .wf-stat-n { color:#f3f4f6; font-size:17px; font-weight:700; }
+      .wf-stat-l { color:#4b5563; font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
+      /* Auth */
+      .wf-auth-body { min-height:360px; display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+      .wf-auth-card { background:#111827; border:1px solid #1f2937; border-radius:14px; padding:28px; width:100%; max-width:320px; }
+      .wf-auth-logo { color:#fff; font-size:20px; font-weight:800; text-align:center; margin-bottom:4px; }
+      .wf-auth-sub { color:#6b7280; font-size:12px; text-align:center; margin-bottom:20px; }
+      .wf-field { margin-bottom:14px; }
+      .wf-label { color:#9ca3af; font-size:12px; font-weight:500; display:block; margin-bottom:5px; }
+      .wf-input { width:100%; background:#0d0d0d; border:1px solid #374151; border-radius:8px; padding:8px 12px; color:#e5e7eb; font-size:13px; box-sizing:border-box; }
+      .wf-submit { width:100%; background:white; color:#111; font-weight:700; font-size:13px; padding:9px; border-radius:8px; border:none; margin-top:6px; cursor:pointer; }
+      .wf-auth-footer { text-align:center; margin-top:14px; color:#6b7280; font-size:12px; }
+      .wf-auth-link { color:#9ca3af; text-decoration:underline; cursor:pointer; }
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    </style>
+
+    <h3>Maquette 1 — Écran d’attente (hors session)</h3>
+    <div class="wf-wrap">
+      <div class="wf-bar">
+        <span class="wf-bar-logo">Pulse</span>
+      </div>
+      <div class="wf-hb-body">
+        <div class="wf-hb-title">Pulse</div>
+        <div class="wf-countdown-wrap">
+          <div class="wf-countdown-label">Prochaine session dans</div>
+          <div class="wf-countdown-digits">
+            <div class="wf-digit-block"><div class="wf-digit">02</div><div class="wf-digit-label">Heures</div></div>
+            <div class="wf-sep">:</div>
+            <div class="wf-digit-block"><div class="wf-digit">47</div><div class="wf-digit-label">Min</div></div>
+            <div class="wf-sep">:</div>
+            <div class="wf-digit-block"><div class="wf-digit">33</div><div class="wf-digit-label">Sec</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="wf-page-break">Maquette 2 — Login</h3>
+    <div class="wf-wrap">
+      <div class="wf-auth-body">
+        <div class="wf-auth-card">
+          <div class="wf-auth-logo">Pulse</div>
+          <div class="wf-auth-sub">Connexion à ton compte</div>
+          <div class="wf-field"><label class="wf-label">Email</label><input class="wf-input" type="email" placeholder="toi@exemple.com" disabled></div>
+          <div class="wf-field"><label class="wf-label">Mot de passe</label><input class="wf-input" type="password" placeholder="••••••••" disabled></div>
+          <button class="wf-submit">Se connecter</button>
+          <div class="wf-auth-footer">Pas encore de compte ? <span class="wf-auth-link">S’inscrire</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="wf-page-break">Maquette 3 — Feed (session active)</h3>
+    <div class="wf-wrap">
+      <div class="wf-bar">
+        <span class="wf-bar-logo">Pulse</span>
+        <div class="wf-bar-right">
+          <div class="wf-notif-btn">🔔<span class="wf-notif-badge">3</span></div>
+          <span class="wf-user-link">@romain</span>
+          <span class="wf-logout">Déconnexion</span>
+        </div>
+      </div>
+      <div class="wf-session-bar">
+        <div><span class="wf-session-dot"></span><span class="wf-session-text">Session en cours</span></div>
+        <span class="wf-session-timer">42:17 restantes</span>
+      </div>
+      <div class="wf-body">
+        <!-- Composer -->
+        <div class="wf-card" style="margin-bottom:16px">
+          <textarea class="wf-composer-textarea" rows="3" placeholder="Qu’est-ce que tu veux partager aujourd’hui ?" disabled></textarea>
+          <div class="wf-intention-chips">
+            <span class="wf-chip wf-chip-q">Question</span>
+            <span class="wf-chip wf-chip-s wf-chip-selected">Partage</span>
+            <span class="wf-chip wf-chip-p">Projet</span>
+            <span class="wf-chip wf-chip-c">Challenge</span>
+          </div>
+          <div class="wf-privacy-btns">
+            <span class="wf-privacy-label">Visibilité :</span>
+            <span class="wf-privacy-btn wf-privacy-btn-active">🌍 Public</span>
+            <span class="wf-privacy-btn">👥 Abonnés</span>
+            <span class="wf-privacy-btn">🔒 Sélection</span>
+          </div>
+          <div class="wf-composer-footer">
+            <span class="wf-char-count">0 / 500</span>
+            <button class="wf-publish-btn">Publier</button>
+          </div>
+        </div>
+        <!-- Filtres -->
+        <div class="wf-filter-bar">
+          <span class="wf-filter-btn wf-filter-btn-active">Global</span>
+          <span class="wf-filter-btn">Abonnements</span>
+          <span class="wf-filter-btn">Questions</span>
+          <span class="wf-filter-btn">Partages</span>
+          <span class="wf-filter-btn">Projets</span>
+          <span class="wf-filter-btn">Challenges</span>
+        </div>
+        <!-- Post 1 -->
+        <div class="wf-card">
+          <div class="wf-post-header">
+            <div class="wf-avatar">M</div>
+            <div class="wf-post-meta">
+              <span class="wf-post-author">@marie</span>
+              <span class="wf-post-streak">🔥 12</span>
+              <span class="wf-post-badge wf-badge-q">Question</span>
+            </div>
+            <span class="wf-post-time">20:03</span>
+          </div>
+          <div class="wf-post-content">Quel est votre outil de prise de notes préféré en 2025 ? J’hésite entre Obsidian et Notion pour mon setup dev.</div>
+          <div class="wf-reactions">
+            <div class="wf-reaction-btn wf-reaction-btn-active">👍 <span>14</span></div>
+            <div class="wf-reaction-btn">🔥 <span>7</span></div>
+            <div class="wf-reaction-btn">💡 <span>3</span></div>
+            <div class="wf-reaction-btn">🤝</div>
+            <div class="wf-comment-btn">💬 8 commentaires</div>
+          </div>
+        </div>
+        <!-- Post 2 -->
+        <div class="wf-card">
+          <div class="wf-post-header">
+            <div class="wf-avatar">T</div>
+            <div class="wf-post-meta">
+              <span class="wf-post-author">@thomas</span>
+              <span class="wf-post-badge wf-badge-p">Projet</span>
+            </div>
+            <span class="wf-post-time">20:01</span>
+          </div>
+          <div class="wf-post-content">Je viens de pusher la v0.3 de mon side-project. Première fois que j’arrive à tenir un streak de dev : 3 semaines sans rater un jour.</div>
+          <div class="wf-reactions">
+            <div class="wf-reaction-btn">👍 <span>6</span></div>
+            <div class="wf-reaction-btn">🔥 <span>11</span></div>
+            <div class="wf-reaction-btn">💡</div>
+            <div class="wf-reaction-btn">🤝 <span>2</span></div>
+            <div class="wf-comment-btn">💬 3 commentaires</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="wf-page-break">Maquette 4 — Profil utilisateur</h3>
+    <div class="wf-wrap">
+      <div class="wf-bar">
+        <span class="wf-bar-logo">Pulse</span>
+        <div class="wf-bar-right">
+          <div class="wf-notif-btn">🔔</div>
+          <span class="wf-user-link">@romain</span>
+          <span class="wf-logout">Déconnexion</span>
+        </div>
+      </div>
+      <div class="wf-body" style="padding-top:16px">
+        <div class="wf-card" style="padding:0;overflow:hidden">
+          <div class="wf-profile-header">
+            <div class="wf-avatar-lg">M</div>
+            <div>
+              <div class="wf-profile-name">@marie <span style="color:#eab308;font-size:12px">🔥 12 jours</span></div>
+              <div style="color:#6b7280;font-size:11px;margin-top:2px">active</div>
+              <div class="wf-profile-bio">Dev front · passionnée de design systems · Lyon 🌿</div>
+            </div>
+            <button class="wf-follow-btn">Suivre</button>
+          </div>
+          <div class="wf-profile-stats">
+            <div class="wf-stat"><div class="wf-stat-n">248</div><div class="wf-stat-l">Abonnés</div></div>
+            <div class="wf-stat"><div class="wf-stat-n">91</div><div class="wf-stat-l">Abonnements</div></div>
+          </div>
+        </div>
+        <div style="color:#6b7280;font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin:16px 0 8px;font-weight:700">Posts</div>
+        <div class="wf-card">
+          <div class="wf-post-header">
+            <div class="wf-avatar">M</div>
+            <div class="wf-post-meta">
+              <span class="wf-post-author">@marie</span>
+              <span class="wf-post-badge wf-badge-q">Question</span>
+            </div>
+            <span class="wf-post-time">20:03</span>
+          </div>
+          <div class="wf-post-content">Quel est votre outil de prise de notes préféré en 2025 ?</div>
+          <div class="wf-reactions">
+            <div class="wf-reaction-btn">👍 <span>14</span></div>
+            <div class="wf-reaction-btn">🔥 <span>7</span></div>
+            <div class="wf-comment-btn">💬 8 commentaires</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+</body>
+</html>
