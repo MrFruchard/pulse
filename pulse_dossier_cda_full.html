@@ -908,60 +908,96 @@ internal/
     <p>La base PostgreSQL modélise les utilisateurs, sessions, posts, commentaires, réactions, abonnements, notifications, signalements et présences de session. Le choix relationnel est cohérent avec la nature du domaine : nombreuses relations, contraintes d’unicité, cascades de suppression, jointures et intégrité référentielle.</p>
 
     <h3>Dictionnaire de données</h3>
-    <table>
-      <tr><th>Entité</th><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
-      <tr><td rowspan="12"><strong>users</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique de l’utilisateur</td></tr>
-      <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL, UNIQUE</td><td>Adresse email, identifiant de connexion</td></tr>
-      <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Empreinte bcrypt (coût 12), jamais stockée en clair</td></tr>
-      <tr><td>pseudo</td><td>VARCHAR(50)</td><td>NOT NULL, UNIQUE</td><td>Pseudonyme public de l’utilisateur</td></tr>
-      <tr><td>avatar_url</td><td>VARCHAR(500)</td><td></td><td>URL de l’image de profil</td></tr>
-      <tr><td>bio</td><td>TEXT</td><td></td><td>Biographie libre</td></tr>
-      <tr><td>role</td><td>user_role</td><td>DEFAULT ‘user’</td><td>Rôle RBAC : user | moderator | admin</td></tr>
-      <tr><td>streak</td><td>INTEGER</td><td>DEFAULT 0</td><td>Nombre de sessions consécutives participées</td></tr>
-      <tr><td>status</td><td>user_status</td><td>DEFAULT ‘active’</td><td>Statut du compte : active | dormant | suspended</td></tr>
-      <tr><td>is_private</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Profil privé (suivi sur demande)</td></tr>
-      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création du compte</td></tr>
-      <tr><td>updated_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de dernière modification</td></tr>
 
-      <tr><td rowspan="5"><strong>sessions</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique de la session</td></tr>
+    <div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px">
+    <p style="font-weight:800;margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">users</p>
+    <table>
+      <tr><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+      <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL, UNIQUE</td><td>Adresse email, identifiant de connexion</td></tr>
+      <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Empreinte bcrypt coût 12, jamais stockée en clair</td></tr>
+      <tr><td>pseudo</td><td>VARCHAR(50)</td><td>NOT NULL, UNIQUE</td><td>Pseudonyme public</td></tr>
+      <tr><td>role</td><td>user_role</td><td>DEFAULT ‘user’</td><td>Rôle RBAC : user | moderator | admin</td></tr>
+      <tr><td>streak</td><td>INTEGER</td><td>DEFAULT 0</td><td>Sessions consécutives participées</td></tr>
+      <tr><td>status</td><td>user_status</td><td>DEFAULT ‘active’</td><td>active | dormant | suspended</td></tr>
+      <tr><td>is_private</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Profil privé (suivi sur demande)</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création</td></tr>
+    </table>
+    </div>
+
+    <div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px">
+    <p style="font-weight:800;margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">sessions</p>
+    <table>
+      <tr><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
       <tr><td>opens_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>Heure d’ouverture (UTC)</td></tr>
       <tr><td>closes_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>Heure de fermeture (UTC)</td></tr>
-      <tr><td>is_active</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Indique si la session est actuellement en cours</td></tr>
-      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création du record</td></tr>
+      <tr><td>is_active</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Session en cours — une seule active à la fois</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création</td></tr>
+    </table>
+    </div>
 
-      <tr><td rowspan="9"><strong>posts</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique du post</td></tr>
+    <div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px">
+    <p style="font-weight:800;margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">posts</p>
+    <table>
+      <tr><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
       <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Auteur du post</td></tr>
       <tr><td>session_id</td><td>UUID</td><td>FK sessions, CASCADE</td><td>Session de publication</td></tr>
       <tr><td>content</td><td>TEXT</td><td>NOT NULL</td><td>Contenu textuel (max 500 caractères)</td></tr>
-      <tr><td>intention</td><td>post_intention</td><td>NOT NULL</td><td>Intention déclarée : QUESTION | SHARE | PROJECT | CHALLENGE</td></tr>
-      <tr><td>privacy</td><td>post_privacy</td><td>DEFAULT ‘PUBLIC’</td><td>Visibilité : PUBLIC | FOLLOWERS | PRIVATE</td></tr>
-      <tr><td>image_url</td><td>VARCHAR(500)</td><td></td><td>URL de l’image jointe (optionnelle)</td></tr>
+      <tr><td>intention</td><td>post_intention</td><td>NOT NULL</td><td>QUESTION | SHARE | PROJECT | CHALLENGE</td></tr>
+      <tr><td>privacy</td><td>post_privacy</td><td>DEFAULT ‘PUBLIC’</td><td>PUBLIC | FOLLOWERS | PRIVATE</td></tr>
       <tr><td>is_flagged</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Signalé pour modération</td></tr>
       <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de publication</td></tr>
+    </table>
+    </div>
 
-      <tr><td rowspan="5"><strong>reactions</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+    <div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px">
+    <p style="font-weight:800;margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">reactions</p>
+    <table>
+      <tr><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
       <tr><td>post_id</td><td>UUID</td><td>FK posts, CASCADE</td><td>Post réactionné</td></tr>
       <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur qui réagit</td></tr>
-      <tr><td>type</td><td>reaction_type</td><td>NOT NULL</td><td>Type : LIKE | FIRE | INSIGHTFUL | SUPPORT</td></tr>
+      <tr><td>type</td><td>reaction_type</td><td>NOT NULL</td><td>LIKE | FIRE | INSIGHTFUL | SUPPORT</td></tr>
       <tr><td>created_at</td><td>TIMESTAMP</td><td>UNIQUE(post_id, user_id)</td><td>Une seule réaction par utilisateur par post</td></tr>
+    </table>
+    </div>
 
-      <tr><td rowspan="4"><strong>follows</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+    <div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px">
+    <p style="font-weight:800;margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">follows</p>
+    <table>
+      <tr><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
       <tr><td>follower_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur qui suit</td></tr>
       <tr><td>following_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur suivi</td></tr>
-      <tr><td>created_at</td><td>TIMESTAMP</td><td>UNIQUE(follower_id, following_id), CHECK(follower_id != following_id)</td><td>Relation unique, auto-follow impossible</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>UNIQUE(follower_id, following_id), CHECK(follower_id ≠ following_id)</td><td>Relation unique, auto-follow impossible</td></tr>
+    </table>
+    </div>
 
-      <tr><td rowspan="4"><strong>session_attendances</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+    <div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px">
+    <p style="font-weight:800;margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">session_attendances</p>
+    <table>
+      <tr><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
       <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur participant</td></tr>
       <tr><td>session_id</td><td>UUID</td><td>FK sessions, CASCADE</td><td>Session concernée</td></tr>
       <tr><td>joined_at</td><td>TIMESTAMP</td><td>UNIQUE(user_id, session_id)</td><td>Un enregistrement par session par utilisateur</td></tr>
+    </table>
+    </div>
 
-      <tr><td rowspan="6"><strong>notifications</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+    <div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px">
+    <p style="font-weight:800;margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">notifications</p>
+    <table>
+      <tr><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
       <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Destinataire</td></tr>
-      <tr><td>type</td><td>notification_type</td><td>NOT NULL</td><td>Type : SESSION_OPEN | REACTION | COMMENT | FOLLOW | REPORT</td></tr>
+      <tr><td>type</td><td>notification_type</td><td>NOT NULL</td><td>SESSION_OPEN | REACTION | COMMENT | FOLLOW | REPORT</td></tr>
       <tr><td>payload</td><td>JSONB</td><td>DEFAULT ‘{}’</td><td>Données contextuelles (from, postId, excerpt…)</td></tr>
-      <tr><td>is_read</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Statut de lecture — indexé partiellement (WHERE is_read = false)</td></tr>
+      <tr><td>is_read</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Indexé partiellement (WHERE is_read = false)</td></tr>
       <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création</td></tr>
     </table>
+    </div>
 
     <h3>Enums PostgreSQL synchronisés avec les types Go</h3>
     <p>Le schéma définit des enums PostgreSQL qui correspondent exactement aux types définis dans <code>models.go</code>. Cette synchronisation empêche toute valeur invalide d’être persistée, que l’erreur vienne de l’application ou d’une requête directe en base.</p>
