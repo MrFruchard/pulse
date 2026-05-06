@@ -94,14 +94,8 @@ export default function FeedPage() {
   })
 
   async function handleReact(postId: string, type: ReactionType) {
-    const post = feedPosts.find(p => p.id === postId)
-    const isSame = post?.userReaction === type
     try {
-      if (isSame) {
-        await postsApi.unreact(postId)
-      } else {
-        await postsApi.react(postId, type)
-      }
+      await postsApi.react(postId, type)
     } catch { /* erreur réseau */ }
   }
 
