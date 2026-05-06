@@ -47,16 +47,27 @@ func (h *Hub) Unregister(client *Client) {
 }
 
 func (h *Hub) Broadcast(message []byte) {
+	// Collecter les clients morts séparément pour éviter de modifier la map sous RLock
 	h.mu.RLock()
-	defer h.mu.RUnlock()
+	dead := make([]*Client, 0)
 	for client := range h.clients {
 		select {
 		case client.send <- message:
 		default:
-			// client trop lent — on le déconnecte
-			close(client.send)
-			delete(h.clients, client)
+			dead = append(dead, client)
 		}
+	}
+	h.mu.RUnlock()
+
+	if len(dead) > 0 {
+		h.mu.Lock()
+		for _, client := range dead {
+			if _, ok := h.clients[client]; ok {
+				close(client.send)
+				delete(h.clients, client)
+			}
+		}
+		h.mu.Unlock()
 	}
 }
 

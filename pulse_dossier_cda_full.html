@@ -1309,7 +1309,7 @@ AND (
 
     <h2>3.5 Découplage SessionManager / Hub</h2>
     <p>Un point d’architecture important est que le SessionManager ne manipule jamais directement la map des clients connectés. Il ne connaît pas les connexions WebSocket. Il publie uniquement un événement dans le channel <code>broadcast</code>. Le hub est seul responsable de la diffusion aux clients.</p>
-    <div class="callout good"><strong>Principe :</strong> composants concurrents indépendants, communication par channels, couplage minimal.</div>
+    <div class="callout good"><strong>Principe :</strong> composants concurrents indépendants, appel direct à hub.Broadcast(), couplage minimal.</div>
 
     <h2>3.6 Hub WebSocket concurrent</h2>
     <p>Le hub temps réel repose sur une map de clients protégée par un <code>sync.RWMutex</code>, exposée via trois méthodes dédiées :</p>
@@ -1481,8 +1481,8 @@ flowchart TB
       <tr><th>Job</th><th>Outil</th><th>Ce qu’il vérifie</th></tr>
       <tr><td>Lint Backend</td><td>golangci-lint</td><td>Style Go, erreurs statiques, code mort, conventions</td></tr>
       <tr><td>Lint Frontend</td><td>ESLint / next lint</td><td>TypeScript, règles Next.js, accessibilité</td></tr>
-      <tr><td>Test Backend</td><td>go test -cover -race</td><td>37 tests d’intégration sur PostgreSQL réel (service container), couverture ≥ 80%</td></tr>
-      <tr><td>Test Frontend</td><td>npm test --coverage</td><td>Tests unitaires composants React</td></tr>
+      <tr><td>Test Backend</td><td>go test -cover -race</td><td>53 tests sur PostgreSQL réel (service container), couverture mesurée par package (services 87%, middleware 91%, cron 62%)</td></tr>
+      <tr><td>Test Frontend</td><td>npm test --coverage</td><td>Aucun test frontend actuel — CI configurée avec --passWithNoTests</td></tr>
       <tr><td>Build Docker</td><td>docker/build-push-action</td><td>Build + push images backend/frontend sur GHCR (main uniquement)</td></tr>
     </table>
 
@@ -1495,7 +1495,7 @@ jobs:
   test-frontend → npm test --coverage
   build         → docker build + push ghcr.io  # si CI vert sur main</pre>
 
-    <div class="callout good"><strong>Tests d’intégration sur DB réelle :</strong> le job <code>test-backend</code> démarre un container PostgreSQL 16 avec health check, applique les migrations et exécute les 37 tests contre la vraie base — aucun mock. Un bug métier (règle 1 post/session absente) a été détecté et corrigé grâce à ces tests.</div>
+    <div class="callout good"><strong>Tests d’intégration sur DB réelle :</strong> le job <code>test-backend</code> démarre un container PostgreSQL 16 avec health check, applique les migrations et exécute les 53 tests contre la vraie base — aucun mock. Un bug métier (règle 1 post/session absente) a été détecté et corrigé grâce à ces tests.</div>
 
     <h3>Workflow CD — Déploiement continu</h3>
     <p>Le CD se déclenche uniquement si le CI est vert sur <code>main</code>. Il déploie via SSH sur le VPS de production.</p>
@@ -1511,7 +1511,7 @@ jobs:
     <div class="callout"><strong>Secrets GitHub Actions :</strong> <code>VPS_HOST</code>, <code>VPS_USER</code>, <code>VPS_SSH_KEY</code> stockés dans les secrets du dépôt — jamais dans le code. Le token GHCR est fourni automatiquement par <code>GITHUB_TOKEN</code>.</div>
 
     <h2>4.8 Plan et exemples de tests</h2>
-    <p>Les tests sont organisés en deux niveaux : tests unitaires (services, middleware — sans dépendance externe) et tests d'intégration (handlers, cron — avec PostgreSQL réel). Au total <strong>37 tests</strong> couvrent les règles métier critiques.</p>
+    <p>Les tests sont organisés en deux niveaux : tests unitaires (services, middleware — sans dépendance externe) et tests d'intégration (handlers, cron — avec PostgreSQL réel). Au total <strong>53 tests</strong> couvrent les règles métier critiques.</p>
 
     <table>
       <tr><th>Package</th><th>Tests</th><th>Ce qui est vérifié</th></tr>
@@ -2314,7 +2314,7 @@ CREATE INDEX idx_reactions_post     ON reactions(post_id);</pre>
     <table>
       <tr><th>Forme</th><th>Description</th></tr>
       <tr><td>Prototype papier / Figma</td><td>Enchaînement des écrans (splash → login → feed → post → réaction) validé avant d'écrire la première ligne de code frontend.</td></tr>
-      <tr><td>Prototype fonctionnel</td><td>L'application en DEV_MODE constitue un prototype cliquable complet : session toujours active, données de seed, toutes les interactions testables en local.</td></tr>
+      <tr><td>Prototype fonctionnel</td><td>L'application en local (Docker Compose) constitue un prototype fonctionnel complet : toutes les interactions testables avec des données de seed.</td></tr>
     </table>
     <div class="callout"><strong>Démarche itérative :</strong> les 4 étapes ont été parcourues en spirale — chaque fonctionnalité (splash, compositeur, feed temps réel) a fait l'objet d'un zoning mental, d'un wireframe texte, d'une maquette en composants React puis d'un test en prototype fonctionnel avant d'être considérée terminée.</div>
 
@@ -2544,7 +2544,7 @@ flowchart LR
       <tr><td><strong>Chi</strong></td><td>Router HTTP léger en Go (<code>github.com/go-chi/chi</code>). Gère les groupes de routes, les middlewares chaînés et le context HTTP. Choisi pour sa légèreté vs frameworks complets.</td></tr>
       <tr><td><strong>sqlx</strong></td><td>Extension de <code>database/sql</code> en Go avec binding nommé et struct scanning. Toutes les requêtes Pulse utilisent des paramètres préparés (<code>$1, $2…</code>) — zéro concaténation SQL.</td></tr>
       <tr><td><strong>Intention</strong></td><td>Champ obligatoire à la création d'un post : QUESTION, SHARE, PROJECT ou CHALLENGE. Force l'utilisateur à déclarer son objectif, filtre le feed, améliore la qualité des échanges.</td></tr>
-      <tr><td><strong>session_attendance</strong></td><td>Table de jonction reliant un utilisateur à une session. Enregistrée dès qu'un utilisateur se connecte pendant une session active. Base du calcul des streaks.</td></tr>
+      <tr><td><strong>session_attendance</strong></td><td>Table de jonction reliant un utilisateur à une session. Enregistrée lors de la création d'un post pendant une session active. Base du calcul des streaks.</td></tr>
       <tr><td><strong>Dormant</strong></td><td>Statut utilisateur automatique après 7 sessions consécutives manquées. Visible sur le profil, n'empêche pas la connexion. Signale une absence prolongée.</td></tr>
     </table>
 

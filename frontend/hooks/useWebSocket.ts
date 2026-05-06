@@ -10,9 +10,12 @@ type WSMessage = {
 export function useWebSocket(onMessage: (msg: WSMessage) => void) {
   const ws = useRef<WebSocket | null>(null)
   const onMessageRef = useRef(onMessage)
+  const mountedRef = useRef(true)
   onMessageRef.current = onMessage
 
   const connect = useCallback(() => {
+    if (!mountedRef.current) return
+
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL ?? '/ws'
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = window.location.host
@@ -30,14 +33,18 @@ export function useWebSocket(onMessage: (msg: WSMessage) => void) {
     }
 
     ws.current.onclose = () => {
-      // Reconnexion automatique après 3s
-      setTimeout(connect, 3000)
+      // Reconnexion uniquement si le composant est encore monté
+      if (mountedRef.current) {
+        setTimeout(connect, 3000)
+      }
     }
   }, [])
 
   useEffect(() => {
+    mountedRef.current = true
     connect()
     return () => {
+      mountedRef.current = false
       ws.current?.close()
     }
   }, [connect])
