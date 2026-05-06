@@ -1314,18 +1314,22 @@ if req.Privacy == "PUBLIC" {
     <p>Cette cohérence privacy ↔ temps réel évite toute fuite de contenu privé via le canal WebSocket. Les posts non-publics sont accessibles uniquement via l'API REST avec vérification d'accès SQL.</p>
 
     <h2>3.10 Réactions — UPSERT et notification conditionnelle</h2>
-    <p>Les réactions utilisent le pattern UPSERT : une même requête gère à la fois la création et le changement de réaction. Cela simplifie le client et garantit l'idempotence.</p>
-    <pre>INSERT INTO reactions (post_id, user_id, type)
-VALUES ($1, $2, $3::reaction_type)
-ON CONFLICT (post_id, user_id) DO UPDATE SET type = EXCLUDED.type</pre>
-    <p>La notification au créateur du post n'est déclenchée que si c'est une <em>nouvelle</em> réaction (<code>prevType == ""</code>). Si l'utilisateur change de réaction (LIKE → FIRE), aucune notification supplémentaire n'est générée. Le broadcast WebSocket inclut les deux valeurs pour permettre au frontend de décrémenter l'ancienne réaction et incrémenter la nouvelle sans recharger le feed.</p>
-    <pre>// reactions.go — notification conditionnelle
-if post.UserID != claims.UserID && prevType == "" {
-    // notifier uniquement sur une nouvelle réaction
-}
+    <p>Les réactions utilisent le pattern UPSERT : une même requête gère la création et le changement de réaction. Cela simplifie le client, garantit l'idempotence et élimine tout état incohérent. Le handler récupère d'abord la réaction précédente avant l'UPSERT pour pouvoir l'inclure dans le broadcast.</p>
+    <pre>// Récupérer la réaction précédente pour le broadcast UI optimiste
+var prevType string
+db.Get(&prevType, `SELECT type FROM reactions WHERE post_id = $1 AND user_id = $2`, postID, claims.UserID)
 
-// broadcast avec ancienne valeur pour mise à jour UI optimiste
+// UPSERT — crée ou met à jour en une seule requête atomique
+db.Exec(`
+    INSERT INTO reactions (post_id, user_id, type)
+    VALUES ($1, $2, $3::reaction_type)
+    ON CONFLICT (post_id, user_id) DO UPDATE SET type = EXCLUDED.type`,
+    postID, claims.UserID, req.Type,
+)</pre>
+    <p>La notification au créateur du post n'est déclenchée que si c'est une <em>nouvelle</em> réaction (<code>prevType == ""</code>). Si l'utilisateur change de réaction (LIKE → FIRE), aucune notification supplémentaire n'est générée. Le broadcast WebSocket inclut les deux valeurs pour permettre au frontend de mettre à jour les compteurs sans recharger le feed.</p>
+    <pre>// broadcast avec ancienne valeur pour mise à jour UI optimiste
 msg := { "type": "new_reaction", "reaction": req.Type, "prevReaction": prevType }</pre>
+    <div class="callout good"><strong>Détecté par les tests :</strong> le handler réactions utilisait initialement un INSERT simple qui retournait 409 sur la contrainte UNIQUE au lieu de mettre à jour. Le test <code>TestCreateReaction_Upsert</code> a révélé ce comportement incorrect — corrigé en remplaçant par le vrai UPSERT.</div>
 
     <h2>3.11 Erreurs métier</h2>
     <p>L’API expose des erreurs explicites avec code métier. Cela facilite la gestion côté frontend et rend les règles du domaine plus lisibles.</p>
@@ -1433,7 +1437,7 @@ flowchart TB
     </div>
 
     <h2>4.7 CI/CD</h2>
-    <p>Le projet dispose d’une pipeline GitHub Actions complète en deux workflows : <strong>CI</strong> (intégration continue) et <strong>CD</strong> (déploiement continu). Le CI se déclenche sur chaque push, le CD uniquement quand le CI passe sur <code>main</code>.</p>
+    <p>Le projet dispose d’une pipeline GitHub Actions complète et <strong>opérationnelle</strong> en deux workflows : <strong>CI</strong> (intégration continue) et <strong>CD</strong> (déploiement continu). Le CI se déclenche sur chaque push et passe au vert sur <code>main</code>. Le CD se déclenche uniquement quand le CI passe et déploie via SSH sur le VPS de production.</p>
 
     <h3>Workflow CI — Intégration continue</h3>
     <table>
@@ -1596,7 +1600,7 @@ func TestCalculateStreaks_DormantAfter7Missed(t *testing.T) {
       <tr><td>Créer post</td><td>Intégration</td><td>Session active, contenu et intention valides</td><td>201 Created</td><td>✅ PASS</td></tr>
       <tr><td>Créer post</td><td>Intégration</td><td>Hors session active</td><td>403 Forbidden</td><td>✅ PASS</td></tr>
       <tr><td>Règle 1 post/session</td><td>Intégration</td><td>Deuxième post dans la même session</td><td>409 Conflict</td><td>✅ PASS</td></tr>
-      <tr><td>Réaction UPSERT</td><td>Intégration</td><td>Changement de réaction (LIKE → FIRE)</td><td>201 + type mis à jour</td><td>✅ PASS</td></tr>
+      <tr><td>Réaction UPSERT</td><td>Intégration</td><td>Changement de réaction (LIKE → FIRE) — bug corrigé : INSERT simple → vrai UPSERT</td><td>201 + type mis à jour</td><td>✅ PASS</td></tr>
       <tr><td>Profil utilisateur</td><td>Intégration</td><td>Profil introuvable</td><td>404 Not Found</td><td>✅ PASS</td></tr>
       <tr><td>Profil utilisateur</td><td>Intégration</td><td>Profil avec posts — champ author présent</td><td>200 + author.pseudo</td><td>✅ PASS</td></tr>
       <tr><td>Follow</td><td>Intégration</td><td>Follow valide / auto-follow</td><td>201 / 4xx</td><td>✅ PASS</td></tr>
