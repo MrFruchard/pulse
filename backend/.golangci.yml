@@ -1,0 +1,24 @@
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
+    - misspell
+  disable:
+    - errcheck  # trop de faux positifs sur db.Get/Exec dans les handlers sqlx
+
+linters-settings:
+  staticcheck:
+    checks: ["all", "-SA1019"]
+
+issues:
+  exclude-rules:
+    # Ignorer les fonctions helper non utilisées dans les fichiers de test
+    - path: "_test\\.go"
+      linters:
+        - unused
+    # Ignorer les erreurs non vérifiées sur les broadcasts WebSocket
+    - text: "hub.Broadcast"
+      linters:
+        - errcheck
