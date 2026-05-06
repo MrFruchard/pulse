@@ -4,9 +4,9 @@ linters:
     - staticcheck
     - unused
     - ineffassign
-    - misspell
   disable:
-    - errcheck  # trop de faux positifs sur db.Get/Exec dans les handlers sqlx
+    - errcheck   # trop de faux positifs sur db.Get/Exec dans les handlers sqlx
+    - misspell   # commentaires en français
 
 linters-settings:
   staticcheck:
