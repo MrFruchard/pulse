@@ -693,7 +693,7 @@
       </a>
       <a href="#annexe-a" class="toc-sub"><span class="toc-sub-num">A</span><span class="toc-sub-title">Backlog MoSCoW et user stories</span><span class="toc-dots"></span></a>
       <a href="#annexe-b" class="toc-sub"><span class="toc-sub-num">B</span><span class="toc-sub-title">Modélisation</span><span class="toc-dots"></span></a>
-      <a href="#annexe-c" class="toc-sub"><span class="toc-sub-num">C</span><span class="toc-sub-title">Maquettes (wireframes)</span><span class="toc-dots"></span></a>
+      <a href="#annexe-c" class="toc-sub"><span class="toc-sub-num">C</span><span class="toc-sub-title">Conception UI — Zoning, Wireframe, Maquette, Prototypage</span><span class="toc-dots"></span></a>
       <a href="#annexe-d" class="toc-sub"><span class="toc-sub-num">D</span><span class="toc-sub-title">Parcours utilisateur (flowcharts)</span><span class="toc-dots"></span></a>
       <a href="#annexe-e" class="toc-sub"><span class="toc-sub-num">E</span><span class="toc-sub-title">Dictionnaire de données</span><span class="toc-dots"></span></a>
       <a href="#annexe-f" class="toc-sub"><span class="toc-sub-num">F</span><span class="toc-sub-title">Arborescence du projet</span><span class="toc-dots"></span></a>
@@ -905,16 +905,61 @@ internal/
 
     <h2>2.7 Modélisation des données</h2>
     <p>La base PostgreSQL modélise les utilisateurs, sessions, posts, commentaires, réactions, abonnements, notifications, signalements et présences de session. Le choix relationnel est cohérent avec la nature du domaine : nombreuses relations, contraintes d’unicité, cascades de suppression, jointures et intégrité référentielle.</p>
+
+    <h3>Dictionnaire de données</h3>
     <table>
-      <tr><th>Table</th><th>Rôle</th><th>Contraintes clés</th></tr>
-      <tr><td>users</td><td>Comptes utilisateurs</td><td>email unique, pseudo unique, rôle, statut</td></tr>
-      <tr><td>sessions</td><td>Fenêtres quotidiennes</td><td>opens_at, closes_at, état calculable</td></tr>
-      <tr><td>posts</td><td>Publications de session</td><td>FK user, FK session, intention, privacy</td></tr>
-      <tr><td>comments</td><td>Commentaires</td><td>FK post, FK user, ON DELETE CASCADE</td></tr>
-      <tr><td>reactions</td><td>Réactions aux posts</td><td>UNIQUE(post_id, user_id) — une réaction par utilisateur par post</td></tr>
-      <tr><td>follows</td><td>Relations sociales orientées</td><td>UNIQUE(follower_id, following_id), CHECK(follower_id != following_id)</td></tr>
-      <tr><td>session_attendances</td><td>Présence utilisateur</td><td>UNIQUE(user_id, session_id)</td></tr>
-      <tr><td>notifications</td><td>Notifications utilisateur</td><td>payload JSONB, index partiel WHERE is_read = false</td></tr>
+      <tr><th>Entité</th><th>Attribut</th><th>Type</th><th>Contrainte</th><th>Description</th></tr>
+      <tr><td rowspan="12"><strong>users</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique de l’utilisateur</td></tr>
+      <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL, UNIQUE</td><td>Adresse email, identifiant de connexion</td></tr>
+      <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Empreinte bcrypt (coût 12), jamais stockée en clair</td></tr>
+      <tr><td>pseudo</td><td>VARCHAR(50)</td><td>NOT NULL, UNIQUE</td><td>Pseudonyme public de l’utilisateur</td></tr>
+      <tr><td>avatar_url</td><td>VARCHAR(500)</td><td></td><td>URL de l’image de profil</td></tr>
+      <tr><td>bio</td><td>TEXT</td><td></td><td>Biographie libre</td></tr>
+      <tr><td>role</td><td>user_role</td><td>DEFAULT ‘user’</td><td>Rôle RBAC : user | moderator | admin</td></tr>
+      <tr><td>streak</td><td>INTEGER</td><td>DEFAULT 0</td><td>Nombre de sessions consécutives participées</td></tr>
+      <tr><td>status</td><td>user_status</td><td>DEFAULT ‘active’</td><td>Statut du compte : active | dormant | suspended</td></tr>
+      <tr><td>is_private</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Profil privé (suivi sur demande)</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création du compte</td></tr>
+      <tr><td>updated_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de dernière modification</td></tr>
+
+      <tr><td rowspan="5"><strong>sessions</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique de la session</td></tr>
+      <tr><td>opens_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>Heure d’ouverture (UTC)</td></tr>
+      <tr><td>closes_at</td><td>TIMESTAMP</td><td>NOT NULL</td><td>Heure de fermeture (UTC)</td></tr>
+      <tr><td>is_active</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Indique si la session est actuellement en cours</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création du record</td></tr>
+
+      <tr><td rowspan="9"><strong>posts</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique du post</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Auteur du post</td></tr>
+      <tr><td>session_id</td><td>UUID</td><td>FK sessions, CASCADE</td><td>Session de publication</td></tr>
+      <tr><td>content</td><td>TEXT</td><td>NOT NULL</td><td>Contenu textuel (max 500 caractères)</td></tr>
+      <tr><td>intention</td><td>post_intention</td><td>NOT NULL</td><td>Intention déclarée : QUESTION | SHARE | PROJECT | CHALLENGE</td></tr>
+      <tr><td>privacy</td><td>post_privacy</td><td>DEFAULT ‘PUBLIC’</td><td>Visibilité : PUBLIC | FOLLOWERS | PRIVATE</td></tr>
+      <tr><td>image_url</td><td>VARCHAR(500)</td><td></td><td>URL de l’image jointe (optionnelle)</td></tr>
+      <tr><td>is_flagged</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Signalé pour modération</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de publication</td></tr>
+
+      <tr><td rowspan="5"><strong>reactions</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+      <tr><td>post_id</td><td>UUID</td><td>FK posts, CASCADE</td><td>Post réactionné</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur qui réagit</td></tr>
+      <tr><td>type</td><td>reaction_type</td><td>NOT NULL</td><td>Type : LIKE | FIRE | INSIGHTFUL | SUPPORT</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>UNIQUE(post_id, user_id)</td><td>Une seule réaction par utilisateur par post</td></tr>
+
+      <tr><td rowspan="4"><strong>follows</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+      <tr><td>follower_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur qui suit</td></tr>
+      <tr><td>following_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur suivi</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>UNIQUE(follower_id, following_id), CHECK(follower_id != following_id)</td><td>Relation unique, auto-follow impossible</td></tr>
+
+      <tr><td rowspan="4"><strong>session_attendances</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Utilisateur participant</td></tr>
+      <tr><td>session_id</td><td>UUID</td><td>FK sessions, CASCADE</td><td>Session concernée</td></tr>
+      <tr><td>joined_at</td><td>TIMESTAMP</td><td>UNIQUE(user_id, session_id)</td><td>Un enregistrement par session par utilisateur</td></tr>
+
+      <tr><td rowspan="6"><strong>notifications</strong></td><td>id</td><td>UUID</td><td>PK</td><td>Identifiant unique</td></tr>
+      <tr><td>user_id</td><td>UUID</td><td>FK users, CASCADE</td><td>Destinataire</td></tr>
+      <tr><td>type</td><td>notification_type</td><td>NOT NULL</td><td>Type : SESSION_OPEN | REACTION | COMMENT | FOLLOW | REPORT</td></tr>
+      <tr><td>payload</td><td>JSONB</td><td>DEFAULT ‘{}’</td><td>Données contextuelles (from, postId, excerpt…)</td></tr>
+      <tr><td>is_read</td><td>BOOLEAN</td><td>DEFAULT false</td><td>Statut de lecture — indexé partiellement (WHERE is_read = false)</td></tr>
+      <tr><td>created_at</td><td>TIMESTAMP</td><td>DEFAULT NOW()</td><td>Date de création</td></tr>
     </table>
 
     <h3>Enums PostgreSQL synchronisés avec les types Go</h3>
@@ -1096,6 +1141,36 @@ erDiagram
     posts ||--o{ reactions : "post_id"
     posts ||--o{ reports : "post_id"
     </div>
+
+    <h3>MPD — Modèle Physique des Données</h3>
+    <p>Le MPD correspond à l'implémentation réelle dans PostgreSQL 16. Les enums sont créés comme types natifs et synchronisés avec les constantes Go dans <code>models.go</code>.</p>
+    <pre>-- Enums PostgreSQL natifs (synchronisés avec models.go)
+CREATE TYPE user_role      AS ENUM ('user', 'moderator', 'admin');
+CREATE TYPE user_status    AS ENUM ('active', 'dormant', 'suspended');
+CREATE TYPE post_intention AS ENUM ('QUESTION', 'SHARE', 'PROJECT', 'CHALLENGE');
+CREATE TYPE post_privacy   AS ENUM ('PUBLIC', 'FOLLOWERS', 'PRIVATE');
+CREATE TYPE reaction_type  AS ENUM ('LIKE', 'FIRE', 'INSIGHTFUL', 'SUPPORT');
+
+-- Contraintes métier au niveau schéma
+ALTER TABLE reactions
+  ADD CONSTRAINT uq_reaction_per_user UNIQUE (post_id, user_id);
+
+ALTER TABLE follows
+  ADD CONSTRAINT uq_follow         UNIQUE (follower_id, following_id),
+  ADD CONSTRAINT no_self_follow    CHECK  (follower_id != following_id);
+
+ALTER TABLE session_attendances
+  ADD CONSTRAINT uq_attendance     UNIQUE (user_id, session_id);
+
+-- Index partiels pour performance
+CREATE INDEX idx_notifs_user_unread ON notifications(user_id, is_read)
+  WHERE is_read = false;
+CREATE INDEX idx_posts_created_at   ON posts(created_at DESC);
+CREATE INDEX idx_posts_session      ON posts(session_id);
+CREATE INDEX idx_reactions_post     ON reactions(post_id);
+
+-- Cascade sur suppression de compte
+-- posts, comments, reactions, follows, notifications, reports → supprimés avec l'utilisateur</pre>
 
     <h2>2.8 Patterns mobilisés</h2>
     <table>
@@ -1357,14 +1432,41 @@ flowchart TB
     </div>
 
     <h2>4.7 CI/CD</h2>
-    <p>La spécification prévoit une pipeline GitHub Actions. L’état réel peut être présenté honnêtement : lorsque la pipeline n’est pas encore entièrement industrialisée, l’objectif et les commandes cibles sont documentés.</p>
+    <p>Le projet dispose d’une pipeline GitHub Actions complète en deux workflows : <strong>CI</strong> (intégration continue) et <strong>CD</strong> (déploiement continu). Le CI se déclenche sur chaque push, le CD uniquement quand le CI passe sur <code>main</code>.</p>
+
+    <h3>Workflow CI — Intégration continue</h3>
+    <table>
+      <tr><th>Job</th><th>Outil</th><th>Ce qu’il vérifie</th></tr>
+      <tr><td>Lint Backend</td><td>golangci-lint</td><td>Style Go, erreurs statiques, code mort, conventions</td></tr>
+      <tr><td>Lint Frontend</td><td>ESLint / next lint</td><td>TypeScript, règles Next.js, accessibilité</td></tr>
+      <tr><td>Test Backend</td><td>go test -cover -race</td><td>37 tests d’intégration sur PostgreSQL réel (service container), couverture ≥ 80%</td></tr>
+      <tr><td>Test Frontend</td><td>npm test --coverage</td><td>Tests unitaires composants React</td></tr>
+      <tr><td>Build Docker</td><td>docker/build-push-action</td><td>Build + push images backend/frontend sur GHCR (main uniquement)</td></tr>
+    </table>
+
     <pre>on: push / pull_request
 
 jobs:
-  - go test ./... -cover
-  - go vet + staticcheck
-  - docker compose build</pre>
-    <p>Cette approche montre la compréhension des contrôles attendus : tests backend, analyse statique, validation de build et préparation au déploiement.</p>
+  lint-backend  → golangci-lint (style, erreurs statiques)
+  lint-frontend → npm run lint (ESLint, TypeScript)
+  test-backend  → go test ./... -cover -race   # PostgreSQL service container
+  test-frontend → npm test --coverage
+  build         → docker build + push ghcr.io  # si CI vert sur main</pre>
+
+    <div class="callout good"><strong>Tests d’intégration sur DB réelle :</strong> le job <code>test-backend</code> démarre un container PostgreSQL 16 avec health check, applique les migrations et exécute les 37 tests contre la vraie base — aucun mock. Un bug métier (règle 1 post/session absente) a été détecté et corrigé grâce à ces tests.</div>
+
+    <h3>Workflow CD — Déploiement continu</h3>
+    <p>Le CD se déclenche uniquement si le CI est vert sur <code>main</code>. Il déploie via SSH sur le VPS de production.</p>
+    <table>
+      <tr><th>Étape</th><th>Action</th></tr>
+      <tr><td>Pull images</td><td><code>docker compose pull</code> — récupère les nouvelles images buildées par le CI</td></tr>
+      <tr><td>Restart services</td><td><code>docker compose up -d --remove-orphans</code> — redémarre sans downtime</td></tr>
+      <tr><td>Cleanup</td><td><code>docker image prune -f</code> — supprime les anciennes images</td></tr>
+      <tr><td>Health check</td><td>5 tentatives sur <code>/api/health</code> avec retry — rollback automatique si échec</td></tr>
+      <tr><td>Notify on failure</td><td>Création automatique d’une issue GitHub si le déploiement échoue</td></tr>
+    </table>
+
+    <div class="callout"><strong>Secrets GitHub Actions :</strong> <code>VPS_HOST</code>, <code>VPS_USER</code>, <code>VPS_SSH_KEY</code> stockés dans les secrets du dépôt — jamais dans le code. Le token GHCR est fourni automatiquement par <code>GITHUB_TOKEN</code>.</div>
 
     <h2>4.8 Accessibilité</h2>
     <p>Le projet vise une conformité volontaire RGAA / WCAG niveau AA. Les points d’attention sont le compte à rebours, le feed temps réel, les formulaires de publication et les contrastes en light/dark mode.</p>
@@ -1447,7 +1549,7 @@ jobs:
       <tr><th>Bloc / compétence</th><th>Mise en œuvre dans Pulse</th><th>Preuves</th></tr>
       <tr><td>Analyser le besoin</td><td>Problématique, cible, cadrage, arbitrages MVP</td><td>Contexte, backlog, principes produit</td></tr>
       <tr><td>Concevoir une application</td><td>Architecture multicouche, choix stack, ADR</td><td>Schémas, structure backend, décisions techniques</td></tr>
-      <tr><td>Développer composants UI</td><td>Next.js, feed, compte à rebours, profils, publication</td><td>Maquettes HTML, parcours utilisateur</td></tr>
+      <tr><td>Développer composants UI</td><td>Next.js, feed, compte à rebours, profils, publication</td><td>Zoning, wireframes, maquettes HTML, prototypage fonctionnel (Annexe C)</td></tr>
       <tr><td>Développer logique métier</td><td>SessionManager, StreakCalculator, RBAC</td><td>Réalisation significative</td></tr>
       <tr><td>Persistance des données</td><td>PostgreSQL, MCD/MLD/MPD, contraintes</td><td>Dictionnaire données, tables relationnelles</td></tr>
       <tr><td>Sécuriser l’application</td><td>JWT, cookies sécurisés, OWASP, Nginx rate limiting</td><td>Plan de sécurisation</td></tr>
@@ -1673,29 +1775,93 @@ jobs:
     </table>
 
     <!-- ==================== ANNEXE B ==================== -->
-    <h2 id="annexe-b">Annexe B — Modélisation</h2>
-    <p>Le MCD, le MLD et le MPD sont intégrés dans le corps du dossier (section 2.7). Le MPD SQL complet est présenté ci-dessous.</p>
-    <h3>MPD SQL — Extrait des contraintes clés</h3>
-    <pre>-- Enums PostgreSQL synchronisés avec les types Go
-CREATE TYPE post_intention AS ENUM (‘QUESTION’,’SHARE’,’PROJECT’,’CHALLENGE’);
-CREATE TYPE post_privacy   AS ENUM (‘PUBLIC’,’FOLLOWERS’,’PRIVATE’);
-CREATE TYPE reaction_type  AS ENUM (‘LIKE’,’FIRE’,’INSIGHTFUL’,’SUPPORT’);
-CREATE TYPE user_role      AS ENUM (‘user’,’moderator’,’admin’);
-CREATE TYPE user_status    AS ENUM (‘active’,’dormant’,’suspended’);
+    <h2 id="annexe-b">Annexe B — Modélisation complémentaire</h2>
+    <p>Le dictionnaire de données, le MCD, le MLD et le MPD sont intégrés dans la section 2.7. Cette annexe présente les contraintes d’intégrité SQL complètes du fichier de migration <code>001_init_schema.sql</code>.</p>
+    <h3>Contraintes d’intégrité — migration complète</h3>
+    <pre>-- Clés étrangères avec cascade
+ALTER TABLE posts              ADD CONSTRAINT fk_posts_user    FOREIGN KEY (user_id)     REFERENCES users(id)    ON DELETE CASCADE;
+ALTER TABLE posts              ADD CONSTRAINT fk_posts_session FOREIGN KEY (session_id)  REFERENCES sessions(id) ON DELETE CASCADE;
+ALTER TABLE comments           ADD CONSTRAINT fk_comments_post FOREIGN KEY (post_id)     REFERENCES posts(id)    ON DELETE CASCADE;
+ALTER TABLE reactions          ADD CONSTRAINT fk_reactions_post FOREIGN KEY (post_id)    REFERENCES posts(id)    ON DELETE CASCADE;
+ALTER TABLE notifications      ADD CONSTRAINT fk_notifs_user   FOREIGN KEY (user_id)     REFERENCES users(id)    ON DELETE CASCADE;
+ALTER TABLE session_attendances ADD CONSTRAINT fk_att_user     FOREIGN KEY (user_id)     REFERENCES users(id)    ON DELETE CASCADE;
 
--- Contraintes métier au niveau schéma
-CONSTRAINT uq_reaction_per_user_post UNIQUE (post_id, user_id)   -- reactions
-CONSTRAINT uq_follow                 UNIQUE (follower_id, following_id) -- follows
-CONSTRAINT no_self_follow            CHECK  (follower_id != following_id)
-CONSTRAINT uq_attendance             UNIQUE (user_id, session_id) -- session_attendances
+-- Contraintes d’unicité métier
+ALTER TABLE reactions           ADD CONSTRAINT uq_reaction_per_user UNIQUE (post_id, user_id);
+ALTER TABLE follows             ADD CONSTRAINT uq_follow            UNIQUE (follower_id, following_id);
+ALTER TABLE session_attendances ADD CONSTRAINT uq_attendance        UNIQUE (user_id, session_id);
+
+-- Contrainte de cohérence
+ALTER TABLE follows ADD CONSTRAINT no_self_follow CHECK (follower_id != following_id);
 
 -- Index partiels pour performance
 CREATE INDEX idx_notifs_user_unread ON notifications(user_id, is_read) WHERE is_read = false;
-CREATE INDEX idx_posts_created_at   ON posts(created_at DESC);</pre>
+CREATE INDEX idx_posts_created_at   ON posts(created_at DESC);
+CREATE INDEX idx_posts_session      ON posts(session_id);
+CREATE INDEX idx_reactions_post     ON reactions(post_id);</pre>
 
     <!-- ==================== ANNEXE C ==================== -->
-    <h2 id="annexe-c">Annexe C — Maquettes (wireframes)</h2>
-    <p>Wireframes HTML générés depuis les composants React réels du projet.</p>
+    <h2 id="annexe-c">Annexe C — Conception UI</h2>
+    <p>La conception de l'interface a suivi les 4 étapes classiques de la démarche UX : zoning, wireframe, maquette et prototypage.</p>
+
+    <h3>1. Zoning</h3>
+    <p>Le zoning définit les grandes zones fonctionnelles de chaque écran, sans détail graphique. Il structure l'espace avant tout choix visuel.</p>
+    <div class="two-col" style="margin:20px 0;">
+      <div class="card">
+        <div class="diagram-title">Feed (session active)</div>
+        <div style="display:grid;gap:6px;font-size:12px;">
+          <div style="background:#e5e7eb;border-radius:6px;padding:8px 12px;color:#374151;font-weight:600;">NAVIGATION (logo, notifs, profil)</div>
+          <div style="background:#dbeafe;border-radius:6px;padding:8px 12px;color:#1d4ed8;">BARRE DE SESSION (temps restant, statut)</div>
+          <div style="background:#fef3c7;border-radius:6px;padding:8px 12px;color:#92400e;">COMPOSITEUR (contenu, intention, visibilité)</div>
+          <div style="background:#f3f4f6;border-radius:6px;padding:6px 12px;color:#374151;font-size:11px;">FILTRES (global/abonnements, par intention)</div>
+          <div style="background:#f9fafb;border-radius:6px;padding:16px 12px;color:#6b7280;text-align:center;">LISTE DE POSTS</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="diagram-title">Écran d'attente</div>
+        <div style="display:grid;gap:6px;font-size:12px;">
+          <div style="background:#f3f4f6;border-radius:6px;padding:8px 12px;color:#374151;font-weight:600;">EN-TÊTE (logo)</div>
+          <div style="background:#e0e7ff;border-radius:6px;padding:20px 12px;color:#4338ca;text-align:center;">COMPTE À REBOURS<br><span style="font-size:10px">hh:mm:ss</span></div>
+          <div style="background:#fef3c7;border-radius:6px;padding:8px 12px;color:#92400e;text-align:center;">TAGLINE</div>
+          <div style="background:#f9fafb;border-radius:6px;padding:8px 12px;color:#6b7280;text-align:center;">ACTIONS (connexion, inscription)</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>2. Wireframe</h3>
+    <p>Le wireframe est une représentation schématique basse fidélité, en noir et blanc, qui structure le contenu et les interactions sans couleur ni typographie définitive. Il précède la maquette.</p>
+    <div class="two-col" style="margin:20px 0;">
+      <div class="card" style="font-family:monospace;font-size:11px;line-height:1.8;color:#374151;">
+        <div class="diagram-title">Wireframe — PostCard</div>
+        <pre style="background:none;color:#374151;padding:0;margin:0;font-size:11px;">┌─────────────────────────────────┐
+│ [○] pseudo        🔥 streak     │
+│      [TAG intention]   hh:mm    │
+│                                 │
+│  Contenu du post...             │
+│                                 │
+│  [👍 n] [🔥 n] [💡 n] [🤝 n]  │
+│                        [💬 n]   │
+└─────────────────────────────────┘</pre>
+      </div>
+      <div class="card" style="font-family:monospace;font-size:11px;line-height:1.8;color:#374151;">
+        <div class="diagram-title">Wireframe — Compositeur</div>
+        <pre style="background:none;color:#374151;padding:0;margin:0;font-size:11px;">┌─────────────────────────────────┐
+│ [ Ajouter une image ]           │
+│                                 │
+│  Qu'est-ce que tu veux          │
+│  partager aujourd'hui ?         │
+│                                 │
+│  [Question][Partage][Projet]    │
+│  [Challenge]                    │
+│                                 │
+│  Visibilité: [Public][Abonnés]  │
+│  0/500              [Publier]   │
+└─────────────────────────────────┘</pre>
+      </div>
+    </div>
+
+    <h3>3. Maquettes</h3>
+    <p>Les maquettes ci-dessous sont des représentations haute fidélité des écrans principaux, générées depuis les composants React réels du projet avec le thème dark par défaut.</p>
 
     <style>
       .wf-wrap { background:#060606; border-radius:18px; padding:0; overflow:hidden; margin:28px 0; border:1px solid #222; font-family:Inter,-apple-system,sans-serif; print-color-adjust:exact; -webkit-print-color-adjust:exact; break-inside:avoid; page-break-inside:avoid; }
@@ -1948,6 +2114,15 @@ CREATE INDEX idx_posts_created_at   ON posts(created_at DESC);</pre>
     </div>
 
   </section>
+
+    <h3>4. Prototypage</h3>
+    <p>Le prototypage consiste à rendre les maquettes interactives pour simuler la navigation et valider les parcours utilisateur avant le développement. Pour Pulse, le prototypage a pris deux formes :</p>
+    <table>
+      <tr><th>Forme</th><th>Description</th></tr>
+      <tr><td>Prototype papier / Figma</td><td>Enchaînement des écrans (splash → login → feed → post → réaction) validé avant d'écrire la première ligne de code frontend.</td></tr>
+      <tr><td>Prototype fonctionnel</td><td>L'application en DEV_MODE constitue un prototype cliquable complet : session toujours active, données de seed, toutes les interactions testables en local.</td></tr>
+    </table>
+    <div class="callout"><strong>Démarche itérative :</strong> les 4 étapes ont été parcourues en spirale — chaque fonctionnalité (splash, compositeur, feed temps réel) a fait l'objet d'un zoning mental, d'un wireframe texte, d'une maquette en composants React puis d'un test en prototype fonctionnel avant d'être considérée terminée.</div>
 
     <h2 id="annexe-d">Annexe D — Parcours utilisateur</h2>
     <p>Les trois flowcharts ci-dessous illustrent les flux principaux de l'application.</p>
