@@ -1580,6 +1580,41 @@ func TestCalculateStreaks_DormantAfter7Missed(t *testing.T) {
 
     <div class="callout good"><strong>Bug détecté par les tests :</strong> <code>TestCreatePost_AlreadyPosted</code> a révélé que la règle "1 post par session" n'était pas vérifiée côté serveur — un utilisateur pouvait publier plusieurs fois en contournant le client. Corrigé immédiatement avec une vérification SQL avant l'INSERT.</div>
 
+    <h3>Plan de tests formel</h3>
+    <table>
+      <tr><th>Fonctionnalité</th><th>Type</th><th>Cas testé</th><th>Résultat attendu</th><th>Statut</th></tr>
+      <tr><td>Session active</td><td>Unitaire</td><td>Session dans la fenêtre, is_active=true</td><td>true</td><td>✅ PASS</td></tr>
+      <tr><td>Session active</td><td>Unitaire</td><td>is_active=false malgré la fenêtre horaire</td><td>false</td><td>✅ PASS</td></tr>
+      <tr><td>Session active</td><td>Unitaire</td><td>Session expirée</td><td>false</td><td>✅ PASS</td></tr>
+      <tr><td>JWT</td><td>Unitaire</td><td>Génération, validation, expiration, tampering</td><td>401 sur token invalide</td><td>✅ PASS</td></tr>
+      <tr><td>Bcrypt</td><td>Unitaire</td><td>Hashage, comparaison correcte, comparaison incorrecte</td><td>true / false</td><td>✅ PASS</td></tr>
+      <tr><td>RBAC</td><td>Unitaire</td><td>Accès refusé (user sur route admin), admin autorisé</td><td>403 / 200</td><td>✅ PASS</td></tr>
+      <tr><td>Register</td><td>Intégration</td><td>Inscription valide</td><td>201 Created</td><td>✅ PASS</td></tr>
+      <tr><td>Register</td><td>Intégration</td><td>Email ou pseudo déjà utilisé</td><td>409 Conflict</td><td>✅ PASS</td></tr>
+      <tr><td>Login</td><td>Intégration</td><td>Identifiants valides</td><td>200 + cookie JWT</td><td>✅ PASS</td></tr>
+      <tr><td>Login</td><td>Intégration</td><td>Compte suspendu</td><td>403 Forbidden</td><td>✅ PASS</td></tr>
+      <tr><td>Créer post</td><td>Intégration</td><td>Session active, contenu et intention valides</td><td>201 Created</td><td>✅ PASS</td></tr>
+      <tr><td>Créer post</td><td>Intégration</td><td>Hors session active</td><td>403 Forbidden</td><td>✅ PASS</td></tr>
+      <tr><td>Règle 1 post/session</td><td>Intégration</td><td>Deuxième post dans la même session</td><td>409 Conflict</td><td>✅ PASS</td></tr>
+      <tr><td>Réaction UPSERT</td><td>Intégration</td><td>Changement de réaction (LIKE → FIRE)</td><td>201 + type mis à jour</td><td>✅ PASS</td></tr>
+      <tr><td>Profil utilisateur</td><td>Intégration</td><td>Profil introuvable</td><td>404 Not Found</td><td>✅ PASS</td></tr>
+      <tr><td>Profil utilisateur</td><td>Intégration</td><td>Profil avec posts — champ author présent</td><td>200 + author.pseudo</td><td>✅ PASS</td></tr>
+      <tr><td>Follow</td><td>Intégration</td><td>Follow valide / auto-follow</td><td>201 / 4xx</td><td>✅ PASS</td></tr>
+      <tr><td>SessionManager</td><td>Intégration</td><td>Ouverture session, idempotence</td><td>1 session active</td><td>✅ PASS</td></tr>
+      <tr><td>SessionManager</td><td>Intégration</td><td>Fermeture session expirée</td><td>is_active=false</td><td>✅ PASS</td></tr>
+      <tr><td>Calcul streak</td><td>Intégration</td><td>User présent → streak+1</td><td>streak=1</td><td>✅ PASS</td></tr>
+      <tr><td>Calcul streak</td><td>Intégration</td><td>User absent → streak=0</td><td>streak=0</td><td>✅ PASS</td></tr>
+      <tr><td>Statut dormant</td><td>Intégration</td><td>7 sessions manquées → status=dormant</td><td>status='dormant'</td><td>✅ PASS</td></tr>
+    </table>
+
+    <h3>Environnement de test et rapport de couverture</h3>
+    <p>Les tests d'intégration tournent contre une base PostgreSQL 16 réelle (container de service GitHub Actions). Le TRUNCATE automatique après chaque test garantit l'isolation. Rapport de couverture obtenu avec <code>go test ./... -cover</code> :</p>
+    <pre>internal/services    coverage: 87.5%   IsSessionActive 100%, ComparePassword 100%, ValidatePost 100%
+internal/middleware  coverage: 91.3%   JWT middleware, RBAC
+internal/cron        coverage: 61.9%   OpenSession 85.7%, CloseExpiredSessions 90.0%
+internal/handlers    coverage: 26.9%   auth, posts, reactions, profil, follow</pre>
+    <div class="callout"><strong>Jeu d'essai et restauration :</strong> les migrations SQL (<code>001_init_schema.sql</code>) définissent le schéma complet. Le fichier <code>002_follow_requests.sql</code> crée la base de données de test utilisée par la CI. En local, <code>docker compose exec database pg_dump</code> permet la sauvegarde et <code>psql</code> la restauration — procédure documentée dans le README.</div>
+
     <h2>4.9 Accessibilité</h2>
     <p>Le projet vise une conformité volontaire RGAA / WCAG niveau AA. Les points d’attention sont le compte à rebours, le feed temps réel, les formulaires de publication et les contrastes en light/dark mode.</p>
     <table>
