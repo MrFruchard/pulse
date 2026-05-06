@@ -1,39 +1,49 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { SplashScreen } from '@/components/SplashScreen'
+import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { BottomNav } from '@/components/layout/BottomNav'
+import { Sidebar } from '@/components/layout/Sidebar'
+import { useNotifications } from '@/hooks/useNotifications'
+import { auth } from '@/lib/api'
+import type { User } from '@/types'
+
+const AUTH_PATHS = ['/', '/login', '/register']
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  // SSR : pas de splash, contenu visible par défaut
-  const [showSplash, setShowSplash] = useState(false)
-  const [contentVisible, setContentVisible] = useState(true)
+  const pathname = usePathname()
+  const [me, setMe] = useState<User | null>(null)
+  const { unreadCount } = useNotifications()
+
+  const isAuthPage = AUTH_PATHS.some(p => pathname === p)
+    || pathname.startsWith('/login')
+    || pathname.startsWith('/register')
 
   useEffect(() => {
-    const seen = sessionStorage.getItem('pulse_splash_seen')
-    if (!seen) {
-      // Premier chargement : cacher le contenu et montrer la splash
-      setContentVisible(false)
-      setShowSplash(true)
-    }
-  }, [])
+    if (isAuthPage) return
+    auth.me()
+      .then(data => setMe((data as { user: User }).user))
+      .catch(() => {})
+  }, [isAuthPage])
 
-  const handleDone = useCallback(() => {
-    sessionStorage.setItem('pulse_splash_seen', '1')
-    setShowSplash(false)
-    setContentVisible(true)
-  }, [])
+  if (isAuthPage) {
+    return <>{children}</>
+  }
 
   return (
-    <>
-      {showSplash && <SplashScreen onDone={handleDone} />}
-      <div
-        style={{
-          opacity: contentVisible ? 1 : 0,
-          transition: contentVisible ? 'opacity 0.5s ease-in' : 'none',
-        }}
-      >
-        {children}
-      </div>
-    </>
+    <div className="min-h-screen bg-bg">
+      {/* Sidebar desktop */}
+      <Sidebar pseudo={me?.pseudo} unreadCount={unreadCount} />
+
+      {/* Contenu principal */}
+      <main className="lg:pl-60 pb-16 lg:pb-0 min-h-screen">
+        <div className="max-w-xl mx-auto px-0 lg:px-4">
+          {children}
+        </div>
+      </main>
+
+      {/* Bottom nav mobile */}
+      <BottomNav unreadCount={unreadCount} />
+    </div>
   )
 }
