@@ -1,19 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { Avatar } from '@/components/ui/Avatar'
+import { Pill, INTENTION_PILL, INTENTION_LABEL } from '@/components/ui/Pill'
 import { CommentSection } from '@/components/CommentSection'
 import type { Post, ReactionType } from '@/types'
 
-const INTENTIONS = {
-  QUESTION: { label: 'Question', color: 'text-blue-400 bg-blue-400/10' },
-  SHARE: { label: 'Partage', color: 'text-green-400 bg-green-400/10' },
-  PROJECT: { label: 'Projet', color: 'text-purple-400 bg-purple-400/10' },
-  CHALLENGE: { label: 'Challenge', color: 'text-orange-400 bg-orange-400/10' },
-}
-
-const PRIVACY_BADGE: Record<string, string> = {
-  FOLLOWERS: '👥',
-  PRIVATE:   '🔒',
+const REACTION_LABELS: Record<ReactionType, string> = {
+  LIKE: 'Aimer', FIRE: 'En feu', INSIGHTFUL: 'Pertinent', SUPPORT: 'Soutenir',
 }
 
 const REACTIONS: { type: ReactionType; emoji: string }[] = [
@@ -29,68 +23,84 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onReact }: PostCardProps) {
-  const intention = INTENTIONS[post.intention]
   const [showComments, setShowComments] = useState(false)
+  const [userReaction, setUserReaction] = useState<ReactionType | undefined>(post.userReaction)
+  const [reactions, setReactions] = useState(post.reactions)
+
+  function handleReactionClick(type: ReactionType) {
+    const isSame = userReaction === type
+    if (isSame) {
+      setUserReaction(undefined)
+      setReactions(prev => ({ ...prev, [type]: Math.max(0, (prev[type] ?? 0) - 1) }))
+    } else {
+      if (userReaction) {
+        setReactions(prev => ({ ...prev, [userReaction]: Math.max(0, (prev[userReaction] ?? 0) - 1) }))
+      }
+      setUserReaction(type)
+      setReactions(prev => ({ ...prev, [type]: (prev[type] ?? 0) + 1 }))
+    }
+    onReact?.(post.id, type)
+  }
+
+  const time = new Date(post.createdAt).toLocaleTimeString('fr-FR', {
+    hour: '2-digit', minute: '2-digit',
+  })
 
   return (
-    <article className="bg-gray-900 rounded-xl p-5 border border-gray-800 hover:border-gray-700 transition">
+    <article className="post-enter bg-surface border border-border rounded-lg p-4
+      hover:border-border-strong transition-colors">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold shrink-0">
-          {post.author.pseudo[0].toUpperCase()}
-        </div>
+        <Avatar pseudo={post.author.pseudo} avatarUrl={post.author.avatarUrl} size={36} />
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="font-semibold text-sm">{post.author.pseudo}</span>
-            {post.author.streak > 0 && (
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-sm font-semibold">{post.author.pseudo}</span>
+            {post.author.streak > 1 && (
               <span className="text-xs text-yellow-500">🔥 {post.author.streak}</span>
             )}
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${intention.color}`}>
-              {intention.label}
-            </span>
-            {PRIVACY_BADGE[post.privacy] && (
-              <span className="text-xs text-gray-500" title={post.privacy === 'FOLLOWERS' ? 'Abonnés seulement' : 'Privé'}>
-                {PRIVACY_BADGE[post.privacy]}
-              </span>
-            )}
-            <span className="text-xs text-gray-500 ml-auto">
-              {new Date(post.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-            </span>
+            <Pill variant={INTENTION_PILL[post.intention]} size="sm">
+              {INTENTION_LABEL[post.intention]}
+            </Pill>
+            <span className="text-xs text-text-faint ml-auto">{time}</span>
           </div>
 
-          <p className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">{post.content}</p>
+          <p className="text-sm text-text leading-relaxed whitespace-pre-wrap mb-3">
+            {post.content}
+          </p>
 
           {post.imageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={post.imageUrl}
-              alt="post image"
-              className="mt-3 rounded-lg max-h-80 object-cover border border-gray-800"
+              alt={`Image de ${post.author.pseudo}`}
+              className="w-full rounded-md max-h-72 object-cover border border-border mb-3"
             />
           )}
 
-          <div className="flex items-center gap-3 mt-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap" role="group" aria-label="Réactions">
             {REACTIONS.map(({ type, emoji }) => (
               <button
                 key={type}
-                onClick={() => onReact?.(post.id, type)}
-                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition
-                  ${post.userReaction === type
-                    ? 'bg-white/10 text-white'
-                    : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800'
+                onClick={() => handleReactionClick(type)}
+                aria-label={`${REACTION_LABELS[type]}${(reactions[type] ?? 0) > 0 ? ` (${reactions[type]})` : ''}`}
+                aria-pressed={userReaction === type}
+                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors
+                  ${userReaction === type
+                    ? 'bg-accent-soft text-accent'
+                    : 'text-text-faint hover:text-text-muted hover:bg-surface-2'
                   }`}
               >
-                <span>{emoji}</span>
-                {(post.reactions[type] ?? 0) > 0 && (
-                  <span>{post.reactions[type]}</span>
-                )}
+                <span aria-hidden="true">{emoji}</span>
+                {(reactions[type] ?? 0) > 0 && <span>{reactions[type]}</span>}
               </button>
             ))}
             <button
               onClick={() => setShowComments(v => !v)}
-              className="text-xs text-gray-500 hover:text-gray-300 ml-auto transition"
+              aria-label={`${showComments ? 'Masquer' : 'Afficher'} les commentaires`}
+              aria-expanded={showComments}
+              className="ml-auto text-xs text-text-faint hover:text-text-muted transition-colors"
             >
-              💬 {post.commentCount} commentaire{post.commentCount !== 1 ? 's' : ''}
+              💬 {post.commentCount}
             </button>
           </div>
 
