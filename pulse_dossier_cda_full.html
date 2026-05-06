@@ -1521,7 +1521,8 @@ jobs:
       <tr><td><code>cron</code></td><td>7</td><td>Ouverture session, idempotence, fermeture expirée, calcul streak, reset streak, passage dormant</td></tr>
     </table>
 
-    <h3 style="break-after:avoid;page-break-after:avoid">Exemple 1 — Test unitaire : règle de session active</h3>
+    <div style="break-inside:avoid;page-break-inside:avoid">
+    <h3>Exemple 1 — Test unitaire : règle de session active</h3>
     <p>Ce test vérifie la logique pure sans base de données — la fonction <code>IsSessionActive</code> évalue si une session doit être accessible.</p>
     <pre>func TestIsSessionActive_Open(t *testing.T) {
     now := time.Now().UTC()
@@ -1547,8 +1548,10 @@ func TestIsSessionActive_FlagFalse(t *testing.T) {
         t.Fatal("expected session to be inactive (is_active = false)")
     }
 }</pre>
+    </div>
 
-    <h3 style="break-after:avoid;page-break-after:avoid">Exemple 2 — Test d'intégration : règle 1 post par session</h3>
+    <div style="break-inside:avoid;page-break-inside:avoid">
+    <h3>Exemple 2 — Test d'intégration : règle 1 post par session</h3>
     <p>Ce test vérifie la règle métier critique côté serveur — un deuxième post dans la même session doit retourner 409 Conflict. C'est ce test qui a détecté le bug (la vérification était absente du handler).</p>
     <pre>func TestCreatePost_AlreadyPosted(t *testing.T) {
     database := testutil.SetupDB(t) // TRUNCATE après le test
@@ -1580,8 +1583,10 @@ func TestIsSessionActive_FlagFalse(t *testing.T) {
         t.Fatalf("expected 409, got %d", w2.Code)
     } // → 409 ✅
 }</pre>
+    </div>
 
-    <h3 style="break-after:avoid;page-break-after:avoid">Exemple 3 — Test d'intégration : calcul du streak</h3>
+    <div style="break-inside:avoid;page-break-inside:avoid">
+    <h3>Exemple 3 — Test d'intégration : calcul du streak</h3>
     <p>Ce test vérifie que le <code>SessionManager</code> incrémente correctement le streak après une session participée, et remet à zéro pour les absents.</p>
     <pre>func TestCalculateStreaks_IncrementsParticipants(t *testing.T) {
     database := setupDB(t)
@@ -1618,6 +1623,7 @@ func TestCalculateStreaks_DormantAfter7Missed(t *testing.T) {
     database.Get(&status, `SELECT status FROM users WHERE id = $1`, userID)
     // → status='dormant' ✅
 }</pre>
+    </div>
 
     <div class="callout good"><strong>Bug détecté par les tests :</strong> <code>TestCreatePost_AlreadyPosted</code> a révélé que la règle "1 post par session" n'était pas vérifiée côté serveur — un utilisateur pouvait publier plusieurs fois en contournant le client. Corrigé immédiatement avec une vérification SQL avant l'INSERT.</div>
 
