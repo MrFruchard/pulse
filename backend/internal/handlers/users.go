@@ -32,19 +32,39 @@ func GetProfileHandler(db *sqlx.DB) http.HandlerFunc {
 		db.Get(&followerCount, `SELECT COUNT(*) FROM follows WHERE following_id = $1`, user.ID)
 		db.Get(&followingCount, `SELECT COUNT(*) FROM follows WHERE follower_id = $1`, user.ID)
 
-		var userPosts []models.Post
-		if err := db.Select(&userPosts, `
-			SELECT id, user_id, session_id, content, intention, image_url, is_flagged, created_at
-			FROM posts WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, user.ID,
+		var rows []postRow
+		if err := db.Select(&rows, `
+			SELECT
+				p.id, p.user_id, p.session_id, p.content, p.intention, p.privacy,
+				p.image_url, p.is_flagged, p.created_at::text,
+				u.pseudo AS author_pseudo, u.avatar_url AS author_avatar_url, u.streak AS author_streak,
+				COUNT(DISTINCT CASE WHEN r.type = 'LIKE'       THEN r.id END) AS like_count,
+				COUNT(DISTINCT CASE WHEN r.type = 'FIRE'       THEN r.id END) AS fire_count,
+				COUNT(DISTINCT CASE WHEN r.type = 'INSIGHTFUL' THEN r.id END) AS insightful_count,
+				COUNT(DISTINCT CASE WHEN r.type = 'SUPPORT'    THEN r.id END) AS support_count,
+				COUNT(DISTINCT c.id) AS comment_count,
+				NULL::text AS user_reaction
+			FROM posts p
+			JOIN users u ON u.id = p.user_id
+			LEFT JOIN reactions r ON r.post_id = p.id
+			LEFT JOIN comments c ON c.post_id = p.id
+			WHERE p.user_id = $1
+			GROUP BY p.id, u.pseudo, u.avatar_url, u.streak
+			ORDER BY p.created_at DESC LIMIT 50`, user.ID,
 		); err != nil {
-			userPosts = []models.Post{}
+			rows = []postRow{}
+		}
+
+		posts := make([]map[string]any, len(rows))
+		for i, r := range rows {
+			posts[i] = r.toMap()
 		}
 
 		respond(w, http.StatusOK, map[string]any{
 			"user":           user,
 			"followerCount":  followerCount,
 			"followingCount": followingCount,
-			"posts":          userPosts,
+			"posts":          posts,
 		})
 	}
 }

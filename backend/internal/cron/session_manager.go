@@ -37,20 +37,18 @@ func (sm *SessionManager) Start() {
 func (sm *SessionManager) tick() {
 	now := time.Now().UTC()
 
-	// Fermer les sessions expirées
-	if err := sm.closeExpiredSessions(now); err != nil {
+	if err := sm.CloseExpiredSessions(now); err != nil {
 		slog.Error("failed to close expired sessions", "error", err)
 	}
 
-	// Ouvrir une session si c'est l'heure
 	if now.Hour() == sm.sessionOpenHour && now.Minute() == 0 {
-		if err := sm.openSession(now); err != nil {
+		if err := sm.OpenSession(now); err != nil {
 			slog.Error("failed to open session", "error", err)
 		}
 	}
 }
 
-func (sm *SessionManager) openSession(now time.Time) error {
+func (sm *SessionManager) OpenSession(now time.Time) error {
 	var count int
 	if err := sm.db.Get(&count, `SELECT COUNT(*) FROM sessions WHERE is_active = true`); err != nil {
 		return fmt.Errorf("check active session: %w", err)
@@ -81,7 +79,7 @@ func (sm *SessionManager) openSession(now time.Time) error {
 	return nil
 }
 
-func (sm *SessionManager) closeExpiredSessions(now time.Time) error {
+func (sm *SessionManager) CloseExpiredSessions(now time.Time) error {
 	result, err := sm.db.Exec(`
 		UPDATE sessions SET is_active = false
 		WHERE is_active = true AND closes_at <= $1`,
@@ -96,12 +94,12 @@ func (sm *SessionManager) closeExpiredSessions(now time.Time) error {
 		msg, _ := json.Marshal(map[string]string{"type": "session_closed"})
 		sm.hub.Broadcast(msg)
 		slog.Info("session closed", "count", rows)
-		go sm.calculateStreaks()
+		go sm.CalculateStreaks()
 	}
 	return nil
 }
 
-func (sm *SessionManager) calculateStreaks() {
+func (sm *SessionManager) CalculateStreaks() {
 	_, err := sm.db.Exec(`
 		UPDATE users SET streak = streak + 1
 		WHERE id IN (

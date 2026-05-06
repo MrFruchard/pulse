@@ -77,16 +77,24 @@ func TestCreateReaction_Upsert(t *testing.T) {
 	hub := websocket.NewHub()
 
 	var authorID, reactorID uuid.UUID
-	database.QueryRowx(`INSERT INTO users (email, password_hash, pseudo) VALUES ('au2@r.io','$2a$12$x','au2') RETURNING id`).Scan(&authorID)
-	database.QueryRowx(`INSERT INTO users (email, password_hash, pseudo) VALUES ('re2@r.io','$2a$12$x','re2') RETURNING id`).Scan(&reactorID)
+	if err := database.QueryRowx(`INSERT INTO users (email, password_hash, pseudo) VALUES ('au2@r.io','$2a$12$x','au2') RETURNING id`).Scan(&authorID); err != nil {
+		t.Fatalf("insert author: %v", err)
+	}
+	if err := database.QueryRowx(`INSERT INTO users (email, password_hash, pseudo) VALUES ('re2@r.io','$2a$12$x','re2') RETURNING id`).Scan(&reactorID); err != nil {
+		t.Fatalf("insert reactor: %v", err)
+	}
 
 	var sessionID uuid.UUID
-	database.QueryRowx(`INSERT INTO sessions (opens_at, closes_at, is_active) VALUES ($1,$2,true) RETURNING id`,
+	if err := database.QueryRowx(`INSERT INTO sessions (opens_at, closes_at, is_active) VALUES ($1,$2,true) RETURNING id`,
 		time.Now().UTC().Add(-10*time.Minute), time.Now().UTC().Add(50*time.Minute),
-	).Scan(&sessionID)
+	).Scan(&sessionID); err != nil {
+		t.Fatalf("insert session: %v", err)
+	}
 
 	var postID uuid.UUID
-	database.QueryRowx(`INSERT INTO posts (user_id, session_id, content, intention) VALUES ($1,$2,'Test','QUESTION') RETURNING id`, authorID, sessionID).Scan(&postID)
+	if err := database.QueryRowx(`INSERT INTO posts (user_id, session_id, content, intention) VALUES ($1,$2,'Test','QUESTION') RETURNING id`, authorID, sessionID).Scan(&postID); err != nil {
+		t.Fatalf("insert post: %v", err)
+	}
 
 	claims := &services.Claims{UserID: reactorID, Role: models.RoleUser}
 	handler := handlers.CreateReactionHandler(database, hub)

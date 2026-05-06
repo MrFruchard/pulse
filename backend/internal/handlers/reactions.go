@@ -48,16 +48,17 @@ func CreateReactionHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 			return
 		}
 
-		_, err := db.Exec(`
+		// Récupérer la réaction précédente pour le broadcast
+		var prevType string
+		db.Get(&prevType, `SELECT type FROM reactions WHERE post_id = $1 AND user_id = $2`, postID, claims.UserID)
+
+		// UPSERT : crée ou met à jour la réaction
+		if _, err := db.Exec(`
 			INSERT INTO reactions (post_id, user_id, type)
-			VALUES ($1, $2, $3::reaction_type)`,
+			VALUES ($1, $2, $3::reaction_type)
+			ON CONFLICT (post_id, user_id) DO UPDATE SET type = EXCLUDED.type`,
 			postID, claims.UserID, req.Type,
-		)
-		if err != nil {
-			if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "unique") {
-				respondError(w, http.StatusConflict, "already reacted to this post")
-				return
-			}
+		); err != nil {
 			slog.Error("create reaction", "error", err)
 			respondError(w, http.StatusInternalServerError, "internal error")
 			return
@@ -77,11 +78,12 @@ func CreateReactionHandler(db *sqlx.DB, hub *websocket.Hub) http.HandlerFunc {
 			)
 		}
 
-		// Broadcast WebSocket
+		// Broadcast WebSocket avec la réaction précédente pour mise à jour UI optimiste
 		msg, _ := json.Marshal(map[string]any{
-			"type":     "new_reaction",
-			"postId":   postID,
-			"reaction": req.Type,
+			"type":        "new_reaction",
+			"postId":      postID,
+			"reaction":    req.Type,
+			"prevReaction": prevType,
 		})
 		hub.Broadcast(msg)
 
