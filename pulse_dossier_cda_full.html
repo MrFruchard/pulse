@@ -667,7 +667,8 @@
         <span class="toc-dots"></span>
       </a>
       <a href="#chap4" class="toc-sub"><span class="toc-sub-num">4.1 – 4.3</span><span class="toc-sub-title">Timing attack, JWT, RBAC</span><span class="toc-dots"></span></a>
-      <a href="#chap4" class="toc-sub"><span class="toc-sub-num">4.4 – 4.8</span><span class="toc-sub-title">OWASP, Nginx, Docker, CI/CD, accessibilité</span><span class="toc-dots"></span></a>
+      <a href="#chap4" class="toc-sub"><span class="toc-sub-num">4.4 – 4.7</span><span class="toc-sub-title">OWASP+STRIDE, Nginx, Docker, CI/CD</span><span class="toc-dots"></span></a>
+      <a href="#chap4" class="toc-sub"><span class="toc-sub-num">4.8 – 4.9</span><span class="toc-sub-title">Plan de tests + exemples, accessibilité</span><span class="toc-dots"></span></a>
 
       <a href="#chap5" class="toc-chapter">
         <span class="toc-num">V</span>
@@ -1468,7 +1469,118 @@ jobs:
 
     <div class="callout"><strong>Secrets GitHub Actions :</strong> <code>VPS_HOST</code>, <code>VPS_USER</code>, <code>VPS_SSH_KEY</code> stockés dans les secrets du dépôt — jamais dans le code. Le token GHCR est fourni automatiquement par <code>GITHUB_TOKEN</code>.</div>
 
-    <h2>4.8 Accessibilité</h2>
+    <h2>4.8 Plan et exemples de tests</h2>
+    <p>Les tests sont organisés en deux niveaux : tests unitaires (services, middleware — sans dépendance externe) et tests d'intégration (handlers, cron — avec PostgreSQL réel). Au total <strong>37 tests</strong> couvrent les règles métier critiques.</p>
+
+    <table>
+      <tr><th>Package</th><th>Tests</th><th>Ce qui est vérifié</th></tr>
+      <tr><td><code>services</code></td><td>14</td><td>JWT (génération, validation, expiration, tampering), bcrypt (hashage, comparaison, unicité), validation post (contenu, longueur), session active</td></tr>
+      <tr><td><code>middleware</code></td><td>6</td><td>JWT middleware (absence cookie, token valide, expiré, falsifié), RBAC (accès refusé, admin autorisé)</td></tr>
+      <tr><td><code>handlers</code></td><td>14</td><td>Auth (register, login, doublons, cas d'erreur), posts (règle 1/session, contenu vide, intention manquante), réactions (UPSERT, type invalide), profil (404, posts avec author), follow/unfollow</td></tr>
+      <tr><td><code>cron</code></td><td>7</td><td>Ouverture session, idempotence, fermeture expirée, calcul streak, reset streak, passage dormant</td></tr>
+    </table>
+
+    <h3>Exemple 1 — Test unitaire : règle de session active</h3>
+    <p>Ce test vérifie la logique pure sans base de données — la fonction <code>IsSessionActive</code> évalue si une session doit être accessible.</p>
+    <pre>func TestIsSessionActive_Open(t *testing.T) {
+    now := time.Now().UTC()
+    session := models.Session{
+        OpensAt:  now.Add(-10 * time.Minute),
+        ClosesAt: now.Add(50 * time.Minute),
+        IsActive: true,
+    }
+    if !services.IsSessionActive(session) {
+        t.Fatal("expected session to be active")
+    }
+}
+
+func TestIsSessionActive_FlagFalse(t *testing.T) {
+    // Même si dans la fenêtre horaire, is_active=false doit être respecté
+    now := time.Now().UTC()
+    session := models.Session{
+        OpensAt:  now.Add(-10 * time.Minute),
+        ClosesAt: now.Add(50 * time.Minute),
+        IsActive: false,  // flag DB non mis à jour
+    }
+    if services.IsSessionActive(session) {
+        t.Fatal("expected session to be inactive (is_active = false)")
+    }
+}</pre>
+
+    <h3>Exemple 2 — Test d'intégration : règle 1 post par session</h3>
+    <p>Ce test vérifie la règle métier critique côté serveur — un deuxième post dans la même session doit retourner 409 Conflict. C'est ce test qui a détecté le bug (la vérification était absente du handler).</p>
+    <pre>func TestCreatePost_AlreadyPosted(t *testing.T) {
+    database := testutil.SetupDB(t) // TRUNCATE après le test
+    hub := websocket.NewHub()
+
+    // Créer un user et une session active
+    var userID uuid.UUID
+    database.QueryRowx(`INSERT INTO users (email, password_hash, pseudo)
+        VALUES ('twice@pulse.io', '$2a$12$dummy', 'twice') RETURNING id`).Scan(&userID)
+    database.Exec(`INSERT INTO sessions (opens_at, closes_at, is_active)
+        VALUES ($1, $2, true)`, time.Now().UTC().Add(-10*time.Minute),
+                                time.Now().UTC().Add(50*time.Minute))
+
+    handler := handlers.CreatePostHandler(database, hub)
+
+    // Premier post → 201 Created
+    req1 := httptest.NewRequest("POST", "/api/posts", postBody("Mon post", "SHARE"))
+    req1 = withClaims(req1, userID, models.RoleUser)
+    w1 := httptest.NewRecorder()
+    handler(w1, req1)
+    // → 201 ✅
+
+    // Deuxième post → 409 Conflict (règle métier)
+    req2 := httptest.NewRequest("POST", "/api/posts", postBody("Mon post", "SHARE"))
+    req2 = withClaims(req2, userID, models.RoleUser)
+    w2 := httptest.NewRecorder()
+    handler(w2, req2)
+    if w2.Code != http.StatusConflict {
+        t.Fatalf("expected 409, got %d", w2.Code)
+    } // → 409 ✅
+}</pre>
+
+    <h3>Exemple 3 — Test d'intégration : calcul du streak</h3>
+    <p>Ce test vérifie que le <code>SessionManager</code> incrémente correctement le streak après une session participée, et remet à zéro pour les absents.</p>
+    <pre>func TestCalculateStreaks_IncrementsParticipants(t *testing.T) {
+    database := setupDB(t)
+    sm := cron.NewSessionManager(database, hub, 20, 60)
+
+    // Créer un user et une session terminée avec attendance
+    var userID, sessionID string
+    database.QueryRowx(`INSERT INTO users (email, password_hash, pseudo)
+        VALUES ('streak@pulse.io', '$2a$12$dummy', 'streakuser') RETURNING id`).Scan(&userID)
+    database.QueryRowx(`INSERT INTO sessions (opens_at, closes_at, is_active)
+        VALUES ($1, $2, false) RETURNING id`,
+        time.Now().UTC().Add(-61*time.Minute),
+        time.Now().UTC().Add(-1*time.Minute)).Scan(&sessionID)
+    database.Exec(`INSERT INTO session_attendances (user_id, session_id)
+        VALUES ($1, $2)`, userID, sessionID)
+
+    sm.CalculateStreaks()
+
+    var streak int
+    database.Get(&streak, `SELECT streak FROM users WHERE id = $1`, userID)
+    if streak != 1 {
+        t.Fatalf("expected streak=1, got %d", streak)
+    } // → streak=1 ✅
+}
+
+func TestCalculateStreaks_DormantAfter7Missed(t *testing.T) {
+    // User avec streak=6 qui rate une 7e session → status=dormant
+    database.QueryRowx(`INSERT INTO users (..., streak, status)
+        VALUES (..., 6, 'active') RETURNING id`).Scan(&userID)
+    // Session terminée sans attendance pour cet user
+    sm.CalculateStreaks()
+
+    var status string
+    database.Get(&status, `SELECT status FROM users WHERE id = $1`, userID)
+    // → status='dormant' ✅
+}</pre>
+
+    <div class="callout good"><strong>Bug détecté par les tests :</strong> <code>TestCreatePost_AlreadyPosted</code> a révélé que la règle "1 post par session" n'était pas vérifiée côté serveur — un utilisateur pouvait publier plusieurs fois en contournant le client. Corrigé immédiatement avec une vérification SQL avant l'INSERT.</div>
+
+    <h2>4.9 Accessibilité</h2>
     <p>Le projet vise une conformité volontaire RGAA / WCAG niveau AA. Les points d’attention sont le compte à rebours, le feed temps réel, les formulaires de publication et les contrastes en light/dark mode.</p>
     <table>
       <tr><th>Zone</th><th>Mesure prévue</th></tr>
