@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Pulse — Zoning</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f4f1ea;
+    --paper-2: #ebe7dd;
+    --ink: #1a1a1a;
+    --ink-2: #4a4a4a;
+    --ink-3: #8a8a8a;
+    --ink-4: #c8c5bd;
+    --line: #2a2a2a;
+    --red: #c4452f;
+    --red-soft: rgba(196, 69, 47, 0.08);
+
+    /* Functional zone fills — muted, distinct, paper-toned */
+    --z-header: #d6cbb4;
+    --z-clock:  #e8d4ba;
+    --z-feed:   #d2dccc;
+    --z-input:  #cfd8df;
+    --z-nav:    #c8c0b0;
+    --z-action: #e1bcb0;
+    --z-overlay:#d9c8d4;
+    --z-meta:   #ddd4c5;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', -apple-system, system-ui, sans-serif;
+  }
+
+  /* Page header */
+  .page-header {
+    padding: 64px 64px 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 56px;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    margin: 0 0 16px;
+    line-height: 1;
+  }
+  .lede {
+    font-size: 16px;
+    color: var(--ink-2);
+    max-width: 640px;
+    line-height: 1.55;
+    margin: 0 0 24px;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    background: var(--paper-2);
+    border: 1px solid var(--ink-4);
+    border-radius: 999px;
+    width: fit-content;
+    font-size: 13px;
+  }
+  .nav-tabs a {
+    padding: 8px 18px;
+    border-radius: 999px;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .nav-tabs a.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Legend */
+  .legend {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 64px 48px;
+  }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px 20px;
+    padding: 18px 22px;
+    background: var(--paper-2);
+    border: 1px solid var(--ink-4);
+    border-radius: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .legend-swatch {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+
+  /* Screens grid */
+  .screens {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 48px 96px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 80px 48px;
+  }
+
+  .screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .screen-meta {
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 20px;
+  }
+  .screen-num {
+    font-family: 'Geist', monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+  }
+  .screen-title {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .screen-desc {
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  /* Phone frame */
+  .phone-wrap {
+    position: relative;
+    padding: 60px 80px 40px 80px;
+  }
+  .phone {
+    width: 375px;
+    height: 760px;
+    background: var(--paper);
+    border: 2px solid var(--line);
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .sb {
+    height: 38px;
+    flex-shrink: 0;
+    border-bottom: 1px dashed var(--ink-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--ink-3);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* Zones */
+  .z {
+    border: 1.5px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px 12px;
+    position: relative;
+  }
+  .z-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .z-sub {
+    font-size: 10px;
+    color: var(--ink-2);
+    margin-top: 3px;
+    line-height: 1.3;
+    max-width: 90%;
+  }
+  .z-tag {
+    position: absolute;
+    top: 4px; left: 6px;
+    font-family: 'Geist', monospace;
+    font-size: 8px;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* Annotations (handwritten red) */
+  .annot {
+    position: absolute;
+    font-family: 'Caveat', cursive;
+    color: var(--red);
+    font-size: 17px;
+    line-height: 1.15;
+    font-weight: 500;
+    z-index: 5;
+    pointer-events: none;
+    max-width: 200px;
+  }
+  .annot-arrow {
+    position: absolute;
+    pointer-events: none;
+    z-index: 4;
+  }
+  .annot-arrow svg { display: block; overflow: visible; }
+
+  /* Body container */
+  .body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Footer */
+  .page-footer {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 64px 80px;
+    color: var(--ink-3);
+    font-size: 12px;
+    border-top: 1px solid var(--ink-4);
+    padding-top: 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">Pulse · documentation</div>
+  <h1>Zoning</h1>
+  <p class="lede">Functional block layout for each key screen. Colored zones identify functional regions; handwritten notes call out behaviors. No content, no styling — just <em>where things live</em>.</p>
+  <nav class="nav-tabs">
+    <a href="Zoning.html" class="active">Zoning</a>
+    <a href="Wireframes.html">Wireframes</a>
+    <a href="Pulse Mockups.html">Mockups</a>
+  </nav>
+</div>
+
+<div class="legend">
+  <div class="legend-grid">
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-header)"></span>Header / Identity</div>
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-clock)"></span>Clock / Session state</div>
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-feed)"></span>Feed / Content</div>
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-input)"></span>Input / Composer</div>
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-nav)"></span>Navigation</div>
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-action)"></span>Action / CTA</div>
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-overlay)"></span>Overlay / Modal</div>
+    <div class="legend-item"><span class="legend-swatch" style="background: var(--z-meta)"></span>Meta / Profile</div>
+  </div>
+</div>
+
+<div class="screens">
+
+  <!-- 01 SPLASH -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.01</div>
+      <div class="screen-title">Splash</div>
+      <div class="screen-desc">Landing before auth. Single CTA, brand identity, countdown to next session opening.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 110px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">Brand Identity</div>
+            <div class="z-sub">logo + tagline</div>
+          </div>
+          <div class="z" style="background: var(--z-clock); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Countdown to next opening</div>
+            <div class="z-sub">live ticking, hero size</div>
+          </div>
+          <div class="z" style="background: var(--z-action); height: 140px; border-width: 0;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Primary CTA</div>
+            <div class="z-sub">Join + secondary link to login</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 200px; right: -10px; transform: rotate(-3deg);">
+        first thing<br/>users see —<br/>sells the rhythm
+      </div>
+      <svg class="annot-arrow" style="top: 230px; right: 130px; width: 40px; height: 40px;">
+        <path d="M40 30 Q 20 30 8 12" stroke="var(--red)" stroke-width="1.5" fill="none"/>
+        <path d="M8 12 L14 18 M8 12 L16 8" stroke="var(--red)" stroke-width="1.5" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 02 AUTH -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.02</div>
+      <div class="screen-title">Auth (login / register)</div>
+      <div class="screen-desc">Toggle between modes. Minimum fields. Same chrome — only fields and CTA label change.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 90px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">Header</div>
+            <div class="z-sub">back · screen title</div>
+          </div>
+          <div class="z" style="background: var(--paper-2); height: 56px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Mode Switch</div>
+            <div class="z-sub">login / register tabs</div>
+          </div>
+          <div class="z" style="background: var(--z-input); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Form Fields</div>
+            <div class="z-sub">email, password, (handle)</div>
+          </div>
+          <div class="z" style="background: var(--z-action); height: 110px; border-width: 0;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Submit + Forgot</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 110px; right: 0; transform: rotate(2deg);">
+        same screen,<br/>two states
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 HOME OPEN -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.03</div>
+      <div class="screen-title">Home — Window open</div>
+      <div class="screen-desc">Main view during a 60-min session. Clock pulses; feed receives live posts; composer is the floating CTA.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 56px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">App Header</div>
+            <div class="z-sub">logo · profile avatar</div>
+          </div>
+          <div class="z" style="background: var(--z-clock); height: 80px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Live Counter</div>
+            <div class="z-sub">time remaining + label</div>
+          </div>
+          <div class="z" style="background: var(--paper-2); height: 38px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Feed Filter</div>
+            <div class="z-sub">global / following</div>
+          </div>
+          <div class="z" style="background: var(--z-feed); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Live Feed</div>
+            <div class="z-sub">posts stream in real time</div>
+          </div>
+          <div class="z" style="background: var(--z-nav); height: 64px; border-width: 0;">
+            <span class="z-tag">Z5</span>
+            <div class="z-name">Bottom Nav</div>
+            <div class="z-sub">home · search · post(+) · notifs · profile</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 200px; right: -10px; transform: rotate(-3deg);">
+        feed = the<br/>most space<br/>(it's the point)
+      </div>
+      <svg class="annot-arrow" style="top: 280px; right: 100px; width: 60px; height: 30px;">
+        <path d="M55 15 Q 30 10 5 15" stroke="var(--red)" stroke-width="1.5" fill="none"/>
+        <path d="M5 15 L12 10 M5 15 L12 20" stroke="var(--red)" stroke-width="1.5" fill="none"/>
+      </svg>
+      <div class="annot" style="top: 600px; left: -10px; transform: rotate(2deg);">
+        center "+"<br/>= post action
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 HOME CLOSED -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.04</div>
+      <div class="screen-title">Home — Window closed</div>
+      <div class="screen-desc">Off-hours state. Feed frozen (no new posts), composer disabled, clock counts down to next opening.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 56px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">App Header</div>
+          </div>
+          <div class="z" style="background: var(--z-clock); height: 80px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Counter — closed</div>
+            <div class="z-sub">"opens in 4h 17m"</div>
+          </div>
+          <div class="z" style="background: var(--paper-2); height: 64px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Banner: Window Closed</div>
+            <div class="z-sub">read-only notice</div>
+          </div>
+          <div class="z" style="background: var(--z-feed); flex: 1; opacity: 0.55; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Feed (frozen)</div>
+            <div class="z-sub">last session's posts, dimmed</div>
+          </div>
+          <div class="z" style="background: var(--z-nav); height: 64px; opacity: 0.7; border-width: 0;">
+            <span class="z-tag">Z5</span>
+            <div class="z-name">Bottom Nav (post disabled)</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 240px; right: -10px; transform: rotate(-2deg);">
+        whole UI<br/>desaturated
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 COMPOSER -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.05</div>
+      <div class="screen-title">Composer</div>
+      <div class="screen-desc">Full screen, modal-style. One post per session — the time pressure stays visible at the top.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 56px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">Cancel · Counter · Publish</div>
+            <div class="z-sub">3-part header</div>
+          </div>
+          <div class="z" style="background: var(--paper-2); height: 50px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Author + Visibility</div>
+          </div>
+          <div class="z" style="background: var(--z-input); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Text Input</div>
+            <div class="z-sub">large multiline area</div>
+          </div>
+          <div class="z" style="background: var(--paper-2); height: 70px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Intent Picker</div>
+            <div class="z-sub">question · share · project · challenge</div>
+          </div>
+          <div class="z" style="background: var(--z-meta); height: 50px; border-width: 0;">
+            <span class="z-tag">Z5</span>
+            <div class="z-name">Meta / Counter</div>
+            <div class="z-sub">char count · hint</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 110px; right: -10px; transform: rotate(2deg);">
+        timer = always<br/>visible here
+      </div>
+    </div>
+  </div>
+
+  <!-- 06 POST DETAIL -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.06</div>
+      <div class="screen-title">Post detail</div>
+      <div class="screen-desc">Single post with reaction row + comments thread. Comment input only when window is open.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 56px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">Back · Counter · Menu</div>
+          </div>
+          <div class="z" style="background: var(--z-feed); height: 200px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Original Post</div>
+            <div class="z-sub">author, body, intent, reactions row</div>
+          </div>
+          <div class="z" style="background: var(--paper-2); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Comments Thread</div>
+            <div class="z-sub">nested replies, scrollable</div>
+          </div>
+          <div class="z" style="background: var(--z-input); height: 64px; border-width: 0;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Comment Input</div>
+            <div class="z-sub">hidden when window closed</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="bottom: 110px; right: -10px; transform: rotate(-3deg);">
+        replaced by<br/>"locked" notice<br/>off-hours
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 PROFILE -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.07</div>
+      <div class="screen-title">Profile</div>
+      <div class="screen-desc">User identity + stats + post history. Online indicator pulses when window is currently open.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 56px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">Header — @handle</div>
+          </div>
+          <div class="z" style="background: var(--z-meta); height: 130px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Identity Block</div>
+            <div class="z-sub">avatar · name · bio · online dot</div>
+          </div>
+          <div class="z" style="background: var(--paper-2); height: 70px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Action Row</div>
+            <div class="z-sub">follow · message</div>
+          </div>
+          <div class="z" style="background: var(--z-clock); height: 80px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Stats</div>
+            <div class="z-sub">posts · sessions · streak</div>
+          </div>
+          <div class="z" style="background: var(--z-feed); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z5</span>
+            <div class="z-name">History Timeline</div>
+            <div class="z-sub">past posts, vertical rail</div>
+          </div>
+          <div class="z" style="background: var(--z-nav); height: 64px; border-width: 0;">
+            <span class="z-tag">Z6</span>
+            <div class="z-name">Bottom Nav</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 180px; left: -10px; transform: rotate(2deg);">
+        online dot<br/>= currently<br/>in session
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 NOTIFICATIONS -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.08</div>
+      <div class="screen-title">Notifications</div>
+      <div class="screen-desc">Grouped by session. Current session's interactions appear at top with live indicator.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 70px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">Title + Mark all read</div>
+          </div>
+          <div class="z" style="background: var(--z-clock); height: 36px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Session Group Header</div>
+            <div class="z-sub">"Today · live"</div>
+          </div>
+          <div class="z" style="background: var(--z-feed); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Notification List</div>
+            <div class="z-sub">comment · reaction · follow rows, grouped</div>
+          </div>
+          <div class="z" style="background: var(--z-nav); height: 64px; border-width: 0;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Bottom Nav</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 130px; right: -10px; transform: rotate(-2deg);">
+        groups by<br/>session, not<br/>by day
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 EMPTY -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">Z.09</div>
+      <div class="screen-title">Empty / first launch</div>
+      <div class="screen-desc">Window just opened, feed is empty. Inviting CTA to be the first voice.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb">status bar</div>
+        <div class="body" style="padding: 0;">
+          <div class="z" style="background: var(--z-header); height: 56px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z1</span>
+            <div class="z-name">App Header</div>
+          </div>
+          <div class="z" style="background: var(--z-clock); height: 80px; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z2</span>
+            <div class="z-name">Counter</div>
+          </div>
+          <div class="z" style="background: var(--z-feed); flex: 1; border-width: 0 0 1.5px;">
+            <span class="z-tag">Z3</span>
+            <div class="z-name">Empty State</div>
+            <div class="z-sub">illustration · message · CTA</div>
+          </div>
+          <div class="z" style="background: var(--z-nav); height: 64px; border-width: 0;">
+            <span class="z-tag">Z4</span>
+            <div class="z-name">Bottom Nav</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot" style="top: 280px; right: -10px; transform: rotate(-3deg);">
+        seeds first<br/>contribution
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  Pulse · zoning · v1 — functional layout, not visual design.
+</div>
+
+</body>
+</html>

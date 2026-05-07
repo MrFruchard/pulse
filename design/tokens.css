@@ -1,0 +1,159 @@
+/* Pulse — Design Tokens
+   Premium, dark, sober. One accent. No gradients. */
+
+:root {
+  /* Surfaces */
+  --bg: #0a0a0b;
+  --bg-elevated: #111114;
+  --surface: #15151a;
+  --surface-2: #1c1c22;
+  --surface-hover: #22222a;
+
+  /* Borders */
+  --border: #25252d;
+  --border-strong: #34343f;
+  --border-subtle: #1c1c22;
+
+  /* Text */
+  --text: #f5f5f7;
+  --text-muted: #a1a1aa;
+  --text-faint: #6b6b75;
+  --text-disabled: #4a4a52;
+
+  /* Accent — Indigo (sober, premium) */
+  --accent: #818cf8;          /* indigo-400 */
+  --accent-strong: #a5adff;
+  --accent-soft: rgba(129, 140, 248, 0.12);
+  --accent-ring: rgba(129, 140, 248, 0.28);
+
+  /* Danger — used when <10min remaining */
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --danger-ring: rgba(248, 113, 113, 0.32);
+
+  /* Type */
+  --font-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-full: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.6);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.4);
+  --shadow-lg: 0 24px 60px rgba(0,0,0,.55);
+}
+
+* { box-sizing: border-box; }
+
+/* Scrollbars inside phone frames — invisible */
+.pulse-screen *::-webkit-scrollbar { display: none; }
+.pulse-screen * { scrollbar-width: none; }
+
+/* ────────── PULSE ANIMATION KEYFRAMES ──────────
+   Real heartbeat: lub-DUB cadence (S1 short, S2 stronger, then rest).
+   ~60 bpm at rest → 1s cycle. We use 2.4s for a calm, deliberate feel.
+*/
+
+/* Open window: lub-DUB-rest. Two distinct beats then a long diastolic pause */
+@keyframes pulse-open {
+  /* diastole start */
+  0%   { transform: scale(1); }
+  /* S1 — lub: small, quick contraction */
+  6%   { transform: scale(1.018); }
+  12%  { transform: scale(1.002); }
+  /* S2 — DUB: stronger, slightly delayed */
+  20%  { transform: scale(1.045); }
+  28%  { transform: scale(1.008); }
+  /* long rest — diastole */
+  100% { transform: scale(1); }
+}
+
+/* The numbers themselves get a subtle brightness/glow surge on each beat */
+@keyframes pulse-glow {
+  0%   { filter: drop-shadow(0 0 0 transparent) brightness(1); }
+  6%   { filter: drop-shadow(0 0 8px var(--accent-ring)) brightness(1.08); }
+  20%  { filter: drop-shadow(0 0 22px var(--accent-ring)) brightness(1.18); }
+  35%  { filter: drop-shadow(0 0 6px transparent) brightness(1.02); }
+  100% { filter: drop-shadow(0 0 0 transparent) brightness(1); }
+}
+
+/* Urgent: same lub-DUB rhythm, faster (~120 bpm equivalent), red, more intense */
+@keyframes pulse-urgent {
+  0%   { transform: scale(1); }
+  6%   { transform: scale(1.025); }
+  12%  { transform: scale(1.005); }
+  20%  { transform: scale(1.06); }
+  28%  { transform: scale(1.012); }
+  100% { transform: scale(1); }
+}
+@keyframes pulse-urgent-glow {
+  0%   { filter: drop-shadow(0 0 0 transparent) brightness(1); }
+  6%   { filter: drop-shadow(0 0 10px var(--danger-ring)) brightness(1.12); }
+  20%  { filter: drop-shadow(0 0 28px var(--danger-ring)) brightness(1.25); }
+  35%  { filter: drop-shadow(0 0 8px transparent) brightness(1.04); }
+  100% { filter: drop-shadow(0 0 0 transparent) brightness(1); }
+}
+
+/* Closed: very slow respiration — long inhale, long exhale */
+@keyframes pulse-closed {
+  0%, 100% { opacity: 0.42; transform: scale(1); }
+  50%      { opacity: 0.62; transform: scale(1.012); }
+}
+
+/* Halo rings — emitted on each S2 beat. Constrained scale to stay inside
+   the clock zone (no bleed into the feed below). */
+@keyframes ring-emit {
+  0%   { transform: scale(0.6);  opacity: 0; }
+  20%  { transform: scale(0.65); opacity: 0; }
+  28%  { transform: scale(0.7);  opacity: 0.45; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+@keyframes ring-emit-fast {
+  0%   { transform: scale(0.6);  opacity: 0; }
+  18%  { transform: scale(0.65); opacity: 0; }
+  26%  { transform: scale(0.7);  opacity: 0.6; }
+  100% { transform: scale(1.2);  opacity: 0; }
+}
+
+/* Static concentric ring — sits at rest, brightens slightly on each beat.
+   This gives the clock a "plinth" so it never looks like a floating smudge. */
+@keyframes ring-resting {
+  0%, 100% { opacity: 0.14; }
+  20%      { opacity: 0.32; }
+  45%      { opacity: 0.16; }
+}
+@keyframes ring-resting-urgent {
+  0%, 100% { opacity: 0.18; }
+  20%      { opacity: 0.42; }
+}
+
+/* ECG-style sweep line for the urgent state */
+@keyframes ecg-sweep {
+  0%   { stroke-dashoffset: 220; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Dot pulse for nav indicator */
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-ring); }
+  50%      { box-shadow: 0 0 0 6px transparent; }
+}
+
+/* Skeleton fade-in for new posts */
+@keyframes post-enter {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.post-enter { animation: post-enter 280ms cubic-bezier(.2,.7,.3,1) both; }
+
+/* Subtle shimmer for the "live" state */
+@keyframes live-shimmer {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}

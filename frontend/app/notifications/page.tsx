@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/lib/api'
 import { followRequests } from '@/lib/api'
-import { NavBar } from '@/components/NavBar'
 import { useNotifications } from '@/hooks/useNotifications'
 import type { User } from '@/types'
 
@@ -38,9 +37,7 @@ export default function NotificationsPage() {
 
   return (
     <>
-      <NavBar pseudo={me.pseudo} unreadCount={unreadCount} />
-
-      <main className="max-w-2xl mx-auto px-4 py-6 pt-20">
+      <main className="max-w-2xl mx-auto px-4 py-6 pt-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-lg font-bold">Notifications</h1>
           {unreadCount > 0 && (

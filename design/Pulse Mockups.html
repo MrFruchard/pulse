@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Pulse — Mockups</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="tokens.css"/>
+
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    background: #0a0a0b;
+    color: #f5f5f7;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  #root { height: 100vh; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="PulseClock.jsx"></script>
+<script type="text/babel" src="PulseShell.jsx"></script>
+<script type="text/babel" src="screens-1-auth.jsx"></script>
+<script type="text/babel" src="screens-2-feed.jsx"></script>
+<script type="text/babel" src="screens-3-rest.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef } = React;
+
+// ── Live tick — drives the countdown so the pulse really pulses ──
+function useTicker() {
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    let raf;
+    const start = performance.now();
+    const loop = (t) => {
+      setNow(Math.floor((t - start) / 1000));
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return now;
+}
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#34d399",
+  "windowState": "open",
+  "showAnnotations": true
+}/*EDITMODE-END*/;
+
+// Apply accent to CSS vars on the document root
+function ApplyAccent({ accent }) {
+  useEffect(() => {
+    const r = document.documentElement;
+    // parse hex
+    const hex = accent.replace('#', '');
+    const n = parseInt(hex, 16);
+    const rr = (n >> 16) & 255;
+    const gg = (n >> 8) & 255;
+    const bb = n & 255;
+    r.style.setProperty('--accent', accent);
+    r.style.setProperty('--accent-strong', accent);
+    r.style.setProperty('--accent-soft', `rgba(${rr},${gg},${bb},0.12)`);
+    r.style.setProperty('--accent-ring', `rgba(${rr},${gg},${bb},0.32)`);
+  }, [accent]);
+  return null;
+}
+
+// Section subtitle — small annotation label
+function Note({ children }) {
+  return (
+    <div style={{
+      fontSize: 13, color: 'rgba(40,30,20,0.6)',
+      fontFamily: 'system-ui, sans-serif',
+      fontStyle: 'italic',
+      maxWidth: 600,
+    }}>{children}</div>
+  );
+}
+
+function App() {
+  const t = useTicker();
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  // Window-state-driven seconds. For 'open' we start at 42:17 and tick down.
+  // For 'urgent' we start at 8:34. For 'closed' we count down to next opening
+  // from 4h 17m.
+  const states = {
+    open:    { state: 'open',    base: 42 * 60 + 17 },
+    urgent:  { state: 'urgent',  base: 8 * 60 + 34 },
+    closed:  { state: 'closed',  base: 4 * 3600 + 17 * 60 + 32 },
+  };
+  const cur = states[tweaks.windowState] || states.open;
+  const seconds = Math.max(0, cur.base - t);
+
+  return (
+    <>
+      <ApplyAccent accent={tweaks.accent}/>
+
+      <DesignCanvas>
+        {/* ── Onboarding ── */}
+        <DCSection id="onboarding" title="01 · Onboarding"
+          subtitle="L'utilisateur découvre le rythme : la prochaine ouverture, le concept en 2 lignes, l'invitation.">
+          <DCArtboard id="splash" label="Splash" width={375} height={760}>
+            <ScreenSplash secondsToOpen={seconds}/>
+          </DCArtboard>
+          <DCArtboard id="auth-login" label="Auth · login" width={375} height={760}>
+            <ScreenAuth initialMode="login"/>
+          </DCArtboard>
+          <DCArtboard id="auth-register" label="Auth · register" width={375} height={760}>
+            <ScreenAuth initialMode="register"/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Home ── */}
+        <DCSection id="home" title="02 · Home"
+          subtitle="Le compte à rebours est l'élément central : son rythme change avec l'état de la fenêtre.">
+          <DCArtboard id="home-closed" label="Fenêtre fermée" width={375} height={760}>
+            <ScreenHome state="closed" seconds={4 * 3600 + 17 * 60 + 32 - t}/>
+          </DCArtboard>
+          <DCArtboard id="home-open" label="Fenêtre ouverte" width={375} height={760}>
+            <ScreenHome state="open" seconds={Math.max(0, 42 * 60 + 17 - t)} hasPosted={false}/>
+          </DCArtboard>
+          <DCArtboard id="home-posted" label="Post envoyé" width={375} height={760}>
+            <ScreenHome state="open" seconds={Math.max(0, 38 * 60 + 4 - t)} hasPosted={true}/>
+          </DCArtboard>
+          <DCArtboard id="home-urgent" label="< 10 min — urgence" width={375} height={760}>
+            <ScreenHome state="urgent" seconds={Math.max(0, 8 * 60 + 34 - t)} hasPosted={false}/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Composer ── */}
+        <DCSection id="composer" title="03 · Composer"
+          subtitle="Plein écran. Un seul post par session — le rappel temporel reste visible.">
+          <DCArtboard id="composer-empty" label="Composer · vide" width={375} height={760}>
+            <ScreenComposerEmpty/>
+          </DCArtboard>
+          <DCArtboard id="composer-typing" label="Composer · en train d'écrire" width={375} height={760}>
+            <ScreenComposer seconds={Math.max(0, 42 * 60 + 17 - t)}/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Detail / comments ── */}
+        <DCSection id="detail" title="04 · Post detail"
+          subtitle="Thread de commentaires. L'input n'apparaît que si la fenêtre est ouverte.">
+          <DCArtboard id="detail-open" label="Fenêtre ouverte" width={375} height={760}>
+            <ScreenPostDetail state="open" seconds={Math.max(0, 42 * 60 + 17 - t)}/>
+          </DCArtboard>
+          <DCArtboard id="detail-closed" label="Fenêtre fermée" width={375} height={760}>
+            <ScreenPostDetail state="closed" seconds={4 * 3600 + 17 * 60 + 32 - t}/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Profile ── */}
+        <DCSection id="profile" title="05 · Profil utilisateur"
+          subtitle="Avatar, stats, timeline d'historique. Indicateur 'en ligne maintenant' quand la fenêtre est ouverte.">
+          <DCArtboard id="profile-online" label="En ligne maintenant" width={375} height={760}>
+            <ScreenProfile state="open"/>
+          </DCArtboard>
+          <DCArtboard id="profile-offline" label="Hors session" width={375} height={760}>
+            <ScreenProfile state="closed"/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Notifications ── */}
+        <DCSection id="notifs" title="06 · Notifications"
+          subtitle="Groupées par session. Les interactions de la session en cours pulsent.">
+          <DCArtboard id="notifs-active" label="Session en cours" width={375} height={760}>
+            <ScreenNotifications state="open"/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Navbar ── */}
+        <DCSection id="navbar" title="07 · Navigation"
+          subtitle="Le point pulsant sur l'icône Pulse signale qu'une session est ouverte.">
+          <DCArtboard id="navbar-states" label="États" width={375} height={760}>
+            <ScreenNavbar/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Empty ── */}
+        <DCSection id="empty" title="08 · État vide / premier lancement"
+          subtitle="Premier utilisateur ou feed désert — l'app explique son contrat en deux lignes.">
+          <DCArtboard id="empty-open" label="Fenêtre ouverte" width={375} height={760}>
+            <ScreenEmpty state="open" seconds={Math.max(0, 58 * 60 + 22 - t)}/>
+          </DCArtboard>
+          <DCArtboard id="empty-closed" label="Fenêtre fermée" width={375} height={760}>
+            <ScreenEmpty state="closed" seconds={4 * 3600 + 17 * 60 + 32 - t}/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ── Clock studies ── */}
+        <DCSection id="clock" title="09 · Étude du compte à rebours"
+          subtitle="L'âme de Pulse. Trois états — ouvert (battement doux), urgence (rouge, rapide), fermé (très lent).">
+          <DCArtboard id="clock-open" label="Ouvert · battement doux" width={375} height={420} style={{ background: 'var(--bg)' }}>
+            <ClockStudy state="open" seconds={Math.max(0, 42 * 60 + 17 - t)}/>
+          </DCArtboard>
+          <DCArtboard id="clock-urgent" label="< 10 min · urgent" width={375} height={420} style={{ background: 'var(--bg)' }}>
+            <ClockStudy state="urgent" seconds={Math.max(0, 8 * 60 + 34 - t)}/>
+          </DCArtboard>
+          <DCArtboard id="clock-closed" label="Fermé · respiration lente" width={375} height={420} style={{ background: 'var(--bg)' }}>
+            <ClockStudy state="closed" seconds={4 * 3600 + 17 * 60 + 32 - t}/>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      {/* Tweaks panel */}
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Accent">
+          <TweakColor
+            value={tweaks.accent}
+            onChange={(v) => setTweak('accent', v)}
+            options={['#818cf8', '#a78bfa', '#7dd3fc', '#34d399', '#fb923c']}
+            labels={['Indigo', 'Violet', 'Sky', 'Emerald', 'Orange']}
+          />
+        </TweakSection>
+        <TweakSection title="État de la fenêtre">
+          <TweakSelect
+            value={tweaks.windowState}
+            onChange={(v) => setTweak('windowState', v)}
+            options={[
+              { value: 'open',   label: 'Ouverte (42:17)' },
+              { value: 'urgent', label: '< 10 min (8:34)' },
+              { value: 'closed', label: 'Fermée — prochaine ouverture' },
+            ]}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+// Composer when empty
+function ScreenComposerEmpty() {
+  const t = useTicker();
+  return (
+    <PhoneShell>
+      <div style={{
+        flexShrink: 0,
+        height: 52, padding: '0 16px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        borderBottom: '1px solid var(--border-subtle)',
+      }}>
+        <button style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: 14, fontFamily: 'inherit' }}>Annuler</button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: 'var(--accent)',
+            boxShadow: '0 0 6px var(--accent)',
+            animation: 'pulse-urgent 1.6s ease-in-out infinite',
+          }}/>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums', fontFamily: 'var(--font-mono)' }}>
+            {fmtClock(Math.max(0, 42 * 60 + 17 - t))}
+          </span>
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-disabled)' }}>Publier</div>
+      </div>
+      <div style={{ flex: 1, padding: '20px 20px 16px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Avatar size={36} hue={220} label="J"/>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>@jules</div>
+            <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>Visible par tous · 1 post / jour</div>
+          </div>
+        </div>
+        <div style={{ flex: 1, fontSize: 17, color: 'var(--text-faint)', lineHeight: 1.5 }}>
+          Qu'est-ce que tu veux partager aujourd'hui ?
+          <span style={{
+            display: 'inline-block', width: 2, height: 18,
+            background: 'var(--accent)', marginLeft: 2,
+            verticalAlign: -3,
+            animation: 'live-shimmer 1.2s ease-in-out infinite',
+          }}/>
+        </div>
+        <div style={{
+          paddingTop: 14,
+          borderTop: '1px solid var(--border-subtle)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'var(--text-faint)' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16v.5" strokeLinecap="round"/>
+            </svg>
+            Tu ne peux publier qu'une fois par session.
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>0/500</div>
+        </div>
+      </div>
+    </PhoneShell>
+  );
+}
+
+// Clock study — show the centered pulsing clock with annotations
+function ClockStudy({ state, seconds }) {
+  const desc = {
+    open: { title: 'Battement doux', body: '~3.2s par cycle. Deux pulsations légères, comme un cœur au repos. Halo expansif accent.', kf: 'pulse-open' },
+    urgent: { title: 'Urgence', body: '~1.4s par cycle. Couleur danger, pulsation plus marquée. Halo rapide.', kf: 'pulse-urgent' },
+    closed: { title: 'Respiration', body: '~6s par cycle. Texte grisé, pas de halo. Presque imperceptible — l\'app dort.', kf: 'pulse-closed' },
+  }[state];
+
+  return (
+    <div style={{
+      width: '100%', height: '100%',
+      background: 'var(--bg)',
+      display: 'flex', flexDirection: 'column',
+      padding: '32px 20px 22px',
+    }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <PulseClock state={state} size="lg" seconds={seconds} showRings={state !== 'closed'}/>
+      </div>
+      <div style={{
+        borderTop: '1px solid var(--border-subtle)',
+        paddingTop: 14,
+        fontFamily: 'var(--font-mono)',
+        fontSize: 11,
+      }}>
+        <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>
+          state: <span style={{ color: state === 'urgent' ? 'var(--danger)' : state === 'closed' ? 'var(--text-faint)' : 'var(--accent)' }}>"{state}"</span>
+        </div>
+        <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>animation: <span style={{ color: 'var(--text)' }}>{desc.kf}</span></div>
+        <div style={{ color: 'var(--text-faint)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, marginTop: 8 }}>
+          {desc.body}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>

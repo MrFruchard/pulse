@@ -6,10 +6,7 @@ import { auth, posts as postsApi } from '@/lib/api'
 import { useSession } from '@/hooks/useSession'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { useNotifications } from '@/hooks/useNotifications'
-import { HeartbeatScreen } from '@/components/HeartbeatScreen'
-import { NavBar } from '@/components/NavBar'
-import { SessionBar } from '@/components/SessionBar'
-import { Countdown } from '@/components/Countdown'
+import { SplashScreen } from '@/components/SplashScreen'
 import { PostCard } from '@/components/PostCard'
 import { PostComposer } from '@/components/PostComposer'
 import { FollowRequestsPanel } from '@/components/FollowRequestsPanel'
@@ -103,14 +100,10 @@ export default function FeedPage() {
 
   return (
     <>
-      <NavBar pseudo={me.pseudo} unreadCount={unreadCount} />
-
       <div className="pt-14">
-        {sessionState && <SessionBar session={sessionState} />}
-
         <main className="max-w-2xl mx-auto px-4 py-6">
           {!sessionState?.isActive && me?.role !== 'admin' ? (
-            <HeartbeatScreen opensAt={sessionState?.opensAt ?? new Date(Date.now() + 3600_000).toISOString()} />
+            <SplashScreen authenticated />
           ) : (
             <>
               <FollowRequestsPanel />

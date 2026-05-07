@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Pulse — Wireframes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f4f1ea;
+    --paper-2: #ebe7dd;
+    --ink: #1a1a1a;
+    --ink-2: #4a4a4a;
+    --ink-3: #8a8a8a;
+    --ink-4: #c8c5bd;
+    --line: #2a2a2a;
+    --fill: #e3dfd5;
+    --fill-2: #d6d2c7;
+    --red: #c4452f;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Geist', -apple-system, system-ui, sans-serif;
+  }
+
+  /* Page header */
+  .page-header {
+    padding: 64px 64px 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 56px;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    margin: 0 0 16px;
+    line-height: 1;
+  }
+  .lede {
+    font-size: 16px;
+    color: var(--ink-2);
+    max-width: 640px;
+    line-height: 1.55;
+    margin: 0 0 24px;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    background: var(--paper-2);
+    border: 1px solid var(--ink-4);
+    border-radius: 999px;
+    width: fit-content;
+    font-size: 13px;
+  }
+  .nav-tabs a {
+    padding: 8px 18px;
+    border-radius: 999px;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .nav-tabs a.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Section */
+  .section-title {
+    max-width: 1600px;
+    margin: 56px auto 24px;
+    padding: 0 64px;
+  }
+  .section-title h2 {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin: 0 0 6px;
+  }
+  .section-title p {
+    color: var(--ink-2);
+    font-size: 14px;
+    margin: 0;
+    max-width: 640px;
+  }
+
+  .screens {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 64px 32px;
+  }
+
+  .screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .screen-meta {
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 16px;
+  }
+  .screen-num {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+  }
+  .screen-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .screen-desc {
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+
+  /* Phone */
+  .phone-wrap {
+    position: relative;
+    padding: 20px 30px;
+  }
+  .phone {
+    width: 375px;
+    height: 760px;
+    background: var(--paper);
+    border: 2px solid var(--line);
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .sb {
+    height: 36px;
+    flex-shrink: 0;
+    border-bottom: 1px dashed var(--ink-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    font-size: 11px;
+    color: var(--ink-2);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Wireframe primitives */
+  .wf-box {
+    border: 1.5px solid var(--line);
+    background: var(--fill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-3);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .wf-img {
+    border: 1.5px solid var(--line);
+    background:
+      linear-gradient(to top right, transparent calc(50% - 1px), var(--line) 50%, transparent calc(50% + 1px)),
+      linear-gradient(to top left, transparent calc(50% - 1px), var(--line) 50%, transparent calc(50% + 1px)),
+      var(--fill);
+  }
+  .wf-circle {
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background: var(--fill);
+    flex-shrink: 0;
+  }
+  .wf-line {
+    height: 8px;
+    background: var(--ink-2);
+    border-radius: 2px;
+  }
+  .wf-line-sm { height: 6px; background: var(--ink-3); }
+  .wf-line-lg { height: 12px; background: var(--ink); }
+  .wf-line-90 { width: 90%; }
+  .wf-line-75 { width: 75%; }
+  .wf-line-60 { width: 60%; }
+  .wf-line-40 { width: 40%; }
+
+  .wf-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 500;
+    background: var(--paper);
+    color: var(--ink-2);
+  }
+  .wf-pill-solid { background: var(--line); color: var(--paper); }
+
+  .wf-btn {
+    border: 1.5px solid var(--line);
+    background: var(--paper);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--ink);
+  }
+  .wf-btn-solid { background: var(--line); color: var(--paper); }
+  .wf-btn-disabled { background: var(--paper-2); color: var(--ink-4); border-color: var(--ink-4); }
+
+  .wf-card {
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    background: var(--paper);
+  }
+
+  .wf-stack { display: flex; flex-direction: column; gap: 6px; }
+  .wf-row { display: flex; align-items: center; gap: 8px; }
+
+  .wf-input {
+    border: 1.5px solid var(--line);
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 42px;
+    font-size: 12px;
+    color: var(--ink-3);
+    display: flex;
+    align-items: center;
+  }
+
+  .wf-counter {
+    font-family: 'Geist Mono', monospace;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+
+  .wf-nav {
+    border-top: 1.5px solid var(--line);
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: var(--paper);
+  }
+  .wf-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .wf-nav-icon {
+    width: 24px; height: 24px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+  }
+  .wf-nav-item.active .wf-nav-icon { background: var(--line); }
+  .wf-nav-item.active { color: var(--ink); }
+  .wf-nav-fab {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--line);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  .body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Light zone label — small overlay tag in corner of a section */
+  .zlabel {
+    position: absolute;
+    top: 4px; left: 8px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    opacity: 0.7;
+  }
+
+  /* Flow */
+  .flow {
+    max-width: 1600px;
+    margin: 0 auto 64px;
+    padding: 32px 64px;
+    background: var(--paper-2);
+    border-top: 1px dashed var(--ink-4);
+    border-bottom: 1px dashed var(--ink-4);
+  }
+  .flow-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .flow-desc {
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 18px;
+  }
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+  }
+  .flow-step {
+    padding: 8px 14px;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink);
+  }
+  .flow-step.start { background: var(--line); color: var(--paper); }
+  .flow-arrow {
+    color: var(--ink-3);
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    transform: rotate(-3deg);
+  }
+  .flow-branch {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .flow-tag {
+    font-family: 'Caveat', cursive;
+    color: var(--red);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .page-footer {
+    max-width: 1600px;
+    margin: 64px auto 0;
+    padding: 24px 64px 80px;
+    color: var(--ink-3);
+    font-size: 12px;
+    border-top: 1px solid var(--ink-4);
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">Pulse · documentation</div>
+  <h1>Wireframes</h1>
+  <p class="lede">Mid-fidelity grayscale layouts. Real proportions, placeholder content, no styling. Used to validate density, hierarchy, and interaction spots.</p>
+  <nav class="nav-tabs">
+    <a href="Zoning.html">Zoning</a>
+    <a href="Wireframes.html" class="active">Wireframes</a>
+    <a href="Pulse Mockups.html">Mockups</a>
+  </nav>
+</div>
+
+<!-- ── FLOW 1 — Window opens ── -->
+<div class="flow">
+  <div class="flow-title">Flow A · Daily session</div>
+  <div class="flow-desc">From window opening to posting and engaging.</div>
+  <div class="flow-steps">
+    <span class="flow-step start">Push: window open</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Splash</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Home (open)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Composer</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Home (posted)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Post detail</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Home (urgent · &lt;10 min)</span>
+  </div>
+</div>
+
+<div class="section-title">
+  <h2>Onboarding</h2>
+  <p>Splash + auth. The user must understand the rhythm before signing up.</p>
+</div>
+
+<div class="screens">
+
+  <!-- 01 SPLASH -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.01 · Splash</div>
+      <div class="screen-title">Splash</div>
+      <div class="screen-desc">First contact. Time to next session is the hero.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body" style="padding: 32px 28px; align-items: center;">
+          <span class="zlabel">Z1 · brand</span>
+          <div style="margin-top: 60px; text-align: center;">
+            <div class="wf-circle" style="width: 56px; height: 56px; margin: 0 auto 14px;"></div>
+            <div class="wf-line-lg" style="width: 100px; margin: 0 auto 8px;"></div>
+            <div class="wf-line-sm wf-line-60" style="margin: 0 auto;"></div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; position: relative;">
+            <span class="zlabel" style="top: -10px;">Z2 · counter</span>
+            <div class="wf-counter" style="font-size: 40px; margin-bottom: 8px; white-space: nowrap;">04 : 17 : 32</div>
+            <div class="wf-line-sm wf-line-60" style="width: 140px;"></div>
+          </div>
+
+          <div style="width: 100%; position: relative;">
+            <span class="zlabel" style="top: -16px;">Z3 · CTA</span>
+            <div class="wf-btn wf-btn-solid" style="margin-bottom: 14px;">Join</div>
+            <div class="wf-line-sm" style="width: 100px; margin: 0 auto;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 AUTH -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.02 · Auth</div>
+      <div class="screen-title">Auth — login / register</div>
+      <div class="screen-desc">Single screen, mode toggle.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body" style="padding: 24px 28px;">
+          <div style="position: relative; padding-top: 12px;">
+            <span class="zlabel" style="top: 0;">Z1 · header</span>
+            <div class="wf-line-lg" style="width: 80px; margin-bottom: 6px;"></div>
+            <div class="wf-line-sm wf-line-75"></div>
+          </div>
+
+          <div style="margin-top: 32px; position: relative;">
+            <span class="zlabel" style="top: -16px;">Z2 · mode</span>
+            <div class="wf-row" style="border: 1.5px solid var(--line); border-radius: 8px; padding: 4px; gap: 0;">
+              <div style="flex: 1; padding: 8px; background: var(--line); color: var(--paper); border-radius: 5px; text-align: center; font-size: 12px;">Log in</div>
+              <div style="flex: 1; padding: 8px; text-align: center; font-size: 12px; color: var(--ink-3);">Sign up</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; position: relative;" class="wf-stack">
+            <span class="zlabel" style="top: -16px;">Z3 · fields</span>
+            <div class="wf-line-sm" style="width: 50px;"></div>
+            <div class="wf-input">email@example.com</div>
+            <div class="wf-line-sm" style="width: 70px; margin-top: 8px;"></div>
+            <div class="wf-input">••••••••</div>
+          </div>
+
+          <div style="flex: 1;"></div>
+
+          <div style="position: relative;" class="wf-stack">
+            <span class="zlabel" style="top: -16px;">Z4 · actions</span>
+            <div class="wf-btn wf-btn-solid">Continue</div>
+            <div class="wf-line-sm wf-line-60" style="margin: 8px auto 0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section-title">
+  <h2>Home — three states</h2>
+  <p>The same screen, three behaviors driven by window state.</p>
+</div>
+
+<div class="screens">
+
+  <!-- 03 HOME OPEN -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.03 · Home / Open</div>
+      <div class="screen-title">Window open</div>
+      <div class="screen-desc">Live feed, soft pulse on counter.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body">
+          <!-- header -->
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed var(--ink-4); position: relative;">
+            <span class="zlabel">Z1 · header</span>
+            <div class="wf-row">
+              <div class="wf-circle" style="width: 18px; height: 18px;"></div>
+              <div class="wf-line-lg" style="width: 50px;"></div>
+            </div>
+            <div class="wf-circle" style="width: 28px; height: 28px;"></div>
+          </div>
+          <!-- counter -->
+          <div style="padding: 14px 16px; text-align: center; border-bottom: 1.5px solid var(--line); position: relative;">
+            <span class="zlabel">Z2 · counter</span>
+            <div class="wf-counter" style="font-size: 26px;">● 00 : 42 : 17</div>
+            <div class="wf-line-sm" style="width: 100px; margin: 6px auto 0;"></div>
+          </div>
+          <!-- filter -->
+          <div style="padding: 10px 16px; border-bottom: 1px dashed var(--ink-4); position: relative;">
+            <span class="zlabel">Z3 · filter</span>
+            <div class="wf-row" style="margin-top: 4px;">
+              <span class="wf-pill wf-pill-solid">Global</span>
+              <span class="wf-pill">Following</span>
+            </div>
+          </div>
+          <!-- feed -->
+          <div style="flex: 1; padding: 12px 16px; overflow: hidden; position: relative;">
+            <span class="zlabel">Z4 · feed</span>
+            <div class="wf-stack" style="gap: 10px; margin-top: 6px;">
+              <div class="wf-card">
+                <div class="wf-row" style="margin-bottom: 8px;">
+                  <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                  <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">Question</span>
+                  <div style="margin-left: auto;" class="wf-line-sm" ></div>
+                </div>
+                <div class="wf-stack" style="margin-bottom: 8px;">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-75"></div>
+                  <div class="wf-line wf-line-60"></div>
+                </div>
+                <div class="wf-row" style="gap: 4px;">
+                  <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">👍 4</span>
+                  <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">🔥 2</span>
+                  <span style="margin-left: auto; font-size: 9px; color: var(--ink-3);">💬 3</span>
+                </div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-row" style="margin-bottom: 8px;">
+                  <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                  <div class="wf-line-sm" style="width: 60px;"></div>
+                  <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">Project</span>
+                </div>
+                <div class="wf-stack" style="margin-bottom: 8px;">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-60"></div>
+                </div>
+                <div class="wf-img" style="height: 90px; border-radius: 6px;"></div>
+              </div>
+            </div>
+          </div>
+          <!-- nav -->
+          <div class="wf-nav" style="position: relative;">
+            <span class="zlabel">Z5 · nav</span>
+            <div class="wf-nav-item active"><div class="wf-nav-icon"></div><span>Home</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Search</span></div>
+            <div class="wf-nav-fab">+</div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Notifs</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 HOME CLOSED -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.04 · Home / Closed</div>
+      <div class="screen-title">Window closed</div>
+      <div class="screen-desc">Read-only, dimmed feed.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>15:42</span><span>•••</span></div>
+        <div class="body">
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed var(--ink-4);">
+            <div class="wf-row">
+              <div class="wf-circle" style="width: 18px; height: 18px; opacity: 0.5;"></div>
+              <div class="wf-line-lg" style="width: 50px; opacity: 0.5;"></div>
+            </div>
+            <div class="wf-circle" style="width: 28px; height: 28px;"></div>
+          </div>
+          <div style="padding: 14px 16px; text-align: center; border-bottom: 1.5px solid var(--line);">
+            <div class="wf-counter" style="font-size: 26px; color: var(--ink-3);">○ 04 : 17 : 32</div>
+            <div class="wf-line-sm" style="width: 120px; margin: 6px auto 0;"></div>
+          </div>
+          <div style="padding: 12px 16px; background: var(--paper-2); border-bottom: 1px dashed var(--ink-4); display: flex; gap: 10px; align-items: center;">
+            <div class="wf-circle" style="width: 20px; height: 20px;"></div>
+            <div class="wf-stack" style="flex: 1;">
+              <div class="wf-line-sm wf-line-75"></div>
+              <div class="wf-line-sm wf-line-40"></div>
+            </div>
+          </div>
+          <div style="flex: 1; padding: 12px 16px; overflow: hidden; opacity: 0.45;">
+            <div class="wf-stack" style="gap: 10px;">
+              <div class="wf-card">
+                <div class="wf-row" style="margin-bottom: 8px;">
+                  <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                </div>
+                <div class="wf-stack">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-75"></div>
+                </div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-row" style="margin-bottom: 8px;">
+                  <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                  <div class="wf-line-sm" style="width: 60px;"></div>
+                </div>
+                <div class="wf-stack">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-60"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wf-nav">
+            <div class="wf-nav-item active"><div class="wf-nav-icon"></div><span>Home</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Search</span></div>
+            <div class="wf-nav-fab" style="background: var(--ink-4); color: var(--ink-3);">+</div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Notifs</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 HOME URGENT -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.05 · Home / Urgent</div>
+      <div class="screen-title">&lt; 10 min remaining</div>
+      <div class="screen-desc">Counter shifts visual urgency.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:51</span><span>•••</span></div>
+        <div class="body">
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed var(--ink-4);">
+            <div class="wf-row">
+              <div class="wf-circle" style="width: 18px; height: 18px;"></div>
+              <div class="wf-line-lg" style="width: 50px;"></div>
+            </div>
+            <div class="wf-circle" style="width: 28px; height: 28px;"></div>
+          </div>
+          <div style="padding: 14px 16px; text-align: center; border-bottom: 1.5px solid var(--line); background: rgba(196,69,47,0.06);">
+            <div class="wf-counter" style="font-size: 26px; color: var(--red);">● 00 : 08 : 34</div>
+            <div class="wf-line-sm" style="width: 110px; margin: 6px auto 0; background: var(--red); opacity: 0.6;"></div>
+          </div>
+          <div style="padding: 10px 16px; border-bottom: 1px dashed var(--ink-4);">
+            <div class="wf-row">
+              <span class="wf-pill wf-pill-solid">Global</span>
+              <span class="wf-pill">Following</span>
+            </div>
+          </div>
+          <div style="flex: 1; padding: 12px 16px; overflow: hidden;">
+            <div class="wf-stack" style="gap: 10px;">
+              <div class="wf-card">
+                <div class="wf-row" style="margin-bottom: 8px;">
+                  <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                  <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">Share</span>
+                </div>
+                <div class="wf-stack">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-75"></div>
+                </div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-row" style="margin-bottom: 8px;">
+                  <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                  <div class="wf-line-sm" style="width: 60px;"></div>
+                </div>
+                <div class="wf-stack">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-40"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wf-nav">
+            <div class="wf-nav-item active"><div class="wf-nav-icon"></div><span>Home</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Search</span></div>
+            <div class="wf-nav-fab" style="background: var(--red); color: var(--paper); border: 1.5px solid var(--red);">+</div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Notifs</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FLOW 2 — Engagement ── -->
+<div class="flow" style="margin-top: 64px;">
+  <div class="flow-title">Flow B · Read & engage</div>
+  <div class="flow-desc">Discover a post and react during a session.</div>
+  <div class="flow-steps">
+    <span class="flow-step start">Home</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Tap post card</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Post detail</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">React / Comment</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Author profile</span>
+  </div>
+</div>
+
+<div class="section-title">
+  <h2>Composer & Detail</h2>
+  <p>Authoring + reading.</p>
+</div>
+
+<div class="screens">
+
+  <!-- 06 COMPOSER -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.06 · Composer</div>
+      <div class="screen-title">Composer</div>
+      <div class="screen-desc">One post per session, time pressure visible.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body">
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--line);">
+            <div class="wf-line-sm" style="width: 50px;"></div>
+            <div class="wf-counter" style="font-size: 14px;">● 42:17</div>
+            <div class="wf-pill wf-pill-solid">Publish</div>
+          </div>
+          <div style="padding: 12px 16px; display: flex; gap: 10px; align-items: center; border-bottom: 1px dashed var(--ink-4);">
+            <div class="wf-circle" style="width: 32px; height: 32px;"></div>
+            <div class="wf-stack" style="flex: 1;">
+              <div class="wf-line-sm" style="width: 60px;"></div>
+              <div class="wf-line-sm wf-line-60"></div>
+            </div>
+          </div>
+          <div style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <div class="wf-line wf-line-90"></div>
+            <div class="wf-line wf-line-75"></div>
+            <div class="wf-line wf-line-60"></div>
+            <div class="wf-line-sm wf-line-40"></div>
+          </div>
+          <div style="padding: 12px 16px; border-top: 1px dashed var(--ink-4);">
+            <div class="wf-line-sm" style="width: 80px; margin-bottom: 8px;"></div>
+            <div class="wf-row" style="flex-wrap: wrap; gap: 6px;">
+              <span class="wf-pill wf-pill-solid">Question</span>
+              <span class="wf-pill">Share</span>
+              <span class="wf-pill">Project</span>
+              <span class="wf-pill">Challenge</span>
+            </div>
+          </div>
+          <div style="padding: 10px 16px; border-top: 1px dashed var(--ink-4); display: flex; justify-content: space-between; align-items: center;">
+            <div class="wf-line-sm" style="width: 80px;"></div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--ink-3);">87 / 500</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07 POST DETAIL -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.07 · Post detail</div>
+      <div class="screen-title">Post detail</div>
+      <div class="screen-desc">Comments thread + input.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body">
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--line);">
+            <div class="wf-line-sm" style="width: 14px; height: 14px;"></div>
+            <div class="wf-counter" style="font-size: 14px;">● 42:17</div>
+            <div class="wf-line-sm" style="width: 14px; height: 14px;"></div>
+          </div>
+          <div style="padding: 16px; border-bottom: 1.5px solid var(--line);">
+            <div class="wf-row" style="margin-bottom: 10px;">
+              <div class="wf-circle" style="width: 32px; height: 32px;"></div>
+              <div class="wf-stack" style="flex: 1;">
+                <div class="wf-line-sm" style="width: 60px;"></div>
+                <div class="wf-line-sm wf-line-40"></div>
+              </div>
+              <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">Question</span>
+            </div>
+            <div class="wf-stack" style="margin-bottom: 12px;">
+              <div class="wf-line wf-line-90"></div>
+              <div class="wf-line wf-line-90"></div>
+              <div class="wf-line wf-line-60"></div>
+            </div>
+            <div class="wf-row" style="gap: 4px;">
+              <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">👍 12</span>
+              <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">🔥 4</span>
+              <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">💡 2</span>
+            </div>
+          </div>
+          <div style="padding: 12px 16px; flex: 1; overflow: hidden;">
+            <div class="wf-line-sm" style="width: 80px; margin-bottom: 12px;"></div>
+            <div class="wf-stack" style="gap: 14px;">
+              <div class="wf-row" style="align-items: flex-start; gap: 10px;">
+                <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                <div class="wf-stack" style="flex: 1;">
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-60"></div>
+                </div>
+              </div>
+              <div class="wf-row" style="align-items: flex-start; gap: 10px;">
+                <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                <div class="wf-stack" style="flex: 1;">
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                  <div class="wf-line wf-line-75"></div>
+                </div>
+              </div>
+              <div class="wf-row" style="align-items: flex-start; gap: 10px;">
+                <div class="wf-circle" style="width: 24px; height: 24px;"></div>
+                <div class="wf-stack" style="flex: 1;">
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-90"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="padding: 10px 14px; border-top: 1.5px solid var(--line); display: flex; gap: 8px; align-items: center;">
+            <div class="wf-circle" style="width: 26px; height: 26px;"></div>
+            <div class="wf-input" style="flex: 1; height: 36px;">Add a comment…</div>
+            <div class="wf-circle" style="width: 36px; height: 36px; background: var(--line);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section-title">
+  <h2>Profile, notifications, empty</h2>
+  <p>Everything else.</p>
+</div>
+
+<div class="screens">
+
+  <!-- 08 PROFILE -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.08 · Profile</div>
+      <div class="screen-title">Profile</div>
+      <div class="screen-desc">Identity, stats, history.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body">
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--line);">
+            <div class="wf-line-sm" style="width: 14px; height: 14px;"></div>
+            <div class="wf-line-lg" style="width: 60px;"></div>
+            <div class="wf-line-sm" style="width: 14px; height: 14px;"></div>
+          </div>
+          <div style="padding: 18px 16px; display: flex; gap: 12px; align-items: flex-start;">
+            <div class="wf-circle" style="width: 56px; height: 56px;"></div>
+            <div class="wf-stack" style="flex: 1; gap: 5px;">
+              <div class="wf-line-lg" style="width: 100px;"></div>
+              <div class="wf-line-sm" style="width: 70px;"></div>
+              <div class="wf-line-sm wf-line-90" style="margin-top: 4px;"></div>
+              <div class="wf-line-sm wf-line-60"></div>
+            </div>
+          </div>
+          <div style="padding: 0 16px 14px; display: flex; gap: 8px;">
+            <div class="wf-btn" style="flex: 1; padding: 8px; font-size: 11px;">Follow</div>
+            <div class="wf-btn" style="flex: 1; padding: 8px; font-size: 11px;">Message</div>
+          </div>
+          <div style="margin: 0 16px; padding: 14px 0; border: 1.5px solid var(--line); border-radius: 10px; display: grid; grid-template-columns: repeat(3, 1fr);">
+            <div style="text-align: center; border-right: 1px solid var(--ink-4);">
+              <div class="wf-counter" style="font-size: 18px;">142</div>
+              <div class="wf-line-sm" style="width: 40px; margin: 4px auto 0;"></div>
+            </div>
+            <div style="text-align: center; border-right: 1px solid var(--ink-4);">
+              <div class="wf-counter" style="font-size: 18px;">187</div>
+              <div class="wf-line-sm" style="width: 40px; margin: 4px auto 0;"></div>
+            </div>
+            <div style="text-align: center;">
+              <div class="wf-counter" style="font-size: 18px;">21</div>
+              <div class="wf-line-sm" style="width: 40px; margin: 4px auto 0;"></div>
+            </div>
+          </div>
+          <div style="flex: 1; padding: 14px 16px; overflow: hidden;">
+            <div class="wf-line-sm" style="width: 60px; margin-bottom: 10px;"></div>
+            <div class="wf-stack" style="gap: 8px;">
+              <div class="wf-card" style="padding: 10px;">
+                <div class="wf-row" style="margin-bottom: 6px;">
+                  <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">Question</span>
+                  <div style="margin-left: auto;" class="wf-line-sm"></div>
+                </div>
+                <div class="wf-stack">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line wf-line-60"></div>
+                </div>
+              </div>
+              <div class="wf-card" style="padding: 10px;">
+                <div class="wf-row" style="margin-bottom: 6px;">
+                  <span class="wf-pill" style="font-size: 9px; padding: 2px 6px;">Project</span>
+                </div>
+                <div class="wf-stack">
+                  <div class="wf-line wf-line-75"></div>
+                  <div class="wf-line wf-line-90"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wf-nav">
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Home</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Search</span></div>
+            <div class="wf-nav-fab">+</div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Notifs</span></div>
+            <div class="wf-nav-item active"><div class="wf-nav-icon"></div><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 09 NOTIFICATIONS -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.09 · Notifications</div>
+      <div class="screen-title">Notifications</div>
+      <div class="screen-desc">Grouped per session.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body">
+          <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid var(--line);">
+            <div class="wf-line-lg" style="width: 110px;"></div>
+            <div class="wf-line-sm" style="width: 90px;"></div>
+          </div>
+          <div style="flex: 1; overflow: hidden;">
+            <div style="padding: 12px 16px 6px; display: flex; gap: 6px; align-items: center;">
+              <div class="wf-circle" style="width: 8px; height: 8px; background: var(--ink);"></div>
+              <div class="wf-line-sm" style="width: 130px;"></div>
+            </div>
+            <div class="wf-stack" style="gap: 0;">
+              <div style="padding: 12px 16px; border-top: 1px dashed var(--ink-4); display: flex; gap: 10px;">
+                <div class="wf-circle" style="width: 32px; height: 32px;"></div>
+                <div class="wf-stack" style="flex: 1;">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                </div>
+                <div class="wf-circle" style="width: 8px; height: 8px; background: var(--ink); align-self: flex-start; margin-top: 4px;"></div>
+              </div>
+              <div style="padding: 12px 16px; border-top: 1px dashed var(--ink-4); display: flex; gap: 10px;">
+                <div class="wf-circle" style="width: 32px; height: 32px;"></div>
+                <div class="wf-stack" style="flex: 1;">
+                  <div class="wf-line wf-line-75"></div>
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                </div>
+                <div class="wf-circle" style="width: 8px; height: 8px; background: var(--ink); align-self: flex-start; margin-top: 4px;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 14px 16px 6px; display: flex; gap: 6px; align-items: center;">
+              <div class="wf-line-sm" style="width: 150px;"></div>
+            </div>
+            <div class="wf-stack" style="gap: 0; opacity: 0.85;">
+              <div style="padding: 12px 16px; border-top: 1px dashed var(--ink-4); display: flex; gap: 10px;">
+                <div class="wf-circle" style="width: 32px; height: 32px;"></div>
+                <div class="wf-stack" style="flex: 1;">
+                  <div class="wf-line wf-line-90"></div>
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                </div>
+              </div>
+              <div style="padding: 12px 16px; border-top: 1px dashed var(--ink-4); display: flex; gap: 10px;">
+                <div class="wf-circle" style="width: 32px; height: 32px;"></div>
+                <div class="wf-stack" style="flex: 1;">
+                  <div class="wf-line wf-line-60"></div>
+                  <div class="wf-line-sm" style="width: 50px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wf-nav">
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Home</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Search</span></div>
+            <div class="wf-nav-fab">+</div>
+            <div class="wf-nav-item active"><div class="wf-nav-icon"></div><span>Notifs</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 EMPTY -->
+  <div class="screen">
+    <div class="screen-meta">
+      <div class="screen-num">W.10 · Empty</div>
+      <div class="screen-title">Empty / first launch</div>
+      <div class="screen-desc">Window open, feed silent.</div>
+    </div>
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="sb"><span>20:14</span><span>•••</span></div>
+        <div class="body">
+          <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed var(--ink-4);">
+            <div class="wf-row">
+              <div class="wf-circle" style="width: 18px; height: 18px;"></div>
+              <div class="wf-line-lg" style="width: 50px;"></div>
+            </div>
+            <div class="wf-circle" style="width: 28px; height: 28px;"></div>
+          </div>
+          <div style="padding: 14px 16px; text-align: center; border-bottom: 1.5px solid var(--line);">
+            <div class="wf-counter" style="font-size: 26px;">● 00 : 58 : 22</div>
+            <div class="wf-line-sm" style="width: 100px; margin: 6px auto 0;"></div>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; gap: 18px;">
+            <div class="wf-circle" style="width: 80px; height: 80px;"></div>
+            <div class="wf-line-lg" style="width: 200px;"></div>
+            <div class="wf-stack" style="width: 100%;">
+              <div class="wf-line wf-line-90"></div>
+              <div class="wf-line wf-line-75"></div>
+            </div>
+            <div class="wf-btn wf-btn-solid" style="margin-top: 8px;">Be the first to post</div>
+          </div>
+          <div class="wf-nav">
+            <div class="wf-nav-item active"><div class="wf-nav-icon"></div><span>Home</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Search</span></div>
+            <div class="wf-nav-fab">+</div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Notifs</span></div>
+            <div class="wf-nav-item"><div class="wf-nav-icon"></div><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FLOW 3 — Off-hours ── -->
+<div class="flow" style="margin-top: 64px;">
+  <div class="flow-title">Flow C · Off-hours visit</div>
+  <div class="flow-desc">User opens app outside the daily window.</div>
+  <div class="flow-steps">
+    <span class="flow-step start">Open app · closed</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Home (closed)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Browse last session (read-only)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Set reminder</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Push notification at next opening</span>
+  </div>
+</div>
+
+<div class="page-footer">
+  Pulse · wireframes · v1 — mid-fidelity, mobile only.
+</div>
+
+</body>
+</html>

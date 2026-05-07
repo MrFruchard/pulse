@@ -1482,7 +1482,7 @@ flowchart TB
       <tr><td>Lint Backend</td><td>golangci-lint</td><td>Style Go, erreurs statiques, code mort, conventions</td></tr>
       <tr><td>Lint Frontend</td><td>ESLint / next lint</td><td>TypeScript, règles Next.js, accessibilité</td></tr>
       <tr><td>Test Backend</td><td>go test -cover -race</td><td>53 tests sur PostgreSQL réel (service container), couverture mesurée par package (services 87%, middleware 91%, cron 62%)</td></tr>
-      <tr><td>Test Frontend</td><td>npm test --coverage</td><td>Aucun test frontend actuel — CI configurée avec --passWithNoTests</td></tr>
+      <tr><td>Test Frontend</td><td>npm test --coverage</td><td>16 tests unitaires — PostCard (10), NavBar (4), Countdown (2)</td></tr>
       <tr><td>Build Docker</td><td>docker/build-push-action</td><td>Build + push images backend/frontend sur GHCR (main uniquement)</td></tr>
     </table>
 
